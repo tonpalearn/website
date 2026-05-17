@@ -3,7 +3,8 @@
 เว็บไซต์หลักของ **TONPALEARN** — สอน AI ใช้งานได้จริงสำหรับคนทั่วไป
 สอนโดยต้น (Toni) · วิศวกรคอมพิวเตอร์ · PM 15 ปี
 
-🌐 **Live:** https://tonpalearn.com
+🌐 **Live:** https://tonpalearn.vercel.app
+🚀 **Deploy:** Vercel · auto-deploy on push to `main`
 
 ---
 
@@ -19,7 +20,6 @@
 ├── chaiwat/                         # Personal page (ต้น)
 ├── name-list/                       # Name list utility
 ├── IMAGE_PROMPTS_COURSE_10_11.md    # AI image prompts สำหรับ Course 10+11 cover
-├── netlify.toml                     # Netlify config
 └── README.md                        # นี่
 ```
 
@@ -64,7 +64,8 @@ Web app สร้างใบเสนอราคา A4 — pick จาก cour
 
 ## 🚀 Deploy
 
-Netlify auto-deploy จาก branch `main` (config: `netlify.toml`)
+**Vercel** auto-deploy จาก branch `main` — ทุก push → build + publish ภายใน ~2 นาที
+Production: https://tonpalearn.vercel.app
 
 ```bash
 # Local preview
