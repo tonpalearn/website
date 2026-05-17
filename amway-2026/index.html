@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แอมเวย์ไทย 2026 — Panel Research · UP Wellness</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body,#root{height:100%;overflow:hidden;background:#04060f}
+  body{font-family:'Sarabun',sans-serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+
+  /* Grid bg */
+  .grid-bg::before{
+    content:'';position:fixed;inset:0;
+    background-image:linear-gradient(rgba(6,182,212,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(6,182,212,.018) 1px,transparent 1px);
+    background-size:48px 48px;pointer-events:none;z-index:0
+  }
+
+  /* Slide transitions */
+  .slide-enter{animation:slideIn .45s cubic-bezier(.4,0,.2,1) forwards}
+  .slide-exit{animation:slideOut .45s cubic-bezier(.4,0,.2,1) forwards}
+  @keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes slideOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-40px)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .fade-up{animation:fadeUp .5s ease forwards}
+  .fade-up-2{animation:fadeUp .5s .1s ease both}
+  .fade-up-3{animation:fadeUp .5s .2s ease both}
+  .fade-up-4{animation:fadeUp .5s .3s ease both}
+  .fade-up-5{animation:fadeUp .5s .4s ease both}
+
+  /* Progress bar */
+  .progress-bar{transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+  /* Cards */
+  .glass{background:rgba(255,255,255,.03);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.07)}
+  .glass-cyan{background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2)}
+  .glass-green{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2)}
+  .glass-red{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2)}
+  .glass-amber{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2)}
+  .glass-purple{background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2)}
+
+  /* Scrollable content in slides */
+  .slide-scroll{overflow-y:auto;max-height:calc(100vh - 140px)}
+  .slide-scroll::-webkit-scrollbar{width:3px}
+  .slide-scroll::-webkit-scrollbar-thumb{background:#1e3a5f;border-radius:2px}
+
+  /* Table */
+  .data-table th{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:#475569;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+  .data-table td{font-size:12px;color:#94a3b8;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;line-height:1.5}
+  .data-table tr:hover td{background:rgba(6,182,212,.04)}
+
+  /* Keyword highlight */
+  .kw{color:#06b6d4;font-weight:600}
+  .kw-g{color:#10b981;font-weight:600}
+  .kw-r{color:#ef4444;font-weight:600}
+  .kw-a{color:#f59e0b;font-weight:600}
+  .kw-p{color:#a78bfa;font-weight:600}
+
+  /* Nav buttons */
+  .nav-btn{
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+    border-radius:8px;padding:8px 16px;color:#64748b;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+    transition:all .2s
+  }
+  .nav-btn:hover{background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.3);color:#06b6d4}
+  .nav-btn:disabled{opacity:.25;cursor:not-allowed}
+
+  /* Persona badge */
+  .p-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
+</style>
+</head>
+<body class="grid-bg">
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useCallback,useRef}=React;
+
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const SLIDES=[
+  {id:"cover"},
+  {id:"context"},
+  {id:"personas"},
+  {id:"panel_verdict"},
+  {id:"swot"},
+  {id:"strategies"},
+  {id:"playbook"},
+  {id:"preview_philosophy"},
+  {id:"three_models"},
+  {id:"permissions"},
+  {id:"mindset"},
+  {id:"summary"},
+];
+
+const PERSONAS=[
+  {name:"เบส",age:22,role:"Gen Z · จบใหม่ BE Econ",income:"12k (barista)",stance:"skeptic",color:"#ef4444",icon:"🎓",verdict:"ทำได้ แต่ต้องโปร่งใส"},
+  {name:"พลอย",age:32,role:"HR Manager · Tech co.",income:"50k",stance:"open",color:"#f59e0b",icon:"💼",verdict:"ทำได้ถ้า inbound + ไม่ pressure"},
+  {name:"คุณนิด",age:45,role:"แม่บ้าน · ใช้สินค้า 3 ปี",income:"ครอบครัว 80k",stance:"ready",color:"#10b981",icon:"🏡",verdict:"พร้อมถ้ามีคนสอน digital"},
+  {name:"หมอปาล์ม",age:35,role:"แพทย์ รพ.เอกชน",income:"120k+",stance:"conditional",color:"#06b6d4",icon:"🩺",verdict:"ได้ถ้า evidence-based เท่านั้น"},
+  {name:"อ.ต้น",age:48,role:"อาจารย์มหาวิทยาลัย",income:"40k",stance:"open",color:"#a78bfa",icon:"📚",verdict:"ได้ถ้าใช้เวลาน้อยลง"},
+  {name:"ป้าแอ",age:55,role:"เจ้าของร้าน online",income:"ไม่แน่นอน",stance:"ready",color:"#10b981",icon:"🛒",verdict:"ลองอีกรอบ — ระบบเปลี่ยนแล้ว"},
+  {name:"น้องเอก",age:28,role:"Software Engineer",income:"80k",stance:"no",color:"#ef4444",icon:"💻",verdict:"ไม่สนใจธุรกิจ · consumer อย่างเดียว"},
+  {name:"พี่สม",age:52,role:"ข้าราชการ ชำนาญการ",income:"45k",stance:"neutral",color:"#94a3b8",icon:"🏛️",verdict:"รอดู proof ก่อน"},
+  {name:"คุณมาลี",age:40,role:"พนักงานโรงงาน",income:"15k",stance:"ready",color:"#10b981",icon:"🏭",verdict:"อยากลอง — ต้องการทุนต่ำ"},
+  {name:"ผอ.วรัตน์",age:50,role:"CEO SME ก่อสร้าง",income:"200k+",stance:"conditional",color:"#06b6d4",icon:"🏗️",verdict:"สนใจ ถ้า ROI ชัด + ใช้เวลาน้อย"},
+];
+
+const STRATEGIES=[
+  {n:"01",title:"Education-First, Product-Second",desc:"สร้าง trust ผ่านความรู้ก่อน สินค้าเป็น natural conclusion ไม่ใช่จุดเริ่มต้น",tag:"ทุก persona เห็นร่วมกัน",color:"#06b6d4",icon:"🎓"},
+  {n:"02",title:"Digital Inbound Model",desc:"Content → Engagement → DM → Consultation → สินค้า — คนมาหาเราเอง ไม่ใช่เราไล่หาคน",tag:"พลอย · หมอปาล์ม · อ.ต้น ยืนยัน",color:"#10b981",icon:"📱"},
+  {n:"03",title:"Niche Positioning",desc:"\"ที่ปรึกษา longevity สำหรับ [กลุ่มเฉพาะ]\" — ไม่ขายทุกอย่างให้ทุกคน",tag:"หมอปาล์ม · ผอ.วรัตน์ · อ.ต้น",color:"#a78bfa",icon:"🎯"},
+  {n:"04",title:"Transparency Play",desc:"บอกตรงๆ ทั้งข้อดีและข้อจำกัด income จริงๆ และ product limitations — Honesty = Competitive Advantage",tag:"น้องเอก · ผอ.วรัตน์ · พี่สม · เบส",color:"#f59e0b",icon:"💡"},
+  {n:"05",title:"Subscription Service Model",desc:"Audit + Protocol + Product + Follow-up = Recurring LTV ไม่ใช่ one-time transaction",tag:"พลอย · คุณนิด · ป้าแอ · ผอ.วรัตน์",color:"#10b981",icon:"🔄"},
+];
+
+const MODELS=[
+  {
+    id:"coffee",
+    title:"Coffee Chat Model",
+    subtitle:"คนรู้จักกัน / mutual friend",
+    color:"#f59e0b",
+    personas:"คุณนิด · พี่สม · ป้าแอ · อ.ต้น",
+    trigger:"\"อยากคุยเรื่อง [X] สัก 30 นาที ไม่ได้จะขายอะไรนะ\"",
+    steps:[
+      {n:"01",title:"Check-in",desc:"ถามชีวิตเขาก่อน ฟังจริงๆ อย่า rush"},
+      {n:"02",title:"Share your story",desc:"เล่าเรื่องตัวเอง — ทั้งดีและไม่ดี ไม่ใช่ script"},
+      {n:"03",title:"Explore their situation",desc:"\"คุณมี [pain point] อยู่ไหม?\" ฟัง อย่าตัดสิน"},
+      {n:"04",title:"Permission question",desc:"\"ถ้ามีข้อมูลที่อาจช่วยได้ อยากฟังไหม?\""},
+      {n:"05",title:"Share หรือ Close gracefully",desc:"ถ้าใช่ → นัดต่อ · ถ้าไม่ใช่ → \"โอเค บอกได้เลยถ้าอยากรู้\""},
+    ],
+    warning:"ถ้าคนบอก \"ไม่\" → หยุดทันที อย่า negotiate ต่อ",
+  },
+  {
+    id:"digital",
+    title:"Digital First Model",
+    subtitle:"คนไม่รู้จัก / follower",
+    color:"#06b6d4",
+    personas:"เบส · พลอย · คุณมาลี",
+    trigger:"Content Hook ก่อน → ไม่มีสินค้าในครั้งแรก",
+    steps:[
+      {n:"01",title:"Hook Content",desc:"ตอบ pain point จริงๆ ไม่มีสินค้าใน post แรก"},
+      {n:"02",title:"Engagement",desc:"ตอบคอมเมนต์ / DM ด้วยข้อมูลที่มีประโยชน์"},
+      {n:"03",title:"Soft Qualify",desc:"\"บอกได้ไหมว่าตอนนี้มีปัญหาเรื่อง [A หรือ B]?\""},
+      {n:"04",title:"Permission to share",desc:"\"อยากให้ผมทำ mini-assessment สั้นๆ ให้ไหม?\""},
+      {n:"05",title:"Recommendation + Bridge",desc:"ให้คำแนะนำ → สินค้า → โอกาสธุรกิจ (ถ้า fit)"},
+    ],
+    warning:"อย่า DM คนที่ไม่ได้ engage — ถือว่า spam",
+    ratio:"70% ให้ความรู้ฟรี · 20% เรื่องราวตัวเอง · 10% สินค้า/โอกาส",
+  },
+  {
+    id:"health",
+    title:"Health Problem Model",
+    subtitle:"คนมี health concern ชัดเจน",
+    color:"#10b981",
+    personas:"ผอ.วรัตน์ · คุณมาลี · คุณนิด",
+    trigger:"\"มีงานวิจัยที่น่าสนใจอยู่นะ ถ้าสนใจเล่าให้ฟังได้ไหม?\"",
+    steps:[
+      {n:"01",title:"Listen deeply",desc:"ถามอาการ · lifestyle · ประวัติ ก่อนนึกถึงสินค้า"},
+      {n:"02",title:"Educate mechanism",desc:"\"สิ่งที่คุณอธิบายดูเหมือน [X] ซึ่งมีงานวิจัย...\""},
+      {n:"03",title:"Solution landscape",desc:"\"มีหลายทาง: diet / lifestyle / supplement\""},
+      {n:"04",title:"Product in context",desc:"Nutrilite ใน context ของคำแนะนำ ไม่ใช่ hero"},
+      {n:"05",title:"Business bridge (optional)",desc:"\"ถ้าเคยอยากรู้ว่าคนที่สนใจเรื่องนี้ทำ income ได้ยังไง...\""},
+    ],
+    warning:"ถ้าอาการรุนแรง → redirect แพทย์ก่อนเสมอ",
+  },
+];
+
+const PERMISSIONS=[
+  {n:"01",q:"\"ผมมีข้อมูลเรื่อง [X] ที่อาจ relevant กับสิ่งที่คุณพูด อยากฟังไหม?\"",ctx:"หลัง listen to pain point"},
+  {n:"02",q:"\"สมมติว่ามีวิธีช่วยเรื่อง [X] ได้ อยากรู้ว่ามันทำงานยังไงไหม?\"",ctx:"ทดสอบ openness โดยไม่ commit"},
+  {n:"03",q:"\"ขอถามเรื่อง personal หน่อยได้ไหม เพื่อแนะนำได้ตรงขึ้น\"",ctx:"ก่อน health assessment"},
+  {n:"04",q:"\"ผมจะพูดตรงๆ มีทั้งข้อดีและข้อจำกัด อยากได้ยินทั้งสองด้านไหม?\"",ctx:"ตั้ง tone โปร่งใสก่อน share"},
+  {n:"05",q:"\"ถ้าผมส่งข้อมูลเพิ่มทีหลัง โอเคไหม?\"",ctx:"ท้าย conversation ครั้งแรก"},
+  {n:"06",q:"\"มีบางอย่างที่ผมเห็นต่าง อยากฟังไหม? ถ้าไม่อยาก ผมเข้าใจ\"",ctx:"เมื่อคนมี misconception"},
+  {n:"07",q:"\"มีตัวเลข income จริงๆ อยากเห็นไหม รวมตัวเลขของผมเองด้วย\"",ctx:"เมื่อคนถาม \"รายได้ดีไหม?\""},
+  {n:"08",q:"\"ถ้าข้อมูลเยอะเกิน เราหยุดตรงนี้ก่อนได้ ไม่ต้องตัดสินใจวันนี้\"",ctx:"เมื่อเห็นว่าคนฟัง overwhelmed"},
+  {n:"09",q:"\"ถ้าหลังจากฟังแล้วรู้สึกว่าไม่ใช่ บอกได้เลย เราก็ยังเป็นเพื่อนกันอยู่\"",ctx:"ก่อน share business overview"},
+  {n:"10",q:"\"ตอนนี้อาจยังไม่ใช่เวลาที่ดี — ถ้า 3-6 เดือน สถานการณ์เปลี่ยน ผมยังอยู่\"",ctx:"เมื่อคนบอก \"ยังไม่พร้อม\""},
+];
+
+const MINDSET=[
+  {n:"01",rule:"ผมกำลังให้ ไม่ได้กำลังขอ",desc:"ไปหาเมื่อมีคุณค่าที่จะให้จริงๆ เท่านั้น — ไม่ใช่เมื่อต้องการ recruit",color:"#06b6d4"},
+  {n:"02",rule:"No = ข้อมูลที่ดี ไม่ใช่ความล้มเหลว",desc:"timing ไม่ใช่ / fit ไม่ match / trust ยังไม่พอ — เป็น data ไม่ใช่ personal rejection",color:"#10b981"},
+  {n:"03",rule:"คน 10 คน มี 2-3 คนที่ fit จริงๆ — และนั่นคือจำนวนที่ถูกต้อง",desc:"Force fit ผิด persona ทำลาย relationship มากกว่า no action",color:"#a78bfa"},
+  {n:"04",rule:"ความโปร่งใสคือ Competitive Advantage ไม่ใช่ Weakness",desc:"ยุค AI content ล้นตลาด — ABO ที่ honest stand out มากกว่า ABO ที่ oversell",color:"#f59e0b"},
+  {n:"05",rule:"Relationship ก่อน Transaction เสมอ — ถ้าต้องเลือก",desc:"ABO ที่มี 50 คนไว้วางใจ มีมูลค่ามากกว่า ABO ที่ close 50 deals แต่ไม่มีใครกลับมา",color:"#ef4444"},
+];
+
+const SWOT_DATA={
+  s:[
+    "Brand recognition 30+ ปี — ทุก demographic รู้จัก",
+    "Nutrilite = global #1 vitamin brand by sales",
+    "บาง SKU มี peer-reviewed evidence รองรับ",
+    "Digital transformation — e-commerce + app ลด friction",
+    "Wellness macro-trend ตรงกับ portfolio",
+  ],
+  w:[
+    "Brand image ยังติด MLM stigma — โดยเฉพาะ Gen Z",
+    "Income disclosure จริงๆ แสดง median income ต่ำมาก",
+    "บาง ABO ยังใช้ playbook ยุค 90s",
+    "Product price premium สูงในตลาดที่ real wage ไม่โต",
+    "Recruitment dependency ชัดเจนใน compensation structure",
+  ],
+  o:[
+    "Side hustle economy — 40%+ แรงงานหา income เสริม",
+    "Wellness subscription model เติบโตทั่วโลก",
+    "Content creator economy — inbound lead ได้โดยไม่ cold approach",
+    "Longevity science กระแสหลัก — aging population",
+    "AI tools ช่วย solo ABO scale ได้ไม่ต้องมีทีม",
+  ],
+  t:[
+    "TikTok anti-MLM content viral → Gen Z pre-rejection",
+    "E-commerce จีน supplement ราคา 10-20% ของ Nutrilite",
+    "Market saturation ในเมืองใหญ่",
+    "อย. เข้มงวดขึ้น overclaim risk สูง",
+    "Authenticity economy — ต้องการ proof มากกว่าเดิม",
+  ],
+};
+
+const PLAYBOOK=[
+  {p:"เบส",hook_p:"Energy + cognitive performance",hook_b:"Content creator wellness business",ch:"TikTok · YouTube",flag:"ห้ามพูด 'passive income'"},
+  {p:"พลอย",hook_p:"Burnout recovery protocol",hook_b:"Inbound wellness consulting",ch:"Instagram · LINE",flag:"ห้ามพูด 'ชวนเพื่อน'"},
+  {p:"คุณนิด",hook_p:"ใช้อยู่แล้ว → add SKU ครอบครัว",hook_b:"Digital system ไม่ต้องง้อเพื่อน",ch:"Facebook · LINE",flag:"ห้ามพูดเรื่องโควต้า"},
+  {p:"หมอปาล์ม",hook_p:"ส่ง PubMed ก่อน match SKU",hook_b:"Refer คนไข้ + ลด clinical hours",ch:"Twitter/X · LINE",flag:"ห้าม overclaim ทุกอย่าง"},
+  {p:"อ.ต้น",hook_p:"Longevity stack ตาม evidence",hook_b:"Digital — ใช้เวลาน้อย",ch:"Facebook · LINE",flag:"อย่า oversell passive"},
+  {p:"ป้าแอ",hook_p:"Premium สู้สินค้าจีนได้",hook_b:"เพิ่ม wellness line ใน shop",ch:"Facebook · TikTok",flag:"อย่าพูดยุค 90s ก่อน"},
+  {p:"น้องเอก",hook_p:"Health only — evidence-based",hook_b:"— (ไม่แนะนำ)",ch:"X · Reddit",flag:"ห้ามพูดเรื่อง income เด็ดขาด"},
+  {p:"พี่สม",hook_p:"Family wellness package",hook_b:"Income เสริม stable นอกเวลาราชการ",ch:"Facebook · LINE",flag:"ห้ามให้ชวนคนในราชการ"},
+  {p:"คุณมาลี",hook_p:"Entry-level · health ROI ชัด",hook_b:"ลงทุนต่ำ · เริ่มจาก consumer",ch:"Facebook · TikTok",flag:"ห้ามให้ลงทุนเกิน capacity"},
+  {p:"ผอ.วรัตน์",hook_p:"Premium longevity protocol",hook_b:"ROI ชัด + leverage model",ch:"LINE · coffee meeting",flag:"เตรียม brief ก่อนนัดเสมอ"},
+];
+
+// ─── SLIDE COMPONENTS ────────────────────────────────────────────────────────
+
+function Tag({children,color="#06b6d4"}){
+  return(
+    <span style={{
+      display:"inline-block",padding:"2px 8px",borderRadius:99,
+      background:`${color}18`,border:`1px solid ${color}40`,
+      color,fontFamily:"'JetBrains Mono',monospace",fontSize:10,
+      letterSpacing:"0.06em",fontWeight:600,
+    }}>{children}</span>
+  )
+}
+
+function SectionLabel({children}){
+  return(
+    <div className="mono" style={{fontSize:10,color:"#475569",letterSpacing:".12em",textTransform:"uppercase",marginBottom:12}}>
+      ▸ {children}
+    </div>
+  )
+}
+
+// SLIDE 1: Cover
+function SlideCover(){
+  return(
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",textAlign:"center",gap:20,position:"relative"}}>
+      {/* Radial glow */}
+      <div style={{position:"absolute",top:"30%",left:"50%",transform:"translate(-50%,-50%)",width:500,height:300,background:"radial-gradient(ellipse,rgba(6,182,212,.12) 0,transparent 70%)",pointerEvents:"none"}}/>
+
+      <div className="fade-up">
+        <div className="mono" style={{fontSize:11,color:"#475569",letterSpacing:".15em",marginBottom:16}}>
+          UP WELLNESS · INTERNAL RESEARCH DOCUMENT · 07.05.2568
+        </div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,marginBottom:20}}>
+          <div style={{width:44,height:44,borderRadius:12,background:"linear-gradient(135deg,#0d9488,#0891b2)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 0 24px rgba(6,182,212,.3)"}}>
+            <span className="mono" style={{fontSize:13,fontWeight:700,color:"white"}}>UP</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="fade-up-2">
+        <h1 style={{fontSize:"clamp(28px,4vw,52px)",fontWeight:700,color:"#e2e8f0",lineHeight:1.15,marginBottom:8}}>
+          แอมเวย์ไทย 2026
+        </h1>
+        <h2 style={{fontSize:"clamp(16px,2vw,24px)",fontWeight:400,color:"#06b6d4",marginBottom:4}}>
+          Panel Research · Strategy Review · Preview Sponsor Framework
+        </h2>
+        <p className="mono" style={{fontSize:11,color:"#334155"}}>
+          10 personas · Lead Agent synthesis · ABO Agent output
+        </p>
+      </div>
+
+      <div className="fade-up-3" style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center",marginTop:8}}>
+        {["เศรษฐกิจ 2026","10 เสียงจากสังคมจริง","SWOT","5 กลยุทธ์","Preview Sponsor"].map(t=>(
+          <Tag key={t}>{t}</Tag>
+        ))}
+      </div>
+
+      <div className="fade-up-4 mono" style={{fontSize:10,color:"#1e293b",marginTop:20}}>
+        ← → เพื่อเลื่อน slide · คลิกปุ่มด้านล่าง
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 2: Context
+function SlideContext(){
+  const items=[
+    {icon:"📉",title:"GDP โต ~2.5-3%",desc:"ต่ำกว่าศักยภาพ · หนี้ครัวเรือน 90%+ GDP — สูงสุดในอาเซียน",color:"#ef4444"},
+    {icon:"🤖",title:"AI กดตลาดงาน",desc:"White-collar downsizing · Gen Z จบใหม่หางานยาก 5+ เดือน",color:"#f59e0b"},
+    {icon:"🛍️",title:"E-commerce จีน",desc:"Temu / TikTok Shop ทำให้ SME และ online shop ลำบาก",color:"#ef4444"},
+    {icon:"💪",title:"Side Hustle Economy",desc:"40%+ ของแรงงานไทยหา income เสริม — market ใหญ่มาก",color:"#10b981"},
+    {icon:"🌿",title:"Wellness Trend แรง",desc:"Post-COVID · Longevity science กระแสหลัก · คนยอมจ่ายสุขภาพ",color:"#10b981"},
+    {icon:"📱",title:"Digital Landscape",desc:"TikTok Shop ครอง Gen Z · Facebook ยัง strong Gen X+ · LINE ทุกคน",color:"#06b6d4"},
+    {icon:"🚫",title:"Anti-MLM Sentiment",desc:"TikTok expose content viral → Gen Z มี pre-rejection สูง",color:"#ef4444"},
+    {icon:"🔬",title:"Authenticity Economy",desc:"AI content ล้น → Honest + Evidence-based = Competitive Advantage จริงๆ",color:"#a78bfa"},
+  ]
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:16,paddingTop:4}}>
+      <div className="fade-up">
+        <SectionLabel>บริบท · Context 2026</SectionLabel>
+        <h2 style={{fontSize:"clamp(20px,2.5vw,32px)",fontWeight:700,color:"#e2e8f0"}}>
+          เศรษฐกิจและสังคมไทย — ปี 2568
+        </h2>
+        <p style={{color:"#64748b",fontSize:13,marginTop:4}}>ปัจจัยแวดล้อมที่กำหนดว่ากลยุทธ์ไหนจะได้ผล ปี 2026</p>
+      </div>
+      <div className="fade-up-2 slide-scroll" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:10,flex:1}}>
+        {items.map((item,i)=>(
+          <div key={i} className="glass" style={{padding:"12px 14px",borderRadius:10,display:"flex",gap:10,alignItems:"flex-start"}}>
+            <span style={{fontSize:20,flexShrink:0}}>{item.icon}</span>
+            <div>
+              <div style={{fontWeight:600,color:"#e2e8f0",fontSize:13,marginBottom:3}}>{item.title}</div>
+              <div style={{color:"#64748b",fontSize:12,lineHeight:1.5}}>{item.desc}</div>
+            </div>
+            <div style={{width:3,height:3,borderRadius:"50%",background:item.color,flexShrink:0,marginTop:6,opacity:.8}}/>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 3: Personas
+function SlidePersonas(){
+  const stanceColors={skeptic:"#ef4444",open:"#f59e0b",ready:"#10b981",conditional:"#06b6d4",neutral:"#94a3b8",no:"#ef4444"}
+  const stanceLabels={skeptic:"Skeptic",open:"Open",ready:"Ready",conditional:"Conditional",neutral:"Neutral",no:"Consumer only"}
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>Panel Members · 10 Personas</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>10 เสียงจากสังคมไทยจริง</h2>
+        <p style={{color:"#64748b",fontSize:12,marginTop:3}}>คัดเลือกจากหลากหลายสถานภาพ · อาชีพ · ระดับรายได้ · ทัศนคติ</p>
+      </div>
+      <div className="fade-up-2 slide-scroll" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))",gap:8,flex:1}}>
+        {PERSONAS.map((p,i)=>(
+          <div key={i} className="glass" style={{padding:"10px 12px",borderRadius:10,borderLeft:`3px solid ${stanceColors[p.stance]}`}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+              <div>
+                <span style={{fontSize:18,marginRight:6}}>{p.icon}</span>
+                <span style={{fontWeight:700,color:"#e2e8f0",fontSize:13}}>{p.name}</span>
+                <span className="mono" style={{color:"#475569",fontSize:10,marginLeft:6}}>{p.age} ปี</span>
+              </div>
+              <span className="p-badge" style={{background:`${stanceColors[p.stance]}18`,border:`1px solid ${stanceColors[p.stance]}40`,color:stanceColors[p.stance],fontSize:9}}>
+                {stanceLabels[p.stance]}
+              </span>
+            </div>
+            <div style={{color:"#64748b",fontSize:11,marginBottom:4}}>{p.role}</div>
+            <div className="mono" style={{fontSize:10,color:"#334155",marginBottom:6}}>รายได้: {p.income}</div>
+            <div style={{fontSize:11,color:"#94a3b8",lineHeight:1.4,borderTop:"1px solid rgba(255,255,255,.05)",paddingTop:6}}>
+              💬 "{p.verdict}"
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 4: Panel Verdict
+function SlidePanelVerdict(){
+  const camps=[
+    {label:"Skeptical / No",count:2,pct:20,color:"#ef4444",names:"เบส · น้องเอก",reason:"MLM stigma · economics ไม่ดีเรื่อง saturation"},
+    {label:"Open แต่มีเงื่อนไข",count:4,pct:40,color:"#f59e0b",names:"พลอย · อ.ต้น · หมอปาล์ม · ผอ.วรัตน์",reason:"Digital / Evidence-based / Transparent เท่านั้น"},
+    {label:"Ready / พร้อมทำ",count:4,pct:40,color:"#10b981",names:"คุณนิด · ป้าแอ · พี่สม · คุณมาลี",reason:"ต้องการ system + support ที่ดี"},
+  ]
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:16}}>
+      <div className="fade-up">
+        <SectionLabel>Panel Verdict · ผลการลงคะแนน</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          ทำแอมเวย์ไทย 2026 สำเร็จได้ไหม?
+        </h2>
+      </div>
+
+      <div className="fade-up-2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,flex:1}}>
+        {/* Left: verdict */}
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div className="glass-green" style={{padding:"16px 20px",borderRadius:12}}>
+            <div style={{fontWeight:700,fontSize:"clamp(18px,2vw,28px)",color:"#10b981",marginBottom:4}}>ได้ — แต่ต้องเปลี่ยนวิธี</div>
+            <p style={{color:"#94a3b8",fontSize:13,lineHeight:1.6}}>
+              80% ของ panel ยังเปิดรับ หรือพร้อมทำ<br/>
+              ถ้า model เปลี่ยนจาก "ชวนคน" เป็น "ให้คุณค่า"
+            </p>
+          </div>
+
+          {camps.map((c,i)=>(
+            <div key={i} className="glass" style={{padding:"12px 14px",borderRadius:10}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                <span style={{fontWeight:600,color:"#e2e8f0",fontSize:13}}>{c.label}</span>
+                <span className="mono" style={{color:c.color,fontSize:14,fontWeight:700}}>{c.count}/10</span>
+              </div>
+              <div style={{height:4,background:"rgba(255,255,255,.06)",borderRadius:99,marginBottom:8}}>
+                <div className="progress-bar" style={{height:4,width:`${c.pct}%`,background:c.color,borderRadius:99}}/>
+              </div>
+              <div className="mono" style={{fontSize:10,color:"#475569",marginBottom:3}}>{c.names}</div>
+              <div style={{fontSize:11,color:"#64748b"}}>{c.reason}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Right: key insights */}
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div className="mono" style={{fontSize:10,color:"#475569",letterSpacing:".1em",marginBottom:4}}>KEY INSIGHTS FROM PANEL</div>
+          {[
+            {icon:"🎓",text:"ทุก persona ยอมรับ 'ความรู้สุขภาพ' — ปฏิเสธ 'การขาย'",color:"#06b6d4"},
+            {icon:"📱",text:"Digital inbound ทำให้ barrier ต่ำลง — แม้แต่ skeptic ยอมรับ",color:"#10b981"},
+            {icon:"💡",text:"Transparency เรื่อง income เป็น differentiator ที่ panel ต้องการมากที่สุด",color:"#f59e0b"},
+            {icon:"⚠️",text:"Gen Z (เบส, น้องเอก) ต้องการ proof จริงๆ ก่อน — content viral ทำ damage แล้ว",color:"#ef4444"},
+            {icon:"🔄",text:"Subscription model เป็นรูปแบบที่ panel รับได้มากกว่า one-time pitch",color:"#a78bfa"},
+            {icon:"🎯",text:"การเลือก niche ชัดเจน ทำให้ทุก persona รู้สึกว่า 'นี่คือสำหรับฉัน'",color:"#06b6d4"},
+          ].map((item,i)=>(
+            <div key={i} className="glass" style={{padding:"10px 12px",borderRadius:8,display:"flex",gap:10}}>
+              <span style={{fontSize:16,flexShrink:0}}>{item.icon}</span>
+              <span style={{color:"#94a3b8",fontSize:12,lineHeight:1.5}}>{item.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 5: SWOT
+function SlideSWOT(){
+  const q=[
+    {label:"Strengths",short:"S",items:SWOT_DATA.s,color:"#10b981",bg:"rgba(16,185,129,.06)",border:"rgba(16,185,129,.2)"},
+    {label:"Weaknesses",short:"W",items:SWOT_DATA.w,color:"#ef4444",bg:"rgba(239,68,68,.06)",border:"rgba(239,68,68,.2)"},
+    {label:"Opportunities",short:"O",items:SWOT_DATA.o,color:"#f59e0b",bg:"rgba(245,158,11,.06)",border:"rgba(245,158,11,.2)"},
+    {label:"Threats",short:"T",items:SWOT_DATA.t,color:"#64748b",bg:"rgba(100,116,139,.06)",border:"rgba(100,116,139,.2)"},
+  ]
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>Lead Agent · SWOT Analysis</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          แอมเวย์ไทย 2026 — SWOT
+        </h2>
+      </div>
+      <div className="fade-up-2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"1fr 1fr",gap:10,flex:1}}>
+        {q.map((q,i)=>(
+          <div key={i} style={{background:q.bg,border:`1px solid ${q.border}`,borderRadius:12,padding:"12px 14px",overflow:"hidden"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+              <span className="mono" style={{fontSize:20,fontWeight:700,color:q.color,opacity:.7}}>{q.short}</span>
+              <span style={{fontWeight:600,color:q.color,fontSize:13}}>{q.label}</span>
+            </div>
+            <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:4}}>
+              {q.items.map((item,j)=>(
+                <li key={j} style={{display:"flex",gap:6,fontSize:12,color:"#94a3b8",lineHeight:1.4}}>
+                  <span style={{color:q.color,flexShrink:0,marginTop:1}}>·</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 6: Strategies
+function SlideStrategies(){
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>Lead Agent · Strategy Consensus</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          5 กลยุทธ์ที่ Panel เห็นร่วมกัน
+        </h2>
+        <p style={{color:"#64748b",fontSize:12,marginTop:3}}>เรียงตามลำดับความสำคัญ · ต้องทำทั้ง 5 อย่างพร้อมกัน</p>
+      </div>
+      <div className="fade-up-2 slide-scroll" style={{display:"flex",flexDirection:"column",gap:10,flex:1}}>
+        {STRATEGIES.map((s,i)=>(
+          <div key={i} className="glass" style={{padding:"12px 16px",borderRadius:10,display:"flex",gap:14,alignItems:"flex-start",borderLeft:`3px solid ${s.color}`}}>
+            <div className="mono" style={{fontSize:20,fontWeight:700,color:s.color,opacity:.5,flexShrink:0,width:28,paddingTop:2}}>{s.n}</div>
+            <div style={{flex:1}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,marginBottom:4}}>
+                <div style={{fontWeight:700,color:"#e2e8f0",fontSize:14}}>{s.icon} {s.title}</div>
+                <Tag color={s.color}>{s.tag}</Tag>
+              </div>
+              <div style={{color:"#94a3b8",fontSize:12,lineHeight:1.5}}>{s.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 7: Playbook
+function SlidePlaybook(){
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>Lead Agent · Persona Playbook</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,28px)",fontWeight:700,color:"#e2e8f0"}}>
+          ขายอย่างไร · ชวนอย่างไร · ระวังอะไร
+        </h2>
+        <p style={{color:"#64748b",fontSize:12,marginTop:3}}>ทำตาม persona — อย่าใช้ script เดิมกับทุกคน</p>
+      </div>
+      <div className="fade-up-2 slide-scroll" style={{flex:1,overflowX:"auto"}}>
+        <table className="data-table" style={{width:"100%",borderCollapse:"collapse"}}>
+          <thead>
+            <tr>
+              <th style={{textAlign:"left"}}>Persona</th>
+              <th style={{textAlign:"left"}}>Hook สินค้า</th>
+              <th style={{textAlign:"left"}}>Hook ธุรกิจ</th>
+              <th style={{textAlign:"left"}}>Channel</th>
+              <th style={{textAlign:"left"}}>Red Flag ⚠</th>
+            </tr>
+          </thead>
+          <tbody>
+            {PLAYBOOK.map((row,i)=>(
+              <tr key={i}>
+                <td style={{color:"#e2e8f0",fontWeight:600,whiteSpace:"nowrap"}}>{row.p}</td>
+                <td>{row.hook_p}</td>
+                <td style={{color:row.hook_b.includes("—")?"#334155":"#94a3b8"}}>{row.hook_b}</td>
+                <td className="mono" style={{fontSize:10,color:"#06b6d4",whiteSpace:"nowrap"}}>{row.ch}</td>
+                <td style={{color:"#ef4444",fontSize:11}}>{row.flag}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 8: Preview Philosophy
+function SlidePreviewPhilosophy(){
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:16}}>
+      <div className="fade-up">
+        <SectionLabel>ABO Agent · Preview Sponsor Framework</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,32px)",fontWeight:700,color:"#e2e8f0"}}>
+          Preview Sponsor คืออะไร?
+        </h2>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:12,flex:1}}>
+        <div className="fade-up-2 glass-cyan" style={{padding:"20px 24px",borderRadius:14}}>
+          <div style={{fontSize:"clamp(14px,1.8vw,18px)",color:"#e2e8f0",lineHeight:1.8,fontWeight:400}}>
+            Preview Sponsor ไม่ใช่การ <span className="kw-r">"ชวนทำแอมเวย์"</span> — มันคือกระบวนการ
+            <span className="kw-g"> เปิดประตูให้คนอื่นเดินเข้ามาเอง</span><br/>
+            ABO ที่ทำ Preview Sponsor ที่ดีไม่เคยรู้สึกว่า "กำลังขาย" เพราะเขาไม่ได้ขาย<br/>
+            เขากำลัง<span className="kw"> แบ่งปันข้อมูลที่เป็นประโยชน์</span>กับคนที่อาจจะได้รับประโยชน์จากมัน
+          </div>
+        </div>
+        <div className="fade-up-3" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,flex:1}}>
+          <div className="glass" style={{padding:"16px 18px",borderRadius:12}}>
+            <div style={{color:"#ef4444",fontWeight:700,fontSize:14,marginBottom:10}}>❌ ไม่ใช่ Preview Sponsor</div>
+            {[
+              "\"มีโอกาสธุรกิจดีมาก อยากชวนมาฟัง\"",
+              "\"ไม่ลองดูก็เสียโอกาสนะ\"",
+              "\"แค่ 10 คน ง่ายมาก\"",
+              "\"passive income จริงๆ\"",
+              "ส่ง presentation ยาว 50 หน้าก่อนคุย",
+            ].map((t,i)=>(
+              <div key={i} style={{display:"flex",gap:8,marginBottom:6,fontSize:12,color:"#64748b",lineHeight:1.4}}>
+                <span style={{color:"#ef444460",flexShrink:0}}>✗</span>{t}
+              </div>
+            ))}
+          </div>
+          <div className="glass" style={{padding:"16px 18px",borderRadius:12}}>
+            <div style={{color:"#10b981",fontWeight:700,fontSize:14,marginBottom:10}}>✅ Preview Sponsor จริงๆ</div>
+            {[
+              "ให้ข้อมูลที่มีคุณค่าก่อนพูดถึงสินค้า",
+              "ขอ permission ทุกขั้นตอน",
+              "ถ้าบอก 'ไม่' → หยุดทันที ไม่ negotiate",
+              "เปิดเผยข้อดี และข้อจำกัดจริงๆ",
+              "Relationship มีมูลค่ามากกว่า one transaction",
+            ].map((t,i)=>(
+              <div key={i} style={{display:"flex",gap:8,marginBottom:6,fontSize:12,color:"#94a3b8",lineHeight:1.4}}>
+                <span style={{color:"#10b98160",flexShrink:0}}>✓</span>{t}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="fade-up-4 glass-amber" style={{padding:"12px 16px",borderRadius:10}}>
+          <span className="mono" style={{fontSize:11,color:"#f59e0b",fontWeight:600}}>KEY PRINCIPLE: </span>
+          <span style={{color:"#94a3b8",fontSize:13}}>
+            วัดความสำเร็จจาก "คนรู้สึกดีกับการคุยกับเรา" — ไม่ใช่ "คน sign up ไหม"
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 9: Three Models
+function SlideThreeModels(){
+  const [active,setActive]=useState(0)
+  const m=MODELS[active]
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>ABO Agent · 3 โมเดลการเปิดใจ</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          เลือกโมเดลตามบริบท — ไม่ใช่ใช้อันเดียวกับทุกคน
+        </h2>
+      </div>
+
+      {/* Model selector */}
+      <div className="fade-up-2" style={{display:"flex",gap:8}}>
+        {MODELS.map((model,i)=>(
+          <button key={i} onClick={()=>setActive(i)} style={{
+            flex:1,padding:"8px 12px",borderRadius:8,cursor:"pointer",
+            background:active===i?`${model.color}18`:"rgba(255,255,255,.03)",
+            border:`1px solid ${active===i?model.color+"60":"rgba(255,255,255,.06)"}`,
+            color:active===i?model.color:"#64748b",
+            fontSize:12,fontWeight:active===i?700:400,transition:"all .2s",
+          }}>
+            {model.title.split(" ").slice(0,2).join(" ")}
+          </button>
+        ))}
+      </div>
+
+      {/* Model detail */}
+      <div key={m.id} className="fade-up-2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{background:`${m.color}10`,border:`1px solid ${m.color}30`,borderRadius:12,padding:"14px 16px"}}>
+            <div style={{fontWeight:700,fontSize:15,color:"#e2e8f0",marginBottom:2}}>{m.title}</div>
+            <div style={{color:m.color,fontSize:12,marginBottom:8}}>{m.subtitle}</div>
+            <div className="mono" style={{fontSize:10,color:"#475569",marginBottom:6}}>BEST FOR</div>
+            <Tag color={m.color}>{m.personas}</Tag>
+          </div>
+          <div className="glass" style={{padding:"12px 14px",borderRadius:10,flex:1}}>
+            <div className="mono" style={{fontSize:10,color:"#475569",marginBottom:6}}>TRIGGER SENTENCE</div>
+            <div style={{color:"#e2e8f0",fontSize:13,lineHeight:1.6,fontStyle:"italic"}}>
+              {m.trigger}
+            </div>
+            {m.ratio&&(
+              <div style={{marginTop:10,padding:"8px 10px",background:"rgba(6,182,212,.08)",borderRadius:6}}>
+                <div className="mono" style={{fontSize:9,color:"#475569",marginBottom:3}}>CONTENT RATIO</div>
+                <div style={{color:"#06b6d4",fontSize:11,fontWeight:600}}>{m.ratio}</div>
+              </div>
+            )}
+            <div style={{marginTop:10,padding:"8px 10px",background:"rgba(239,68,68,.06)",border:"1px solid rgba(239,68,68,.15)",borderRadius:6}}>
+              <div className="mono" style={{fontSize:9,color:"#ef4444",marginBottom:2}}>⚠ WARNING</div>
+              <div style={{color:"#f87171",fontSize:11}}>{m.warning}</div>
+            </div>
+          </div>
+        </div>
+        <div className="glass" style={{padding:"14px 16px",borderRadius:12}}>
+          <div className="mono" style={{fontSize:10,color:"#475569",marginBottom:10}}>STEPS</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {m.steps.map((step,i)=>(
+              <div key={i} style={{display:"flex",gap:10}}>
+                <div className="mono" style={{fontSize:11,fontWeight:700,color:m.color,flexShrink:0,width:24}}>{step.n}</div>
+                <div>
+                  <div style={{fontWeight:600,color:"#e2e8f0",fontSize:13,marginBottom:2}}>{step.title}</div>
+                  <div style={{color:"#64748b",fontSize:11,lineHeight:1.4}}>{step.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 10: Permission Questions
+function SlidePermissions(){
+  const half=Math.ceil(PERMISSIONS.length/2)
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>ABO Agent · Permission-Based Questions</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          10 คำถาม "Permission" ที่ใช้เปิดโอกาส
+        </h2>
+        <p style={{color:"#64748b",fontSize:12,marginTop:3}}>
+          Philosophy: ให้อำนาจคนฟัง — ถ้าเขาบอก "ไม่" รับอย่างจริงใจทันที
+        </p>
+      </div>
+      <div className="fade-up-2 slide-scroll" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,flex:1}}>
+        {PERMISSIONS.map((p,i)=>(
+          <div key={i} className="glass" style={{padding:"10px 12px",borderRadius:8,display:"flex",gap:10}}>
+            <div className="mono" style={{fontSize:14,fontWeight:700,color:"rgba(6,182,212,.4)",flexShrink:0}}>{p.n}</div>
+            <div>
+              <div style={{color:"#e2e8f0",fontSize:12,lineHeight:1.5,marginBottom:4,fontStyle:"italic"}}>{p.q}</div>
+              <div className="mono" style={{fontSize:9,color:"#334155"}}>context: {p.ctx}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 11: Mindset
+function SlideMindset(){
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>ABO Agent · Mindset Rules</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          5 หลักคิดก่อน Preview Sponsor ทุกครั้ง
+        </h2>
+        <p style={{color:"#64748b",fontSize:12,marginTop:3}}>ยึดถือเหล่านี้ก่อนออกไปคุยกับคนใหม่ทุกครั้ง</p>
+      </div>
+      <div className="fade-up-2 slide-scroll" style={{display:"flex",flexDirection:"column",gap:10,flex:1}}>
+        {MINDSET.map((m,i)=>(
+          <div key={i} className="glass" style={{padding:"14px 18px",borderRadius:12,borderLeft:`4px solid ${m.color}`,display:"flex",gap:14,alignItems:"flex-start"}}>
+            <div className="mono" style={{fontSize:24,fontWeight:700,color:m.color,opacity:.4,flexShrink:0,width:32,lineHeight:1}}>{m.n}</div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:700,color:"#e2e8f0",fontSize:14,marginBottom:4}}>"{m.rule}"</div>
+              <div style={{color:"#94a3b8",fontSize:12,lineHeight:1.6}}>{m.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// SLIDE 12: Summary
+function SlideSummary(){
+  const actions=[
+    {n:"1",title:"เปลี่ยน Identity",desc:"จาก 'คนขาย Amway' → 'ผู้เชี่ยวชาญสุขภาพที่ใช้ Nutrilite' — ลงทุนใน health literacy จริงๆ",color:"#06b6d4"},
+    {n:"2",title:"สร้าง Digital Presence",desc:"เลือก 1 platform ก่อน · 70% ให้ความรู้ฟรี / 20% เรื่องราวตัวเอง / 10% สินค้า",color:"#10b981"},
+    {n:"3",title:"โปร่งใสเรื่อง Income จริงๆ",desc:"ปีแรก = income เสริม ไม่ใช่ replace งาน · Honesty filter คน fit เข้า คน unfit ออก",color:"#f59e0b"},
+    {n:"4",title:"ออกแบบ Service ไม่ใช่ Product Transaction",desc:"Assessment + Protocol + Product + Follow-up = Recurring LTV สูงขึ้น 3 เท่า",color:"#a78bfa"},
+    {n:"5",title:"เลือก Target Persona ให้ชัด",desc:"Energy ที่ใช้กับ 'น้องเอก' 1 คน → convert 'คุณนิด' ได้ 5 คนแทน",color:"#10b981"},
+  ]
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",gap:14}}>
+      <div className="fade-up">
+        <SectionLabel>Lead Agent · Final Conclusion</SectionLabel>
+        <h2 style={{fontSize:"clamp(18px,2.5vw,30px)",fontWeight:700,color:"#e2e8f0"}}>
+          ทำยังไงถึงสำเร็จในแอมเวย์ไทย 2026
+        </h2>
+      </div>
+      <div className="fade-up-2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,flex:1}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {actions.map((a,i)=>(
+            <div key={i} className="glass" style={{padding:"10px 14px",borderRadius:10,borderLeft:`3px solid ${a.color}`,display:"flex",gap:10}}>
+              <div className="mono" style={{fontSize:18,fontWeight:700,color:a.color,opacity:.4,flexShrink:0,width:20}}>{a.n}</div>
+              <div>
+                <div style={{fontWeight:700,color:"#e2e8f0",fontSize:13,marginBottom:2}}>{a.title}</div>
+                <div style={{color:"#64748b",fontSize:11,lineHeight:1.5}}>{a.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div className="glass-green" style={{padding:"16px 20px",borderRadius:12,flex:1}}>
+            <div style={{fontWeight:700,fontSize:15,color:"#10b981",marginBottom:10}}>✅ สรุปของ Panel</div>
+            <p style={{color:"#94a3b8",fontSize:13,lineHeight:1.8}}>
+              แอมเวย์ไทย 2026 ทำสำเร็จได้จริง<br/>
+              แต่ต้องเป็น <span className="kw-g">Wellness Educator</span> ก่อน<br/>
+              ไม่ใช่ <span className="kw-r">MLM Recruiter</span><br/><br/>
+              คนที่จะสำเร็จคือ ABO ที่<br/>
+              <span className="kw">ให้คุณค่าก่อน · โปร่งใสเสมอ</span><br/>
+              <span className="kw">เลือก target ชัด · service ดีกว่า product</span>
+            </p>
+          </div>
+          <div className="glass-amber" style={{padding:"14px 16px",borderRadius:12}}>
+            <div className="mono" style={{fontSize:10,color:"#f59e0b",marginBottom:6}}>NEXT STEPS FOR UP WELLNESS</div>
+            {[
+              "Deploy Preview Sponsor script กับ target ที่ ready (คุณนิด, ป้าแอ)",
+              "สร้าง content pillar ด้านสุขภาพ 1 platform ให้ consistent 90 วัน",
+              "ทำ income transparency document ที่แชร์ได้จริง",
+              "Build service ladder: Audit → Core → Plus",
+            ].map((t,i)=>(
+              <div key={i} style={{display:"flex",gap:8,fontSize:12,color:"#94a3b8",marginBottom:5,lineHeight:1.4}}>
+                <span style={{color:"#f59e0b",flexShrink:0}}>→</span>{t}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── SLIDE RENDERER ──────────────────────────────────────────────────────────
+
+const SLIDE_COMPONENTS={
+  cover:SlideCover,
+  context:SlideContext,
+  personas:SlidePersonas,
+  panel_verdict:SlidePanelVerdict,
+  swot:SlideSWOT,
+  strategies:SlideStrategies,
+  playbook:SlidePlaybook,
+  preview_philosophy:SlidePreviewPhilosophy,
+  three_models:SlideThreeModels,
+  permissions:SlidePermissions,
+  mindset:SlideMindset,
+  summary:SlideSummary,
+}
+
+const SLIDE_TITLES={
+  cover:"Amway Thailand 2026",
+  context:"บริบท 2026",
+  personas:"10 Personas",
+  panel_verdict:"Panel Verdict",
+  swot:"SWOT",
+  strategies:"5 กลยุทธ์",
+  playbook:"Persona Playbook",
+  preview_philosophy:"Preview Philosophy",
+  three_models:"3 โมเดล",
+  permissions:"Permission Questions",
+  mindset:"Mindset Rules",
+  summary:"สรุป",
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────────────────────
+
+function App(){
+  const [current,setCurrent]=useState(0)
+  const [key,setKey]=useState(0)
+  const total=SLIDES.length
+
+  const go=useCallback((dir)=>{
+    setCurrent(c=>{
+      const next=Math.max(0,Math.min(total-1,c+dir))
+      if(next!==c)setKey(k=>k+1)
+      return next
+    })
+  },[total])
+
+  useEffect(()=>{
+    const handler=(e)=>{
+      if(e.key==="ArrowRight"||e.key==="ArrowDown")go(1)
+      if(e.key==="ArrowLeft"||e.key==="ArrowUp")go(-1)
+    }
+    window.addEventListener("keydown",handler)
+    return()=>window.removeEventListener("keydown",handler)
+  },[go])
+
+  const SlideComp=SLIDE_COMPONENTS[SLIDES[current].id]
+  const pct=((current+1)/total*100).toFixed(1)
+
+  return(
+    <div style={{height:"100vh",display:"flex",flexDirection:"column",position:"relative",zIndex:1}}>
+
+      {/* TOP NAV */}
+      <div style={{
+        display:"flex",alignItems:"center",justifyContent:"space-between",
+        padding:"10px 20px",borderBottom:"1px solid rgba(255,255,255,.04)",
+        background:"rgba(4,6,15,.8)",backdropFilter:"blur(12px)",flexShrink:0,
+      }}>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:28,height:28,borderRadius:6,background:"linear-gradient(135deg,#0d9488,#0891b2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <span className="mono" style={{fontSize:10,fontWeight:700,color:"white"}}>UP</span>
+          </div>
+          <div className="mono" style={{fontSize:10,color:"#334155",display:"none"}} id="desktop-title">
+            UP WELLNESS · AMWAY THAILAND 2026 · PANEL RESEARCH
+          </div>
+        </div>
+
+        {/* Slide dots / mini nav */}
+        <div style={{display:"flex",gap:3,alignItems:"center"}}>
+          {SLIDES.map((_,i)=>(
+            <button key={i} onClick={()=>{setCurrent(i);setKey(k=>k+1)}} style={{
+              width:i===current?20:6,height:6,borderRadius:99,border:"none",cursor:"pointer",
+              background:i===current?"#06b6d4":"rgba(255,255,255,.1)",transition:"all .2s",
+              padding:0,
+            }}/>
+          ))}
+        </div>
+
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span className="mono" style={{fontSize:10,color:"#334155"}}>{current+1}/{total}</span>
+          <span className="mono" style={{fontSize:10,color:"#06b6d4"}}>{SLIDE_TITLES[SLIDES[current].id]}</span>
+        </div>
+      </div>
+
+      {/* PROGRESS BAR */}
+      <div style={{height:2,background:"rgba(255,255,255,.04)",flexShrink:0}}>
+        <div className="progress-bar" style={{height:2,width:`${pct}%`,background:"linear-gradient(90deg,#0891b2,#0d9488)"}}/>
+      </div>
+
+      {/* SLIDE CONTENT */}
+      <div key={key} className="slide-enter" style={{flex:1,padding:"clamp(14px,2vw,24px) clamp(16px,2.5vw,32px)",overflow:"hidden"}}>
+        <SlideComp/>
+      </div>
+
+      {/* BOTTOM NAV */}
+      <div style={{
+        display:"flex",alignItems:"center",justifyContent:"space-between",
+        padding:"10px 20px",borderTop:"1px solid rgba(255,255,255,.04)",
+        background:"rgba(4,6,15,.8)",backdropFilter:"blur(12px)",flexShrink:0,
+      }}>
+        <button className="nav-btn" onClick={()=>go(-1)} disabled={current===0}>← ก่อนหน้า</button>
+        <div className="mono" style={{fontSize:10,color:"#1e293b"}}>
+          ← → เพื่อเลื่อน slide
+        </div>
+        <button className="nav-btn" onClick={()=>go(1)} disabled={current===total-1}>ถัดไป →</button>
+      </div>
+
+    </div>
+  )
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>)
+</script>
+</body>
+</html>

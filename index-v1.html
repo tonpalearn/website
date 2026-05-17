@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN — AI ง่ายขึ้น เมื่อมีต้นพาไป</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Space Grotesk', 'IBM Plex Sans Thai', 'sans-serif'],
+            body: ['IBM Plex Sans Thai', 'sans-serif'],
+          },
+          colors: {
+            ink:   { 950: '#08080F', 900: '#0D0D14', 800: '#12121E', 700: '#1A1A2A' },
+            gold:  { 300: '#F5D67A', 400: '#F0CC72', 500: '#E6B84B', 600: '#C8A84B', 700: '#9A7A2B' },
+            teal:  { 300: '#67E8F9', 400: '#2DD4BF', 500: '#14B8A6', 600: '#0D9488' },
+            brand: { violet: '#A78BFA', violetDeep: '#7C5CFC' },
+          },
+          boxShadow: {
+            glow: '0 0 40px -10px rgba(230,184,75,0.35)',
+            glowTeal: '0 0 40px -10px rgba(45,212,191,0.35)',
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.7s ease-out forwards',
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulseSlow 4s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeUp: { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+            float:  { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
+            pulseSlow: { '0%,100%': { opacity: 0.5 }, '50%': { opacity: 1 } },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
+
+    .gradient-text-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .gradient-text-teal {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .mesh-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 20%, rgba(124,92,252,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 15% 80%, rgba(45,212,191,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 45% at 85% 75%, rgba(230,184,75,0.10) 0%, transparent 55%);
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(230,184,75,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(230,184,75,0.035) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    .card-glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.015) 100%);
+      border: 1px solid rgba(230,184,75,0.15);
+      backdrop-filter: blur(8px);
+    }
+    .divider-grad { background: linear-gradient(90deg, transparent, rgba(230,184,75,0.25), transparent); height: 1px; }
+    .shine { position: relative; overflow: hidden; }
+    .shine::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+      transform: translateX(-100%); transition: transform 0.7s;
+    }
+    .shine:hover::after { transform: translateX(100%); }
+
+    /* Scroll-reveal base */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease-out, transform 0.7s ease-out; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* Hide scrollbar for horizontal scrollers */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef } = React;
+
+// ─── Icons (inline SVG) ───────────────────────────────────────────
+const Icon = {
+  Menu:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M3 6h18M3 12h18M3 18h18"/></svg>,
+  X:       (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M18 6 6 18M6 6l12 12"/></svg>,
+  Arrow:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M5 12h14M13 5l7 7-7 7"/></svg>,
+  Check:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" {...p}><path d="m5 13 4 4L19 7"/></svg>,
+  Spark:   (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6z"/></svg>,
+  Star:    (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="m12 2 3 6.5L22 10l-5 4.8L18 22l-6-3.2L6 22l1-7.2L2 10l7-1.5z"/></svg>,
+  Clock:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>,
+  Zap:     (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M13 2 3 14h8l-1 8 10-12h-8z"/></svg>,
+  Maze:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M4 4h16v16H4zM8 4v12M16 8v12M4 12h8M12 16h8"/></svg>,
+  Line:    (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.9 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c-.1.3-.2 1.2 1.1.7 1.3-.5 7-4.1 9.5-7 1.7-1.9 2.5-3.8 2.5-6"/></svg>,
+  ChevDown:(p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="m6 9 6 6 6-6"/></svg>,
+  Quote:   (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M7 7h4v4H7c0 2 1 3 3 3v2c-3 0-6-2-6-6V7zm9 0h4v4h-4c0 2 1 3 3 3v2c-3 0-6-2-6-6V7z"/></svg>,
+  Lock:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>,
+  Shield:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>,
+};
+
+// ─── Scroll reveal hook ───────────────────────────────────────────
+function useReveal() {
+  useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    const observe = () => {
+      document.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
+    };
+    observe();
+    // Re-observe when new nodes enter the DOM (e.g. filter changes)
+    const mo = new MutationObserver(observe);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => { io.disconnect(); mo.disconnect(); };
+  }, []);
+}
+
+// ─── NAV ──────────────────────────────────────────────────────────
+function Nav() {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const links = [
+    { href: '#courses', label: 'คอร์ส' },
+    { href: '#about', label: 'เกี่ยวกับต้น' },
+    { href: '#testimonials', label: 'รีวิว' },
+    { href: '#faq', label: 'FAQ' },
+  ];
+
+  return (
+    <nav className={`sticky top-0 z-50 transition-all ${scrolled ? 'bg-ink-950/80 backdrop-blur-xl border-b border-gold-600/15' : 'bg-transparent'}`}>
+      <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+        <a href="#" className="font-display font-bold text-lg tracking-tight">
+          <span className="text-white">TON</span>
+          <span className="gradient-text-gold">PA</span>
+          <span className="gradient-text-teal">LEARN</span>
+        </a>
+
+        <div className="hidden md:flex items-center gap-8">
+          {links.map(l => (
+            <a key={l.href} href={l.href} className="text-sm text-slate-400 hover:text-white transition-colors">{l.label}</a>
+          ))}
+        </div>
+
+        <div className="hidden md:block">
+          <a href="#contact" className="shine font-display font-bold text-sm px-5 py-2 rounded-lg bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950 hover:shadow-glow transition-shadow">
+            จองเรียน
+          </a>
+        </div>
+
+        <button onClick={() => setOpen(!open)} className="md:hidden text-white p-2" aria-label="menu">
+          {open ? <Icon.X className="w-6 h-6"/> : <Icon.Menu className="w-6 h-6"/>}
+        </button>
+      </div>
+
+      {open && (
+        <div className="md:hidden bg-ink-900 border-t border-gold-600/15">
+          <div className="px-6 py-4 flex flex-col gap-3">
+            {links.map(l => (
+              <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-slate-300 py-2">{l.label}</a>
+            ))}
+            <a href="#contact" onClick={() => setOpen(false)} className="mt-2 text-center font-display font-bold text-sm px-5 py-3 rounded-lg bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950">
+              จองเรียน
+            </a>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// ─── HERO ─────────────────────────────────────────────────────────
+function Hero() {
+  return (
+    <section className="relative overflow-hidden pt-20 pb-24 md:pt-28 md:pb-32">
+      <div className="absolute inset-0 mesh-bg pointer-events-none"/>
+      <div className="absolute inset-0 grid-bg pointer-events-none opacity-60"/>
+
+      {/* floating orbs */}
+      <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-brand-violetDeep/20 blur-3xl animate-pulse-slow"/>
+      <div className="absolute bottom-10 left-10 w-72 h-72 rounded-full bg-teal-500/10 blur-3xl animate-pulse-slow" style={{animationDelay:'2s'}}/>
+
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold-600/30 bg-gold-600/5 text-xs font-display font-semibold uppercase tracking-widest text-gold-400 animate-fade-up">
+            <Icon.Spark className="w-3 h-3"/> AI for Real Life · ไม่ต้องเขียนโค้ด
+          </div>
+
+          <h1 className="mt-6 font-display font-bold text-4xl md:text-6xl lg:text-7xl leading-[1.1] tracking-tight animate-fade-up" style={{animationDelay:'0.1s', opacity:0, animationFillMode:'forwards'}}>
+            AI ง่ายขึ้น<br/>
+            เมื่อมี<span className="gradient-text-gold">ต้น</span><span className="gradient-text-teal">พา</span>ไป
+          </h1>
+
+          <p className="mt-6 text-lg text-slate-300 max-w-xl leading-relaxed animate-fade-up" style={{animationDelay:'0.2s', opacity:0, animationFillMode:'forwards'}}>
+            เรียนรู้ AI ที่ใช้งานได้จริงกับงานและชีวิตคุณ — สอนโดย <span className="text-white font-semibold">ต้น</span> วิศวกรคอมพิวเตอร์ PM 15 ปี ที่ใช้ AI ในงานจริงทุกวัน ไม่ใช่แค่รู้ทฤษฎี
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3 animate-fade-up" style={{animationDelay:'0.3s', opacity:0, animationFillMode:'forwards'}}>
+            <a href="#contact" className="shine group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950 font-display font-bold hover:shadow-glow transition-shadow">
+              จองเรียนเดี๋ยวนี้
+              <Icon.Arrow className="w-4 h-4 group-hover:translate-x-1 transition-transform"/>
+            </a>
+            <a href="#courses" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-teal-400/40 text-teal-400 font-display font-semibold hover:bg-teal-400/5 transition-colors">
+              ดูคอร์สทั้งหมด
+            </a>
+          </div>
+
+          <div className="mt-6 flex items-center gap-4 text-xs text-slate-500 animate-fade-up" style={{animationDelay:'0.4s', opacity:0, animationFillMode:'forwards'}}>
+            <div className="flex -space-x-2">
+              {['bg-gold-500','bg-teal-500','bg-brand-violet'].map((c,i) => (
+                <div key={i} className={`w-7 h-7 rounded-full ${c} border-2 border-ink-950 flex items-center justify-center text-[10px] font-bold text-ink-950`}>
+                  {['พ','ว','ม'][i]}
+                </div>
+              ))}
+            </div>
+            <span>ผู้เรียน Private 1:1 และ Group Workshop</span>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-px bg-gold-600/10 border border-gold-600/15 rounded-2xl overflow-hidden">
+          {[
+            { num: '15+', label: 'ปี PM experience' },
+            { num: '9', label: 'คอร์สครอบคลุม' },
+            { num: '4', label: 'รูปแบบการเรียน' },
+            { num: '5★', label: 'จาก Private 1:1' },
+          ].map((s, i) => (
+            <div key={i} className="bg-ink-900/60 backdrop-blur-sm p-6 text-center">
+              <div className="font-display font-bold text-3xl md:text-4xl gradient-text-gold tracking-tight">{s.num}</div>
+              <div className="mt-1 text-xs text-slate-400">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── PAIN POINTS ──────────────────────────────────────────────────
+function Pains() {
+  const items = [
+    { Icon: Icon.Clock, title: 'เสียเวลากับงาน routine', body: 'ตอบ email, เขียน caption, สรุปเอกสาร — งานที่ AI ทำแทนได้ใน 30 วินาที แต่คุณยังทำมือเองอยู่ทุกวัน' },
+    { Icon: Icon.Maze,  title: 'Tool เยอะ ไม่รู้เริ่มตรงไหน', body: 'Claude, ChatGPT, Gemini... มีเยอะจนงง ไม่รู้อันไหนใช้ทำอะไร และไม่มีเวลาไปลองเองทีละอัน' },
+    { Icon: Icon.Zap,   title: 'ลองใช้ AI แต่ผลไม่ดี', body: 'เคยลองแล้วรู้สึกว่า AI ตอบได้แค่ทั่วๆ ไป ไม่ได้ผลจริง — เพราะไม่รู้วิธีคุยกับมันให้ถูก' },
+  ];
+  return (
+    <section className="py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="text-center reveal">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-teal-400/30 bg-teal-400/5 text-xs font-display font-semibold uppercase tracking-widest text-teal-400">
+            ถ้าคุณรู้สึกแบบนี้ — คุณมาถูกที่แล้ว
+          </span>
+          <h2 className="mt-4 font-display font-bold text-3xl md:text-5xl tracking-tight">
+            คนที่ยังไม่ใช้ AI ในปี 2026<br/>
+            กำลังแข่งขัน<span className="gradient-text-gold">กับมือเดียว</span>
+          </h2>
+          <p className="mt-4 text-slate-400 max-w-xl mx-auto">ต้นรู้ว่าคุณรู้สึกอะไร — เพราะต้นเคยอยู่ตรงนั้นมาก่อน</p>
+        </div>
+
+        <div className="mt-12 grid md:grid-cols-3 gap-5">
+          {items.map((it, i) => (
+            <div key={i} className="reveal card-glass rounded-2xl p-7 hover:border-gold-500/40 transition-colors group" style={{transitionDelay:`${i*0.05}s`}}>
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-500/20 to-gold-600/5 flex items-center justify-center text-gold-400 group-hover:scale-110 transition-transform">
+                <it.Icon className="w-6 h-6"/>
+              </div>
+              <h3 className="mt-5 font-display font-semibold text-lg">{it.title}</h3>
+              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{it.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── ABOUT ────────────────────────────────────────────────────────
+function About() {
+  return (
+    <section id="about" className="py-20 md:py-28 relative">
+      <div className="absolute inset-x-0 top-0 divider-grad"/>
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="grid md:grid-cols-5 gap-12 items-center">
+          <div className="md:col-span-2 reveal">
+            <div className="relative">
+              <div className="aspect-[4/5] rounded-3xl overflow-hidden border border-gold-600/25 shadow-glow relative group">
+                <img
+                  src="assets/ton-london.jpg"
+                  alt="ต้น — Toni · CEO, PM, AI Practitioner"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }}
+                />
+                <div style={{display:'none'}} className="absolute inset-0 bg-gradient-to-br from-gold-500/15 via-teal-400/10 to-brand-violet/15 flex-col items-center justify-center text-center p-8">
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-ink-950 font-display font-bold text-5xl">T</div>
+                  <div className="mt-5 font-display font-bold text-xl gradient-text-gold">ต้น — Toni</div>
+                  <div className="mt-1 text-sm text-teal-400">CEO · PM · AI Practitioner</div>
+                  <div className="mt-3 text-xs text-slate-500">[ save รูปที่ assets/ton-london.jpg ]</div>
+                </div>
+                {/* Gradient overlay for caption */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink-950 via-ink-950/70 to-transparent p-6">
+                  <div className="font-display font-bold text-xl gradient-text-gold">ต้น — Toni</div>
+                  <div className="mt-1 text-sm text-teal-300">CEO · PM · AI Practitioner</div>
+                </div>
+              </div>
+              <div className="absolute -top-3 -right-3 card-glass rounded-xl px-3 py-1.5 text-xs font-display font-semibold text-gold-400 animate-float z-10">
+                ✦ Computer Engineer
+              </div>
+              <div className="absolute -bottom-3 -left-3 card-glass rounded-xl px-3 py-1.5 text-xs font-display font-semibold text-teal-400 animate-float z-10" style={{animationDelay:'1s'}}>
+                → 15 yrs PM
+              </div>
+            </div>
+          </div>
+
+          <div className="md:col-span-3 reveal">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold-600/30 bg-gold-600/5 text-xs font-display font-semibold uppercase tracking-widest text-gold-400">
+              เกี่ยวกับผู้สอน
+            </span>
+            <h2 className="mt-4 font-display font-bold text-3xl md:text-5xl tracking-tight">
+              ไม่ใช่แค่รู้<br/>
+              <span className="gradient-text-gold">แต่ใช้จริงทุกวัน</span>
+            </h2>
+            <p className="mt-5 text-slate-300 leading-relaxed">
+              ต้นเป็นวิศวกรคอมพิวเตอร์ที่ผ่านงาน PM 15+ ปีในธุรกิจธนาคาร โทรคมนาคม และภาครัฐ ปัจจุบัน CEO ของ UP Wellness และใช้ AI เป็นส่วนหนึ่งของการทำงานทุกวัน
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
+                'วิศวกรคอมพิวเตอร์ + PM 15 ปี (Banking / Telecom / Gov)',
+                'ใช้ Claude, ChatGPT, Gemini ในงานจริงทุกวัน',
+                'สอนแบบ hands-on — ทุก lesson มี output จริง',
+                'เข้าใจปัญหาคนทำงาน ไม่ต้องพื้นฐาน IT',
+                'ไม่ dream-sell — สอนในสิ่งที่ทำได้จริงเท่านั้น',
+              ].map((t, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-gold-500/15 text-gold-400 flex items-center justify-center">
+                    <Icon.Check className="w-3 h-3"/>
+                  </span>
+                  <span className="text-sm text-slate-300">{t}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── COURSES ──────────────────────────────────────────────────────
+// Pricing: Master = PRICING.xlsx Pricing Matrix sheet · v3.1 · อัปเดต 25 เม.ย. 2569
+const COURSES = [
+  {
+    cat: 'builder', num: '01', name: 'AI Basic', emoji: '🌱', hrs: '2 ชม.',
+    desc: 'จาก 0 ถึง AI ที่ใช้ได้จริง — AI คืออะไร + เขียน Prompt ให้ได้ผลจริง ใน 2 ชม.',
+    features: ['AI คืออะไร (ภาพรวมครบ)', 'Prompt ใช้ได้จริงกับงานคุณ', 'Hands-on ทุก session', 'ไม่ต้องพื้นฐาน IT'],
+    prices: [
+      { type: 'VDO',          value: '฿990' },
+      { type: 'Online Group', value: '฿2,000', highlight: true },
+      { type: 'Online 1:1',   value: '฿2,500' },
+      { type: 'On-site',      value: '฿3,000' },
+    ],
+  },
+  {
+    cat: 'builder', num: '02', name: 'AI Agentic', emoji: '⚡', hrs: '5 ชม.', featured: true,
+    desc: 'จาก AI User → AI Builder — Setup Claude + Connector + สร้าง Skill ของตัวเองได้',
+    features: ['เนื้อหา 01 ครบ (2 ชม.) + อีก 3 ชม.', 'Setup Claude + Connector', 'สร้าง Skill ใช้ได้จริง', 'Build AI Agent ได้เอง'],
+    prices: [
+      { type: 'VDO',          value: '฿2,500' },
+      { type: 'Online Group', value: '฿3,500', highlight: true },
+      { type: 'Online 1:1',   value: '฿4,500' },
+      { type: 'On-site',      value: '฿7,000' },
+    ],
+  },
+  {
+    cat: 'builder', num: '03', name: 'MCP Connector', emoji: '🔌', hrs: '5 ชม.',
+    desc: 'เชื่อม AI กับทุก App ที่ใช้อยู่ — ไม่ใช่ AI ใน vacuum แต่เชื่อมระบบจริง',
+    features: ['MCP Server lab จริง', 'Claude × Notion / Gmail / Slack / ฯลฯ', 'Automation workflow เต็มระบบ', 'ระบบต่อยอดเองได้'],
+    prices: [
+      { type: 'VDO',          value: '฿2,500' },
+      { type: 'Online Group', value: '฿3,500', highlight: true },
+      { type: 'Online 1:1',   value: '฿4,500' },
+      { type: 'On-site',      value: '฿7,000' },
+    ],
+    prereq: 'ต้องผ่าน Course 02',
+  },
+  {
+    cat: 'line', num: '04', name: 'LINE ChatBot', emoji: '🤖', hrs: '3 ชม.',
+    desc: 'ChatBot LINE ของคุณเอง ใน 3 ชม. — Bot ตอบลูกค้าแทน 24/7',
+    features: ['LINE OA + AI integration', 'Webhook + response logic', 'Deploy พร้อมใช้งานจริง'],
+    prices: [
+      { type: 'VDO',          value: '฿2,500' },
+      { type: 'Online Group', value: '฿3,500', highlight: true },
+      { type: 'Online 1:1',   value: '฿4,500' },
+      { type: 'On-site',      value: '฿7,000' },
+    ],
+    prereq: 'ต้องผ่าน Course 02',
+  },
+  {
+    cat: 'special', num: '05', name: 'AI for Kids', emoji: '👧', hrs: '3 ชม.',
+    desc: 'สำหรับเด็ก ม.1–ม.6 — AI เป็นของคนที่กล้าลอง ไม่ใช่แค่ผู้ใหญ่',
+    features: ['Kid-safe prompt design', 'ใช้ AI ค้นคว้า / วิจัย / สร้างงาน', 'Creative activities hands-on'],
+    prices: [
+      { type: 'VDO',          value: '฿990' },
+      { type: 'Online Group', value: '฿2,000', highlight: true },
+      { type: 'Online 1:1',   value: '฿3,000' },
+      { type: 'On-site',      value: '฿3,000' },
+    ],
+  },
+  {
+    cat: 'special', num: '06', name: 'AI for Personal Assistant', emoji: '🚀', hrs: '3 ชม.',
+    desc: 'PA ที่ใช้ AI เป็น จะไม่ถูก AI แทน — ติดอาวุธให้ตัวเองด้วย Agentic',
+    features: ['PA workflow + AI automation', 'ออกแบบเฉพาะงานของคุณ', 'ทำงานเร็วขึ้น 10x'],
+    prices: [
+      { type: 'VDO',          value: '฿1,500' },
+      { type: 'Online Group', value: '฿2,000', highlight: true },
+      { type: 'Online 1:1',   value: '฿3,000' },
+      { type: 'On-site',      value: '฿3,000' },
+    ],
+  },
+  {
+    cat: 'special', num: '07', name: 'AI for ABOs', emoji: '💼', hrs: '3 ชม.',
+    desc: 'AI ช่วยธุรกิจเครือข่าย วันแรกใช้ได้ — Content / ตอบลูกค้า AI ทำแทน',
+    features: ['AI + Tools + Prompt เบื้องต้น', 'Content สำเร็จรูปเชิงธุรกิจ', 'Quote-based · 5+ คน · เริ่มต้น ฿5,000'],
+    prices: [
+      { type: 'ทุก Format',   value: 'Quote', highlight: true, note: 'เริ่ม ฿5,000' },
+    ],
+  },
+  {
+    cat: 'vibe', num: '08', name: 'AI Agentic Web Builder', emoji: '🧱', hrs: '5 ชม.',
+    desc: 'Code ไม่เป็นก็มี Web ของตัวเองได้ — Vibe Coding จบใน 5 ชม.',
+    features: ['Static Web ของตัวเอง', 'Cowork + Claude สร้าง Web เต็มรูปแบบ', 'Deploy พร้อมใช้งานจริง'],
+    prices: [
+      { type: 'VDO',          value: '฿2,500' },
+      { type: 'Online Group', value: '฿3,500', highlight: true },
+      { type: 'Online 1:1',   value: '฿4,500' },
+      { type: 'On-site',      value: '฿7,000' },
+    ],
+  },
+  {
+    cat: 'vibe', num: '09', name: 'AI Agentic App Builder', emoji: '📱', hrs: '5 ชม.',
+    desc: 'Web App ที่รับ Form, Login, เก็บข้อมูลลูกค้า — ต่อยอด Web Builder',
+    features: ['เพิ่ม Database + Auth', 'Production-ready Web App', 'ใช้งานจริงกับลูกค้าได้'],
+    prices: [
+      { type: 'VDO',          value: '฿2,500' },
+      { type: 'Online Group', value: '฿3,500', highlight: true },
+      { type: 'Online 1:1',   value: '฿4,500' },
+      { type: 'On-site',      value: '฿7,000' },
+    ],
+    prereq: 'ต้องผ่าน Course 08',
+  },
+];
+
+function Courses() {
+  const [tab, setTab] = useState('all');
+  const tabs = [
+    { key: 'all',     label: 'ทั้งหมด' },
+    { key: 'builder', label: '🚀 สาย Builder' },
+    { key: 'line',    label: '💬 LINE / SME' },
+    { key: 'vibe',    label: '🧱 Vibe Coder' },
+    { key: 'special', label: '✨ กลุ่มเฉพาะ' },
+  ];
+  const filtered = tab === 'all' ? COURSES : COURSES.filter(c => c.cat === tab);
+
+  return (
+    <section id="courses" className="py-20 md:py-28 relative">
+      <div className="absolute inset-x-0 top-0 divider-grad"/>
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="text-center reveal">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold-600/30 bg-gold-600/5 text-xs font-display font-semibold uppercase tracking-widest text-gold-400">
+            หลักสูตร
+          </span>
+          <h2 className="mt-4 font-display font-bold text-3xl md:text-5xl tracking-tight">
+            เรียนได้ทุกระดับ<br/>
+            <span className="gradient-text-teal">ทุกเป้าหมาย</span>
+          </h2>
+          <p className="mt-4 text-slate-400 max-w-xl mx-auto">จากมือใหม่ที่ไม่รู้ code จนถึงสร้างระบบ AI อัตโนมัติให้ธุรกิจ</p>
+        </div>
+
+        {/* Filter tabs */}
+        <div className="mt-10 flex flex-wrap gap-2 justify-center reveal">
+          {tabs.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`px-4 py-2 rounded-full text-sm font-display font-semibold transition-all ${
+                tab === t.key
+                  ? 'bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950 shadow-glow'
+                  : 'border border-gold-600/20 text-slate-400 hover:text-white hover:border-gold-500/40'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Cards */}
+        <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filtered.map((c, i) => (
+            <div key={c.num} className={`reveal card-glass rounded-2xl overflow-hidden hover:border-gold-500/40 transition-all hover:-translate-y-1 ${c.featured ? 'lg:col-span-1 ring-1 ring-teal-400/30' : ''}`} style={{transitionDelay:`${i*0.04}s`}}>
+              {c.featured && (
+                <div className="px-5 py-1.5 bg-teal-400/10 border-b border-teal-400/20 text-teal-400 text-xs font-display font-semibold uppercase tracking-wider text-center">
+                  ⭐ ยอดนิยม
+                </div>
+              )}
+
+              {/* Cover image 1:1 */}
+              <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-ink-800 to-ink-900">
+                <img
+                  src={`assets/covers/course-${c.num}.jpg`}
+                  alt={`${c.name} cover`}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }}
+                />
+                {/* Fallback placeholder */}
+                <div style={{display:'none'}} className="absolute inset-0 bg-gradient-to-br from-gold-500/15 via-teal-400/10 to-brand-violet/15 flex-col items-center justify-center">
+                  <span className="text-7xl mb-3">{c.emoji}</span>
+                  <div className="text-[10px] text-slate-500 tracking-wider">assets/covers/course-{c.num}.jpg</div>
+                </div>
+                {/* Bottom fade for depth */}
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink-900/95 via-ink-900/50 to-transparent pointer-events-none"/>
+                {/* Course number badge */}
+                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-ink-950/70 backdrop-blur border border-gold-500/25">
+                  <span className="text-[10px] font-display font-bold tracking-wider gradient-text-gold">COURSE {c.num}</span>
+                </div>
+                {/* Hours badge */}
+                <div className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-ink-950/70 backdrop-blur border border-teal-400/25">
+                  <Icon.Clock className="w-3 h-3 text-teal-400"/>
+                  <span className="text-[10px] font-display font-semibold text-teal-300">{c.hrs}</span>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <h3 className="font-display font-bold text-xl">{c.name}</h3>
+                <p className="mt-4 text-sm text-slate-400 leading-relaxed">{c.desc}</p>
+
+                <ul className="mt-5 space-y-2">
+                  {c.features.map((f, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-slate-300">
+                      <Icon.Arrow className="w-3.5 h-3.5 mt-1 flex-shrink-0 text-teal-400"/> {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {c.prereq && (
+                  <div className="mt-4 flex items-center gap-2 text-xs text-gold-400/80 bg-gold-500/5 border border-gold-500/15 rounded-lg px-3 py-2">
+                    <Icon.Lock className="w-3.5 h-3.5"/> {c.prereq}
+                  </div>
+                )}
+
+                <div className="mt-5 space-y-2">
+                  {c.prices.map((p, idx) => (
+                    <div key={idx} className={`flex items-center justify-between px-3 py-2.5 rounded-lg border ${p.highlight ? 'bg-gold-500/5 border-gold-500/25' : 'bg-white/5 border-white/10'}`}>
+                      <span className="text-xs text-slate-400">{p.type}</span>
+                      <span className={`font-display font-bold ${p.highlight ? 'gradient-text-gold' : 'text-white'}`}>
+                        {p.value} {p.note && <span className="text-xs text-slate-500 font-normal">{p.note}</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <a href="#contact" className="mt-5 block text-center font-display font-semibold text-sm py-2.5 rounded-lg border border-gold-600/30 text-gold-400 hover:bg-gold-500/5 transition-colors">
+                  สมัครเรียน →
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── TESTIMONIALS ─────────────────────────────────────────────────
+function Testimonials() {
+  const items = [
+    { name: 'คุณพลอย', role: 'ผู้เรียน Private 1:1 · Marketing', avatar: 'พ', color: 'gold',
+      text: 'เรียนแล้วกลับไปทำงานได้ทันที ไม่ต้องลองผิดลองถูกเองอีกต่อไป ประหยัดเวลาได้จริงมาก วิธีสอนเข้าใจง่ายมาก' },
+    { name: 'คุณวิน', role: 'ผู้เรียน Private 1:1 · PM', avatar: 'ว', color: 'teal',
+      text: 'ต้นสอนแบบที่เข้าใจว่าคนทำงานต้องการอะไร ไม่ใช่สอนทฤษฎี แต่สอนให้ใช้งานได้จริงกับชีวิตประจำวัน' },
+    { name: 'คุณมิน', role: 'ผู้เรียน Group Workshop · Entrepreneur', avatar: 'ม', color: 'violet',
+      text: 'ตอนแรกกลัวว่าจะยาก แต่พอเรียนแล้วรู้ว่ามันง่ายมาก ตอนนี้ใช้ AI ช่วยงานทุกวัน ชีวิตเปลี่ยนเลยครับ' },
+  ];
+  const colors = {
+    gold:   { bg: 'bg-gold-500/15', text: 'text-gold-400' },
+    teal:   { bg: 'bg-teal-400/15', text: 'text-teal-400' },
+    violet: { bg: 'bg-brand-violet/15', text: 'text-brand-violet' },
+  };
+
+  return (
+    <section id="testimonials" className="py-20 md:py-28 relative">
+      <div className="absolute inset-x-0 top-0 divider-grad"/>
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="text-center reveal">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-teal-400/30 bg-teal-400/5 text-xs font-display font-semibold uppercase tracking-widest text-teal-400">
+            รีวิวจากผู้เรียน
+          </span>
+          <h2 className="mt-4 font-display font-bold text-3xl md:text-5xl tracking-tight">
+            คนที่เรียนแล้ว<span className="gradient-text-gold">บอกว่าอะไร</span>
+          </h2>
+          <p className="mt-4 text-slate-400">ประสบการณ์จริง ไม่มีการแต่งเรื่อง</p>
+        </div>
+
+        <div className="mt-12 grid md:grid-cols-3 gap-5">
+          {items.map((t, i) => (
+            <div key={i} className="reveal card-glass rounded-2xl p-7 relative" style={{transitionDelay:`${i*0.05}s`}}>
+              <Icon.Quote className="absolute top-5 right-5 w-8 h-8 text-gold-400/15"/>
+              <div className="flex gap-0.5 text-gold-400">
+                {[1,2,3,4,5].map(n => <Icon.Star key={n} className="w-4 h-4"/>)}
+              </div>
+              <p className="mt-4 text-slate-300 text-sm leading-relaxed italic">"{t.text}"</p>
+              <div className="mt-6 flex items-center gap-3 pt-5 border-t border-white/5">
+                <div className={`w-10 h-10 rounded-full ${colors[t.color].bg} ${colors[t.color].text} flex items-center justify-center font-display font-bold`}>
+                  {t.avatar}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">{t.name}</div>
+                  <div className="text-xs text-slate-500">{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── FAQ ──────────────────────────────────────────────────────────
+function FAQ() {
+  const [open, setOpen] = useState(0);
+  const items = [
+    { q: 'มี format อะไรให้เลือกบ้าง?', a: '4 รูปแบบ: (1) VDO อัดไว้ เรียนเองตามเวลา · (2) Online สอนสดผ่าน Zoom (Group หรือ 1:1) · (3) On-site Small Group (3–10 คน) · (4) Corporate Training — ออกแบบตามองค์กร เลือกได้ตามงบและจังหวะชีวิต' },
+    { q: 'ถ้าไม่มีพื้นฐาน IT เรียนได้มั้ย?', a: 'ได้แน่นอน — คอร์สส่วนใหญ่ออกแบบสำหรับคนที่ไม่เคยเขียนโค้ด โดยเฉพาะ 01 / 05 / 06 / 07 / 08 เริ่มจาก 0 ได้เลย · Course 03 และ 09 ต้องผ่าน pre-requisite ก่อน' },
+    { q: 'Course 02 ต่างจากเรียน ChatGPT ทั่วไปยังไง?', a: 'Course 02 สอน Claude แบบ Agentic — ให้ AI ทำงานเป็นระบบ เชื่อม tools จริง (Notion / Gmail / Calendar) + สร้าง Skill เองได้ ไม่ใช่แค่ chat ถาม-ตอบ · รวมเนื้อหา Course 01 ครบในนี้แล้ว (2 ชม. แรกของคลาส)' },
+    { q: 'Course 08 vs 09 ต่างกันยังไง?', a: '08 = Static Web (หน้าโชว์ ข้อมูล) · 09 = ต่อยอด 08 → เพิ่ม Database + Login ให้รับ Form / เก็บข้อมูลลูกค้าได้จริง · ถ้าต้องการ Web App ที่ใช้งานจริงต้องเรียนทั้งคู่' },
+    { q: 'เรียนจบแล้วใช้งานได้จริงมั้ย?', a: 'ทุกคอร์สเน้น output จริง — จบ session มี prompt, workflow, Skill, Bot, Web, หรือ App ที่ใช้ได้ทันที ไม่ใช่แค่ทฤษฎี' },
+    { q: 'ถ้าเรียนแล้วไม่เข้าใจ?', a: 'VDO เรียนซ้ำได้ตามเวลาที่กำหนด · Online / On-site ถามสดใน class ได้เลย · ทุก format มี Line OA support + 1:1 มี follow-up หลังเรียน' },
+    { q: 'มี Corporate Invoice / ส่วนลดทีมมั้ย?', a: 'มีครบ — Corporate Training ออกใบกำกับภาษีเต็มรูปแบบ · Group 3–5 คน ลด 10% · 6+ คน ลด 15% · Early Bird ลด 15% · Alumni (เรียนแล้ว) ลด 10%' },
+    { q: 'รับชำระเงินยังไง?', a: 'Retail: โอน / PromptPay' },
+    { q: 'ยกเลิก/เลื่อนได้มั้ย?', a: 'Refund: ก่อนคลาส 14 วัน = 100% · 7–14 วัน = 50% · ≤ 7 วัน = ไม่มี refund แต่เลื่อนได้ 1 ครั้งฟรี (แจ้งก่อน ≥ 48 ชม.) · No-show ได้ VDO recording' },
+  ];
+  return (
+    <section id="faq" className="py-20 md:py-28 relative">
+      <div className="absolute inset-x-0 top-0 divider-grad"/>
+      <div className="mx-auto max-w-3xl px-6">
+        <div className="text-center reveal">
+          <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold-600/30 bg-gold-600/5 text-xs font-display font-semibold uppercase tracking-widest text-gold-400">
+            คำถามที่พบบ่อย
+          </span>
+          <h2 className="mt-4 font-display font-bold text-3xl md:text-5xl tracking-tight">
+            ยังลังเล<span className="gradient-text-gold">อยู่ใช่มั้ย?</span>
+          </h2>
+          <p className="mt-4 text-slate-400">คำถามที่คนถามบ่อยที่สุด</p>
+        </div>
+
+        <div className="mt-12 space-y-3">
+          {items.map((it, i) => (
+            <div key={i} className="reveal card-glass rounded-xl overflow-hidden" style={{transitionDelay:`${i*0.04}s`}}>
+              <button
+                onClick={() => setOpen(open === i ? -1 : i)}
+                className="w-full flex items-center justify-between gap-4 p-5 text-left"
+              >
+                <span className="font-display font-semibold text-white">{it.q}</span>
+                <Icon.ChevDown className={`w-5 h-5 flex-shrink-0 text-gold-400 transition-transform ${open === i ? 'rotate-180' : ''}`}/>
+              </button>
+              {open === i && (
+                <div className="px-5 pb-5 text-sm text-slate-300 leading-relaxed border-t border-white/5 pt-4">
+                  {it.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── CTA ──────────────────────────────────────────────────────────
+function CTA() {
+  return (
+    <section id="contact" className="relative py-24 md:py-32 overflow-hidden">
+      <div className="absolute inset-0 mesh-bg"/>
+      <div className="absolute inset-0 grid-bg opacity-40"/>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-gold-500/10 blur-3xl"/>
+
+      <div className="relative mx-auto max-w-3xl px-6 text-center">
+        <span className="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-teal-400/30 bg-teal-400/5 text-xs font-display font-semibold uppercase tracking-widest text-teal-400">
+          <Icon.Shield className="w-3 h-3"/> ปรึกษาฟรี · ไม่มีข้อผูกมัด
+        </span>
+
+        <h2 className="reveal mt-6 font-display font-bold text-4xl md:text-6xl tracking-tight">
+          พร้อมให้<span className="gradient-text-gold">ต้นพาไป</span><br/>
+          แล้วหรือยัง?
+        </h2>
+
+        <p className="reveal mt-5 text-lg text-slate-300">
+          ทักมาคุยฟรี บอกว่าต้องการอะไร — ต้นจะแนะนำหลักสูตรที่เหมาะกับคุณที่สุด
+        </p>
+
+        <div className="reveal mt-10 flex flex-wrap gap-4 justify-center">
+          <a href="https://line.me/ti/p/@tonpalearn" target="_blank" rel="noopener" className="shine inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-[#06c755] text-white font-display font-bold text-lg hover:opacity-90 transition-opacity">
+            <Icon.Line className="w-6 h-6"/> ทักผ่าน Line OA
+          </a>
+          <a href="#courses" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-gold-500/40 text-gold-400 font-display font-semibold text-lg hover:bg-gold-500/5 transition-colors">
+            ดูคอร์สก่อน
+          </a>
+        </div>
+
+        <p className="reveal mt-6 text-sm text-slate-500">ตอบทุกวัน · ไม่มีค่าปรึกษา · แนะนำตามจริง</p>
+      </div>
+    </section>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="border-t border-gold-600/15 py-10">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5">
+          <a href="#" className="font-display font-bold text-lg">
+            <span className="text-white">TON</span>
+            <span className="gradient-text-gold">PA</span>
+            <span className="gradient-text-teal">LEARN</span>
+          </a>
+          <p className="text-xs text-slate-500 text-center">สอน AI ให้ใช้งานได้จริง · ไม่ต้องเขียนโค้ด · เริ่มได้เลยวันนี้</p>
+          <div className="flex gap-5 text-xs text-slate-500">
+            <a href="#courses" className="hover:text-white transition">คอร์ส</a>
+            <a href="#about" className="hover:text-white transition">เกี่ยวกับ</a>
+            <a href="#contact" className="hover:text-white transition">ติดต่อ</a>
+          </div>
+        </div>
+        <div className="mt-6 pt-5 border-t border-white/5 text-center text-xs text-slate-600">
+          © 2026 TONPALEARN by ต้น (Toni) · AI ง่ายขึ้น เมื่อมีต้นพาไป
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── ROOT ─────────────────────────────────────────────────────────
+function App() {
+  useReveal();
+  return (
+    <>
+      <Nav/>
+      <Hero/>
+      <Pains/>
+      <About/>
+      <Courses/>
+      <Testimonials/>
+      <FAQ/>
+      <CTA/>
+      <Footer/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
