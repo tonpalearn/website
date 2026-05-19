@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · Verify Certificate</title>
+  <meta name="description" content="ตรวจสอบความถูกต้องของใบรับรองการเรียนรู้จาก TONPALEARN" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Space Grotesk', 'IBM Plex Sans Thai', 'sans-serif'],
+            serif:   ['Cormorant Garamond', 'serif'],
+            body:    ['IBM Plex Sans Thai', 'sans-serif'],
+          },
+          colors: {
+            ink:   { 950: '#08080F', 900: '#0D0D14', 800: '#12121E', 700: '#1A1A2A' },
+            gold:  { 300: '#F5D67A', 400: '#F0CC72', 500: '#E6B84B', 600: '#C8A84B', 700: '#9A7A2B' },
+            teal:  { 300: '#67E8F9', 400: '#2DD4BF', 500: '#14B8A6', 600: '#0D9488' },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Sarabun', 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
+    .gradient-text-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .gradient-text-teal {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .mesh-bg {
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124,92,252,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(45,212,191,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 45% at 50% 50%, rgba(230,184,75,0.10) 0%, transparent 55%);
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(230,184,75,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(230,184,75,0.04) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    .card-glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
+      border: 1px solid rgba(230,184,75,0.14);
+      backdrop-filter: blur(10px);
+    }
+    @keyframes pulse-ring {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(45,212,191,0.5); }
+      50% { box-shadow: 0 0 0 12px rgba(45,212,191,0); }
+    }
+    .pulse-success { animation: pulse-ring 2s ease-in-out infinite; }
+    .seal {
+      background: radial-gradient(circle at 30% 30%, #F5D67A, #C8A84B 50%, #9A7A2B 100%);
+      box-shadow: inset 0 -8px 20px rgba(106, 84, 25, 0.4), 0 8px 20px -4px rgba(230,184,75,0.4);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+  CONFIG — ใส่ Supabase URL + anon key ที่นี่ (ปลอดภัยที่จะ public)
+  ============================================================ -->
+<script>
+  window.SUPABASE_URL = 'https://lhrzjkizxjigqeuyposw.supabase.co';
+  window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxocnpqa2l6eGppZ3FldXlwb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODA0NDgsImV4cCI6MjA5NDc1NjQ0OH0.00JIC-uWcDh9StWQeJPJ-m6tSWDJSakR2tpUHMc_yPU';
+</script>
+
+<div class="min-h-screen mesh-bg flex flex-col">
+  <!-- NAV -->
+  <nav class="border-b border-gold-600/15 bg-ink-950/85 backdrop-blur-xl">
+    <div class="mx-auto max-w-5xl px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-display font-bold text-lg tracking-tight">
+        <span class="text-white">TON</span>
+        <span class="gradient-text-gold">PA</span>
+        <span class="gradient-text-teal">LEARN</span>
+      </a>
+      <div class="font-mono text-[10px] tracking-widest text-slate-500 uppercase">Certificate Verify</div>
+      <a href="/" class="text-sm text-slate-400 hover:text-white transition-colors">← Home</a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="flex-1 grid-bg">
+    <div class="mx-auto max-w-3xl px-6 py-16">
+
+      <div class="text-center mb-10">
+        <div class="text-xs font-mono tracking-widest text-gold-400 uppercase mb-3">— Certificate Verify —</div>
+        <h1 class="font-serif text-5xl md:text-6xl tracking-tight text-white">
+          ตรวจสอบใบรับรอง
+        </h1>
+        <p class="mt-3 text-slate-400">ระบบยืนยันใบรับรองการเรียนรู้ของ TONPALEARN</p>
+      </div>
+
+      <!-- Search box -->
+      <div class="card-glass rounded-2xl p-6 mb-6">
+        <label class="block text-xs font-display font-semibold uppercase tracking-widest text-gold-400 mb-2">Certificate Number</label>
+        <div class="flex gap-2">
+          <input
+            id="certInput"
+            type="text"
+            placeholder="TPL-CERT-YYMM-NNN"
+            class="flex-1 px-4 py-3 rounded-lg bg-ink-800/60 border border-gold-600/20 text-white font-mono placeholder:text-slate-600 focus:outline-none focus:border-gold-500"
+            autocomplete="off"
+          />
+          <button
+            id="verifyBtn"
+            class="px-6 py-3 rounded-lg bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950 font-display font-bold hover:shadow-[0_0_30px_-6px_rgba(230,184,75,0.5)] transition-shadow"
+          >
+            Verify
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">ใส่เลขที่ใบรับรองจากใบที่ได้รับ (รูปแบบ: TPL-CERT-YYMM-NNN)</p>
+      </div>
+
+      <!-- Result -->
+      <div id="result"></div>
+
+      <!-- Footer -->
+      <div class="mt-16 text-center text-xs text-slate-500">
+        <p>หากพบการแอบอ้าง — กรุณาแจ้ง <a href="/" class="text-gold-400 hover:underline">tonpalearn.com</a></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(async () => {
+  const { createClient } = window.supabase;
+  const url = window.SUPABASE_URL;
+  const key = window.SUPABASE_ANON_KEY;
+  const configured = url && key && !url.includes('YOUR-PROJECT') && !key.includes('YOUR_ANON_KEY');
+  const client = configured ? createClient(url, key) : null;
+
+  const $ = (id) => document.getElementById(id);
+  const input = $('certInput');
+  const btn = $('verifyBtn');
+  const result = $('result');
+
+  const formatThaiDate = (iso) => {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    const m = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear() + 543}`;
+  };
+  const formatEngDate = (iso) => {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    const m = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${m[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  };
+
+  const renderLoading = () => {
+    result.innerHTML = `
+      <div class="card-glass rounded-2xl p-12 text-center">
+        <div class="inline-block w-10 h-10 border-2 border-gold-500/30 border-t-gold-500 rounded-full animate-spin"></div>
+        <div class="mt-4 text-sm text-slate-400">กำลังตรวจสอบ...</div>
+      </div>`;
+  };
+
+  const renderNotConfigured = () => {
+    result.innerHTML = `
+      <div class="card-glass rounded-2xl p-8 border-red-500/30">
+        <div class="text-red-400 font-bold mb-2">⚠️ Verify service not configured</div>
+        <p class="text-sm text-slate-400">SUPABASE_URL + SUPABASE_ANON_KEY ยังไม่ถูกตั้งค่าใน verify/index.html — กรุณาติดต่อผู้ดูแล</p>
+      </div>`;
+  };
+
+  const renderNotFound = (certNo) => {
+    result.innerHTML = `
+      <div class="card-glass rounded-2xl p-12 text-center border border-red-500/30">
+        <div class="w-20 h-20 mx-auto rounded-full bg-red-500/15 border-2 border-red-500/40 flex items-center justify-center mb-4">
+          <svg viewBox="0 0 24 24" class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>
+          </svg>
+        </div>
+        <div class="text-2xl font-display font-bold text-red-400 mb-2">ไม่พบใบรับรองในระบบ</div>
+        <p class="text-slate-400 mb-1">เลขที่ <span class="font-mono text-white">${escapeHtml(certNo)}</span> ไม่ตรงกับใบรับรองใด ๆ</p>
+        <p class="text-xs text-slate-500 mt-4">ตรวจสอบเลขที่อีกครั้ง หรือติดต่อ tonpalearn.com</p>
+      </div>`;
+  };
+
+  const renderError = (err) => {
+    result.innerHTML = `
+      <div class="card-glass rounded-2xl p-8 border-red-500/30">
+        <div class="text-red-400 font-bold mb-2">⚠️ Error</div>
+        <p class="text-sm text-slate-400">${escapeHtml(err.message || String(err))}</p>
+      </div>`;
+  };
+
+  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const renderValid = (cert) => {
+    result.innerHTML = `
+      <div class="card-glass rounded-2xl p-8 md:p-12 border border-teal-400/40 relative overflow-hidden">
+        <!-- Glow -->
+        <div class="absolute -top-20 -right-20 w-64 h-64 bg-teal-400/15 rounded-full blur-3xl"></div>
+
+        <div class="relative">
+          <!-- Success badge -->
+          <div class="flex flex-col items-center mb-8">
+            <div class="seal pulse-success w-20 h-20 rounded-full flex items-center justify-center mb-4">
+              <svg viewBox="0 0 24 24" class="w-10 h-10 text-ink-950" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="m5 13 4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="text-2xl font-serif italic gradient-text-teal">Certificate Verified</div>
+            <div class="text-xs font-mono tracking-widest text-teal-400 uppercase mt-1">— ตรวจสอบแล้ว · ใบรับรองนี้ถูกต้อง —</div>
+          </div>
+
+          <!-- Cert No -->
+          <div class="text-center mb-6">
+            <div class="text-[10px] font-mono tracking-widest text-slate-500 uppercase">Certificate No.</div>
+            <div class="font-mono font-bold text-lg gradient-text-gold">${escapeHtml(cert.cert_no)}</div>
+          </div>
+
+          <!-- Student name -->
+          <div class="text-center my-8">
+            <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Issued to</div>
+            <div class="font-serif text-4xl md:text-5xl text-white">${escapeHtml(cert.student_name || cert.student_name_th || '—')}</div>
+            ${cert.student_name && cert.student_name_th ? `<div class="text-sm text-slate-400 mt-1">${escapeHtml(cert.student_name_th)}</div>` : ''}
+          </div>
+
+          <div class="mx-auto w-32 h-px bg-gradient-to-r from-transparent via-gold-500/50 to-transparent"></div>
+
+          <!-- Course -->
+          <div class="text-center my-8">
+            <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Course Completed</div>
+            <div class="font-display font-bold text-2xl gradient-text-gold">${escapeHtml(cert.course_name || '—')}</div>
+            ${cert.course_topic ? `<div class="text-sm text-slate-400 mt-2 max-w-xl mx-auto">${escapeHtml(cert.course_topic)}</div>` : ''}
+          </div>
+
+          <!-- Meta -->
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-8">
+            ${cert.hours ? `<div class="card-glass rounded-lg p-3 text-center">
+              <div class="text-[10px] font-mono text-slate-500 uppercase">Duration</div>
+              <div class="font-bold text-white">${cert.hours} hours</div>
+            </div>` : ''}
+            ${cert.format_label ? `<div class="card-glass rounded-lg p-3 text-center">
+              <div class="text-[10px] font-mono text-slate-500 uppercase">Format</div>
+              <div class="font-bold text-white">${escapeHtml(cert.format_label)}</div>
+            </div>` : ''}
+            ${cert.achievement_label && cert.achievement !== 'none' ? `<div class="card-glass rounded-lg p-3 text-center border-gold-500/30">
+              <div class="text-[10px] font-mono text-gold-400 uppercase">Achievement</div>
+              <div class="font-bold gradient-text-gold">${escapeHtml(cert.achievement_label)}</div>
+            </div>` : ''}
+          </div>
+
+          <!-- Dates -->
+          <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5">
+            <div>
+              <div class="text-[10px] font-mono text-slate-500 uppercase">Completion Date</div>
+              <div class="text-sm text-white mt-0.5">${formatEngDate(cert.completion_date)}</div>
+              <div class="text-xs text-slate-500">${formatThaiDate(cert.completion_date)}</div>
+            </div>
+            <div>
+              <div class="text-[10px] font-mono text-slate-500 uppercase">Issue Date</div>
+              <div class="text-sm text-white mt-0.5">${formatEngDate(cert.issue_date)}</div>
+              <div class="text-xs text-slate-500">${formatThaiDate(cert.issue_date)}</div>
+            </div>
+          </div>
+
+          ${cert.custom_message ? `
+          <div class="mt-6 p-4 rounded-lg bg-gold-500/5 border border-gold-500/20 italic text-sm text-slate-300 text-center">
+            "${escapeHtml(cert.custom_message)}"
+          </div>` : ''}
+
+          <!-- Signer -->
+          <div class="mt-8 pt-6 border-t border-white/5 text-center">
+            <div class="text-[10px] font-mono text-slate-500 uppercase">Signed by</div>
+            <div class="text-sm font-bold text-white mt-1">${escapeHtml(cert.signer_name || 'Chaiwat Phuwanonjirakawin')}</div>
+            <div class="text-xs text-slate-500">${escapeHtml(cert.signer_title || 'Founder, TONPALEARN')}</div>
+          </div>
+
+          <!-- Issued at -->
+          <div class="mt-6 text-center text-[10px] font-mono text-slate-600">
+            Registered in TONPALEARN registry · ${cert.created_at ? new Date(cert.created_at).toISOString().slice(0,10) : '—'}
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  const verify = async (certNo) => {
+    certNo = (certNo || '').trim().toUpperCase();
+    if (!certNo) {
+      result.innerHTML = '';
+      return;
+    }
+    if (!configured) {
+      renderNotConfigured();
+      return;
+    }
+    renderLoading();
+
+    try {
+      const { data, error } = await client
+        .from('certificates')
+        .select('*')
+        .eq('cert_no', certNo)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) {
+        renderNotFound(certNo);
+      } else {
+        renderValid(data);
+      }
+    } catch (err) {
+      renderError(err);
+    }
+  };
+
+  btn.addEventListener('click', () => verify(input.value));
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') verify(input.value); });
+
+  // Auto-verify if ?id=... in URL
+  const params = new URLSearchParams(window.location.search);
+  const idFromUrl = params.get('id');
+  if (idFromUrl) {
+    input.value = idFromUrl;
+    verify(idFromUrl);
+  }
+})();
+</script>
+
+</body>
+</html>
