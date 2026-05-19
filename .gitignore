@@ -2,6 +2,9 @@
 *.zip
 node_modules/
 .netlify/
+.claude/
 .env
 .env.local
 *.log
+*.bak
+*.old.*
