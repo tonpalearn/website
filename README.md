@@ -3,7 +3,7 @@
 เว็บไซต์หลักของ **TONPALEARN** — สอน AI ใช้งานได้จริงสำหรับคนทั่วไป
 สอนโดยต้น (Toni) · วิศวกรคอมพิวเตอร์ · PM 15 ปี
 
-🌐 **Live:** https://tonpalearn.vercel.app
+🌐 **Live:** https://tonpalearn.com
 🚀 **Deploy:** Vercel · auto-deploy on push to `main`
 
 ---
@@ -16,8 +16,9 @@
 ├── index-v1.html                    # Previous version (Apr 2026, archive)
 ├── assets/                          # Images, covers, brand
 ├── quotation/                       # Quotation generator (A4 PDF/PNG)
+├── certificate/                     # Certificate generator (A4 landscape)
+├── chaiwat/                         # Profile page — ชัยวัฒน์ ภูวนนท์จิรกวิน
 ├── amway-2026/                      # Amway 2026 event page
-├── chaiwat/                         # Personal page (ต้น)
 ├── name-list/                       # Name list utility
 ├── IMAGE_PROMPTS_COURSE_10_11.md    # AI image prompts สำหรับ Course 10+11 cover
 └── README.md                        # นี่
@@ -25,7 +26,7 @@
 
 ---
 
-## 🎓 Courses (11)
+## 🎓 Courses (12)
 
 | # | Course | เวลา | Pre-req |
 |---|---|---|---|
@@ -40,8 +41,9 @@
 | 09 | AI Agentic App Builder | 5 ชม. | 08 |
 | 10 | AI Agentic Orchestra | 4 ชม. | rec. 02+03 |
 | 11 | AI Content Creator System | 4 ชม. | rec. 01 |
+| 12 | AI Agentic for IT Audit & Consult | 4 ชม. | IT Audit/Consult background |
 
-**Formats:** VDO · Online Group · Online 1:1 · On-site
+**Formats:** Online Group · Online 1:1 · On-site · Corporate
 
 ---
 
@@ -55,17 +57,19 @@
 
 ## 🛠️ Sub-apps
 
-### Quotation Generator (`/quotation/`)
-Web app สร้างใบเสนอราคา A4 — pick จาก course catalog, edit ราคา, export PDF/PNG
-- ใส่ข้อมูลผู้เสนอใน Settings ก่อนใช้ครั้งแรก (เก็บ localStorage)
-- ยังไม่ deploy production — เปิดผ่าน local file หรือ static host
+| Route | Purpose |
+|---|---|
+| `/` | Landing page (Hero + Courses + FAQ + CTA) |
+| `/chaiwat/` | ประวัติต้น (Cinematic editorial portfolio) |
+| `/quotation/` | สร้างใบเสนอราคา A4 (PDF/PNG export) |
+| `/certificate/` | สร้างใบรับรองการเรียนรู้ A4 landscape (PDF/PNG export) |
 
 ---
 
 ## 🚀 Deploy
 
 **Vercel** auto-deploy จาก branch `main` — ทุก push → build + publish ภายใน ~2 นาที
-Production: https://tonpalearn.vercel.app
+Production: https://tonpalearn.com
 
 ```bash
 # Local preview
