@@ -907,15 +907,18 @@ function Certificate({ settings, certNo, studentName, studentNameTH, nameStyle, 
           </div>
 
           <div className="text-center">
-            <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Verify · ตรวจสอบ</div>
-            <div className="font-mono text-xs text-gray-700">{settings.verifyBase}</div>
-            <div className="font-mono text-[10px] text-gray-500 mt-0.5">?id={certNo}</div>
+            <div className="mx-auto w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-xl mb-1"
+                 style={{ background: 'linear-gradient(135deg, #C8A84B, #9A7A2B)', boxShadow: '0 4px 12px -2px rgba(200,168,75,0.4)' }}>
+              T
+            </div>
+            <div className="text-[10px] font-bold text-gray-700 tracking-widest uppercase">Official Certificate</div>
+            <div className="text-[9px] text-gray-500 mt-0.5">Issued by TONPALEARN</div>
           </div>
         </div>
 
         {/* FOOTER */}
         <div className="mt-4 text-center text-[9px] text-gray-400 tracking-widest uppercase">
-          {settings.organizationURL} · Issued under TONPALEARN authority
+          {settings.organizationURL}
         </div>
       </div>
     </div>
