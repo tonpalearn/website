@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · ใบรับรองการเรียนรู้ Generator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Great+Vibes&family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=block" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Space Grotesk', 'IBM Plex Sans Thai', 'sans-serif'],
+            body:    ['IBM Plex Sans Thai', 'sans-serif'],
+          },
+          colors: {
+            ink:   { 950: '#08080F', 900: '#0D0D14', 800: '#12121E', 700: '#1A1A2A', 600: '#23233A' },
+            gold:  { 300: '#F5D67A', 400: '#F0CC72', 500: '#E6B84B', 600: '#C8A84B', 700: '#9A7A2B', 800: '#6B5419' },
+            teal:  { 300: '#67E8F9', 400: '#2DD4BF', 500: '#14B8A6', 600: '#0D9488' },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
+
+    /* A4 LANDSCAPE certificate */
+    .cert-paper {
+      width: 1123px;
+      height: 794px;
+      background: linear-gradient(135deg, #FFFEF9 0%, #FAFAF0 100%);
+      color: #1a1a2a;
+      position: relative;
+      font-family: 'Sarabun', sans-serif;
+      box-shadow: 0 26px 70px -20px rgba(0,0,0,0.6);
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+    .cert-paper * { box-sizing: border-box; }
+
+    /* Decorative borders */
+    .cert-frame-outer {
+      position: absolute; inset: 18px;
+      border: 2px solid #C8A84B;
+      border-radius: 4px;
+    }
+    .cert-frame-inner {
+      position: absolute; inset: 28px;
+      border: 1px solid #C8A84B;
+      border-radius: 2px;
+    }
+
+    /* Corner ornaments */
+    .corner {
+      position: absolute;
+      width: 80px; height: 80px;
+      pointer-events: none;
+    }
+    .corner.tl { top: 28px; left: 28px; }
+    .corner.tr { top: 28px; right: 28px; transform: scaleX(-1); }
+    .corner.bl { bottom: 28px; left: 28px; transform: scaleY(-1); }
+    .corner.br { bottom: 28px; right: 28px; transform: scale(-1, -1); }
+
+    /* Watermark seal */
+    .cert-seal {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px; height: 480px;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    .cert-gold-gradient {
+      background: linear-gradient(135deg, #9A7A2B 0%, #C8A84B 50%, #9A7A2B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .cert-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #C8A84B 25%, #9A7A2B 50%, #C8A84B 75%, transparent 100%);
+    }
+
+    .cert-divider-thick {
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #C8A84B 30%, #9A7A2B 50%, #C8A84B 70%, transparent 100%);
+    }
+
+    .cert-script {
+      font-family: 'Great Vibes', cursive;
+      letter-spacing: 0.01em;
+    }
+
+    .cert-serif {
+      font-family: 'Cormorant Garamond', serif;
+      letter-spacing: 0.02em;
+    }
+
+    /* Form Inputs (control panel) */
+    .inp {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(230,184,75,0.18);
+      color: #fff;
+      font-size: 13px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .inp:hover { border-color: rgba(230,184,75,0.35); }
+    .inp:focus { outline: none; border-color: #E6B84B; background: rgba(255,255,255,0.06); }
+    .inp::placeholder { color: rgba(255,255,255,0.3); }
+    .lbl { display: block; font-size: 11px; color: #94a3b8; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; transition: all 0.2s; cursor: pointer; }
+    .btn-gold { background: linear-gradient(135deg, #F0CC72, #E6B84B); color: #08080F; }
+    .btn-gold:hover { box-shadow: 0 0 28px -6px rgba(230,184,75,0.45); }
+    .btn-teal { background: rgba(45,212,191,0.12); color: #2DD4BF; border: 1px solid rgba(45,212,191,0.35); }
+    .btn-teal:hover { background: rgba(45,212,191,0.18); }
+    .btn-ghost { background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.1); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.04); color: #fff; }
+    .btn-danger { color: #f87171; }
+    .btn-danger:hover { color: #ef4444; background: rgba(248,113,113,0.08); }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border: 1px solid rgba(230,184,75,0.14);
+      backdrop-filter: blur(8px);
+      border-radius: 14px;
+    }
+
+    .gradient-text-gold-dark {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 60%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .gradient-text-teal-dark {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .scrollable::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollable::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+    .scrollable::-webkit-scrollbar-thumb { background: rgba(230,184,75,0.18); border-radius: 4px; }
+    .scrollable::-webkit-scrollbar-thumb:hover { background: rgba(230,184,75,0.35); }
+
+    .mesh-bg {
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(124,92,252,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(45,212,191,0.08) 0%, transparent 55%);
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      .cert-paper, .cert-paper * { visibility: visible; }
+      .cert-paper { position: absolute; left: 0; top: 0; box-shadow: none; margin: 0; transform: none !important; }
+      @page { size: A4 landscape; margin: 0; }
+    }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #14B8A6, #0D9488); color: white;
+      padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 14px;
+      box-shadow: 0 10px 30px -10px rgba(20,184,166,0.5); z-index: 100;
+      animation: toastIn 0.3s ease-out;
+    }
+    @keyframes toastIn { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+    .preview-zoom { transform-origin: top center; }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo } = React;
+
+// ──────────────────────────────────────────────────────────
+// COURSES (synced จาก /AI Course/COURSES.md v7.1 · 17 พ.ค. 2569)
+// ──────────────────────────────────────────────────────────
+const COURSES = [
+  { num: '01', name: 'AI Basic',                    nameEN: 'AI Basic',                       hrs: 2,   topic: 'AI คืออะไร + การใช้ Prompt' },
+  { num: '02', name: 'AI Agentic',                  nameEN: 'AI Agentic',                     hrs: 4,   topic: 'Setup Claude Cowork + Connector + Skill' },
+  { num: '03', name: 'MCP Connector',               nameEN: 'MCP Connector',                  hrs: 5,   topic: 'เชื่อม AI กับทุก App ที่ใช้อยู่' },
+  { num: '04', name: 'LINE ChatBot',                nameEN: 'LINE ChatBot',                   hrs: 3,   topic: 'สร้าง LINE ChatBot ของคุณเอง' },
+  { num: '05', name: 'AI for Kids',                 nameEN: 'AI for Kids',                    hrs: 3,   topic: 'AI สำหรับเด็ก ม.1–ม.6' },
+  { num: '06', name: 'AI for Personal Assistant',   nameEN: 'AI for Personal Assistant',      hrs: 3,   topic: 'PA workflow + AI Automation' },
+  { num: '07', name: 'AI for ABOs',                 nameEN: 'AI for ABOs',                    hrs: 3,   topic: 'AI ช่วยธุรกิจเครือข่าย' },
+  { num: '08', name: 'AI Agentic Web Builder',      nameEN: 'AI Agentic Web Builder',         hrs: 5,   topic: 'สร้าง Web ของตัวเองด้วย Vibe Coding' },
+  { num: '09', name: 'AI Agentic App Builder',      nameEN: 'AI Agentic App Builder',         hrs: 5,   topic: 'Web App + Database + Auth' },
+  { num: '10', name: 'AI Agentic Orchestra',        nameEN: 'AI Agentic Orchestra',           hrs: 4,   topic: 'Multi-Agent Orchestration + Auto Deploy' },
+  { num: '11', name: 'AI Content Creator System',   nameEN: 'AI Content Creator System',      hrs: 4,   topic: 'AI Workflow ระบบ Content + Content OS' },
+];
+
+const FORMATS = [
+  { key: 'vdo',     label: 'VDO (Self-paced)' },
+  { key: 'group',   label: 'Online Group' },
+  { key: 'private', label: 'Online 1:1' },
+  { key: 'onsite',  label: 'On-site Workshop' },
+  { key: 'corp',    label: 'Corporate Training' },
+];
+
+const ACHIEVEMENTS = [
+  { key: 'none',        label: 'ไม่ระบุ' },
+  { key: 'pass',        label: 'Passed · ผ่านการอบรม' },
+  { key: 'merit',       label: 'With Merit · ผ่านเกียรตินิยม' },
+  { key: 'distinction', label: 'With Distinction · ดีเยี่ยม' },
+  { key: 'honors',      label: 'With Honors · เกียรตินิยมอันดับสูง' },
+];
+
+// ──────────────────────────────────────────────────────────
+// Defaults
+// ──────────────────────────────────────────────────────────
+const DEFAULT_SETTINGS = {
+  signerName: 'Chaiwat Phuwanonjirakawin',
+  signerNameTH: 'ชัยวัฒน์ ภูวนนท์จิรกวิน',
+  signerTitle: 'Founder, TONPALEARN',
+  signerTitleTH: 'ผู้ก่อตั้ง TONPALEARN',
+  organizationURL: 'tonpalearn.com',
+  verifyBase: 'tonpalearn.com/verify',
+};
+
+// ──────────────────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────────────────
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const formatThaiDate = (iso) => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const monthsTH = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  return `${d.getDate()} ${monthsTH[d.getMonth()]} ${d.getFullYear() + 543}`;
+};
+const formatEngDate = (iso) => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const monthsEN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${monthsEN[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+};
+const genCertNo = (existing = []) => {
+  const now = new Date();
+  const yymm = String(now.getFullYear()).slice(2) + String(now.getMonth() + 1).padStart(2, '0');
+  const sameMonth = existing.filter(q => q.no?.startsWith(`TPL-CERT-${yymm}-`)).length;
+  const nnn = String(sameMonth + 1).padStart(3, '0');
+  return `TPL-CERT-${yymm}-${nnn}`;
+};
+
+// ──────────────────────────────────────────────────────────
+// Icons
+// ──────────────────────────────────────────────────────────
+const Icon = {
+  Plus:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M12 5v14M5 12h14"/></svg>,
+  Trash:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>,
+  Settings: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
+  Download: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>,
+  Image:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>,
+  Print:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>,
+  Save:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
+  History:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>,
+  Refresh:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  X:        (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M18 6 6 18M6 6l12 12"/></svg>,
+  Copy:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>,
+  Award:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="12" cy="8" r="7"/><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12"/></svg>,
+};
+
+// ──────────────────────────────────────────────────────────
+// Storage
+// ──────────────────────────────────────────────────────────
+const KEY_SETTINGS = 'tpl_cert_settings_v1';
+const KEY_HISTORY  = 'tpl_cert_history_v1';
+const KEY_DRAFT    = 'tpl_cert_draft_v1';
+
+const loadJSON = (key, fb) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } };
+const saveJSON = (key, v)  => { try { localStorage.setItem(key, JSON.stringify(v)); } catch {} };
+
+// ──────────────────────────────────────────────────────────
+// MAIN APP
+// ──────────────────────────────────────────────────────────
+function App() {
+  const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS, ...loadJSON(KEY_SETTINGS, {}) }));
+  const [history, setHistory]   = useState(() => loadJSON(KEY_HISTORY, []));
+
+  const draft = loadJSON(KEY_DRAFT, null);
+  const [certNo, setCertNo]               = useState(draft?.certNo || genCertNo(loadJSON(KEY_HISTORY, [])));
+  const [studentName, setStudentName]     = useState(draft?.studentName || '');
+  const [studentNameTH, setStudentNameTH] = useState(draft?.studentNameTH || '');
+  const [courseNum, setCourseNum]         = useState(draft?.courseNum || '02');
+  const [customCourseName, setCustomCourseName] = useState(draft?.customCourseName || '');
+  const [customCourseTopic, setCustomCourseTopic] = useState(draft?.customCourseTopic || '');
+  const [format, setFormat]               = useState(draft?.format || 'group');
+  const [hours, setHours]                 = useState(draft?.hours ?? '');
+  const [achievement, setAchievement]     = useState(draft?.achievement || 'pass');
+  const [completionDate, setCompletionDate] = useState(draft?.completionDate || todayISO());
+  const [issueDate, setIssueDate]         = useState(draft?.issueDate || todayISO());
+  const [customMessage, setCustomMessage] = useState(draft?.customMessage || '');
+  const [useCustomCourse, setUseCustomCourse] = useState(draft?.useCustomCourse || false);
+  const [nameStyle, setNameStyle]         = useState(draft?.nameStyle || 'script'); // 'script' | 'serif'
+
+  const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory]   = useState(false);
+  const [toast, setToast] = useState('');
+  const [zoom, setZoom]   = useState(0.7);
+
+  // Auto-save draft
+  useEffect(() => {
+    saveJSON(KEY_DRAFT, {
+      certNo, studentName, studentNameTH, courseNum, customCourseName, customCourseTopic,
+      format, hours, achievement, completionDate, issueDate, customMessage, useCustomCourse, nameStyle,
+    });
+  }, [certNo, studentName, studentNameTH, courseNum, customCourseName, customCourseTopic, format, hours, achievement, completionDate, issueDate, customMessage, useCustomCourse, nameStyle]);
+
+  useEffect(() => { saveJSON(KEY_SETTINGS, settings); }, [settings]);
+
+  // Auto-fill hours when course changes
+  const selectedCourse = useMemo(() => COURSES.find(c => c.num === courseNum), [courseNum]);
+  useEffect(() => {
+    if (!useCustomCourse && selectedCourse && !hours) setHours(selectedCourse.hrs);
+  }, [courseNum, useCustomCourse]);
+
+  const courseDisplay = useMemo(() => {
+    if (useCustomCourse) {
+      return { name: customCourseName || '(ระบุชื่อคอร์ส)', nameEN: customCourseName || '(Course name)', topic: customCourseTopic, hrs: Number(hours) || 0 };
+    }
+    return { ...selectedCourse, hrs: Number(hours) || selectedCourse.hrs };
+  }, [useCustomCourse, customCourseName, customCourseTopic, selectedCourse, hours]);
+
+  const formatLabel = FORMATS.find(f => f.key === format)?.label || '';
+  const achievementLabel = ACHIEVEMENTS.find(a => a.key === achievement)?.label || '';
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2200); };
+
+  // History
+  const saveToHistory = () => {
+    if (!studentName && !studentNameTH) { showToast('⚠️ ใส่ชื่อนักเรียนก่อน'); return; }
+    const snapshot = {
+      no: certNo, studentName, studentNameTH, courseNum, customCourseName, customCourseTopic,
+      format, hours, achievement, completionDate, issueDate, customMessage, useCustomCourse,
+      savedAt: Date.now(),
+    };
+    const existing = history.filter(h => h.no !== certNo);
+    const next = [snapshot, ...existing].slice(0, 100);
+    setHistory(next);
+    saveJSON(KEY_HISTORY, next);
+    showToast('✓ บันทึก ' + certNo + ' แล้ว');
+  };
+
+  const loadFromHistory = (q) => {
+    setCertNo(q.no);
+    setStudentName(q.studentName || '');
+    setStudentNameTH(q.studentNameTH || '');
+    setCourseNum(q.courseNum);
+    setCustomCourseName(q.customCourseName || '');
+    setCustomCourseTopic(q.customCourseTopic || '');
+    setFormat(q.format);
+    setHours(q.hours);
+    setAchievement(q.achievement);
+    setCompletionDate(q.completionDate);
+    setIssueDate(q.issueDate);
+    setCustomMessage(q.customMessage || '');
+    setUseCustomCourse(q.useCustomCourse || false);
+    setShowHistory(false);
+    showToast('โหลด ' + q.no + ' แล้ว');
+  };
+
+  const deleteFromHistory = (no) => {
+    const next = history.filter(h => h.no !== no);
+    setHistory(next);
+    saveJSON(KEY_HISTORY, next);
+  };
+
+  const resetAll = () => {
+    if (!confirm('ล้างฟอร์มและสร้างใบใหม่?')) return;
+    setCertNo(genCertNo(history));
+    setStudentName('');
+    setStudentNameTH('');
+    setCourseNum('02');
+    setCustomCourseName('');
+    setCustomCourseTopic('');
+    setFormat('group');
+    setHours('');
+    setAchievement('pass');
+    setCompletionDate(todayISO());
+    setIssueDate(todayISO());
+    setCustomMessage('');
+    setUseCustomCourse(false);
+    showToast('ล้างฟอร์มแล้ว');
+  };
+
+  // Font warmup before export
+  const warmUpFonts = async () => {
+    const fonts = [
+      '400 12px "Sarabun"', '600 12px "Sarabun"', '700 12px "Sarabun"',
+      '700 28px "Sarabun"', '700 48px "Sarabun"',
+      '400 56px "Great Vibes"', '400 72px "Great Vibes"',
+      '500 32px "Cormorant Garamond"', '700 48px "Cormorant Garamond"',
+      '700 30px "Space Grotesk"',
+    ];
+    await Promise.all(fonts.map(f => document.fonts.load(f).catch(() => null)));
+    await document.fonts.ready;
+    await new Promise(r => setTimeout(r, 300));
+  };
+
+  const imgOptions = () => ({
+    pixelRatio: 2,
+    backgroundColor: '#FFFEF9',
+    cacheBust: true,
+    width: 1123,
+    height: 794,
+    style: { transform: 'none', margin: '0', boxShadow: 'none' },
+  });
+
+  const filenameSafe = (s) => (s || 'student').replace(/[^a-zA-Z0-9ก-๙\s_-]/g, '').replace(/\s+/g, '_').slice(0, 40);
+
+  const exportPDF = async () => {
+    showToast('กำลังเตรียมฟอนต์...');
+    await warmUpFonts();
+    showToast('กำลังสร้าง PDF...');
+    const el = document.querySelector('.cert-paper');
+    const prev = el.style.transform;
+    el.style.transform = 'none';
+    try {
+      await htmlToImage.toPng(el, imgOptions());
+      const dataUrl = await htmlToImage.toPng(el, imgOptions());
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+      pdf.addImage(dataUrl, 'PNG', 0, 0, 297, 210);
+      const fn = filenameSafe(studentName || studentNameTH);
+      pdf.save(`${certNo}-${fn}.pdf`);
+      showToast('✓ Export PDF แล้ว');
+    } catch (err) {
+      console.error(err);
+      showToast('Export ไม่สำเร็จ — ลองกด Print แทน');
+    } finally {
+      el.style.transform = prev;
+    }
+  };
+
+  const exportPNG = async () => {
+    showToast('กำลังเตรียมฟอนต์...');
+    await warmUpFonts();
+    showToast('กำลังสร้างรูป...');
+    const el = document.querySelector('.cert-paper');
+    const prev = el.style.transform;
+    el.style.transform = 'none';
+    try {
+      await htmlToImage.toPng(el, imgOptions());
+      const dataUrl = await htmlToImage.toPng(el, imgOptions());
+      const link = document.createElement('a');
+      const fn = filenameSafe(studentName || studentNameTH);
+      link.download = `${certNo}-${fn}.png`;
+      link.href = dataUrl;
+      link.click();
+      showToast('✓ Export PNG แล้ว');
+    } catch (err) {
+      console.error(err);
+      showToast('Export ไม่สำเร็จ — ลองกด Print แทน');
+    } finally {
+      el.style.transform = prev;
+    }
+  };
+
+  return (
+    <div className="min-h-screen mesh-bg">
+      <Toolbar
+        certNo={certNo}
+        onSettings={() => setShowSettings(true)}
+        onHistory={() => setShowHistory(true)}
+        onSave={saveToHistory}
+        onPNG={exportPNG}
+        onPDF={exportPDF}
+        onPrint={() => window.print()}
+        onReset={resetAll}
+        zoom={zoom}
+        onZoom={setZoom}
+      />
+
+      {showSettings && <SettingsPanel settings={settings} setSettings={setSettings} onClose={() => setShowSettings(false)}/>}
+      {showHistory && <HistoryDrawer history={history} onLoad={loadFromHistory} onDelete={deleteFromHistory} onClose={() => setShowHistory(false)}/>}
+
+      <div className="mx-auto max-w-[1700px] px-4 py-5 grid grid-cols-12 gap-5">
+        {/* LEFT — Form */}
+        <div className="col-span-12 lg:col-span-4 xl:col-span-3 scrollable" style={{ maxHeight: 'calc(100vh - 84px)', overflowY: 'auto', paddingRight: 8 }}>
+          <FormPanel
+            certNo={certNo} setCertNo={setCertNo}
+            studentName={studentName} setStudentName={setStudentName}
+            studentNameTH={studentNameTH} setStudentNameTH={setStudentNameTH}
+            nameStyle={nameStyle} setNameStyle={setNameStyle}
+            courseNum={courseNum} setCourseNum={setCourseNum}
+            useCustomCourse={useCustomCourse} setUseCustomCourse={setUseCustomCourse}
+            customCourseName={customCourseName} setCustomCourseName={setCustomCourseName}
+            customCourseTopic={customCourseTopic} setCustomCourseTopic={setCustomCourseTopic}
+            format={format} setFormat={setFormat}
+            hours={hours} setHours={setHours}
+            achievement={achievement} setAchievement={setAchievement}
+            completionDate={completionDate} setCompletionDate={setCompletionDate}
+            issueDate={issueDate} setIssueDate={setIssueDate}
+            customMessage={customMessage} setCustomMessage={setCustomMessage}
+          />
+        </div>
+
+        {/* RIGHT — Certificate Preview */}
+        <div className="col-span-12 lg:col-span-8 xl:col-span-9">
+          <div className="scrollable" style={{ maxHeight: 'calc(100vh - 84px)', overflowY: 'auto' }}>
+            <div className="flex justify-center pb-10">
+              <div className="preview-zoom" style={{ transform: `scale(${zoom})` }}>
+                <Certificate
+                  settings={settings}
+                  certNo={certNo}
+                  studentName={studentName}
+                  studentNameTH={studentNameTH}
+                  nameStyle={nameStyle}
+                  course={courseDisplay}
+                  formatLabel={formatLabel}
+                  achievement={achievement}
+                  achievementLabel={achievementLabel}
+                  completionDate={completionDate}
+                  issueDate={issueDate}
+                  customMessage={customMessage}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// TOOLBAR
+// ──────────────────────────────────────────────────────────
+function Toolbar({ certNo, onSettings, onHistory, onSave, onPNG, onPDF, onPrint, onReset, zoom, onZoom }) {
+  return (
+    <div className="no-print sticky top-0 z-40 bg-ink-950/85 backdrop-blur-xl border-b border-gold-600/15">
+      <div className="mx-auto max-w-[1700px] px-4 h-16 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="font-display font-bold text-lg">
+            <span className="text-white">TON</span>
+            <span className="gradient-text-gold-dark">PA</span>
+            <span className="gradient-text-teal-dark">LEARN</span>
+          </span>
+          <span className="text-slate-500 text-sm">·</span>
+          <span className="text-sm text-slate-400 flex items-center gap-1.5"><Icon.Award className="w-4 h-4 text-gold-400"/>ใบรับรองการเรียนรู้</span>
+          <span className="text-xs px-2 py-1 rounded-md bg-gold-500/10 border border-gold-500/25 gradient-text-gold-dark font-mono font-semibold hidden sm:inline">{certNo}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 mr-2 text-xs text-slate-500">
+            <span>Zoom</span>
+            <input type="range" min="0.4" max="1.0" step="0.02" value={zoom} onChange={(e) => onZoom(parseFloat(e.target.value))} className="w-24 accent-gold-500"/>
+            <span className="font-mono w-8">{Math.round(zoom*100)}%</span>
+          </div>
+          <button onClick={onHistory} className="btn btn-ghost"><Icon.History className="w-4 h-4"/><span className="hidden sm:inline">History</span></button>
+          <button onClick={onSettings} className="btn btn-ghost"><Icon.Settings className="w-4 h-4"/><span className="hidden sm:inline">Settings</span></button>
+          <button onClick={onReset} className="btn btn-ghost btn-danger"><Icon.Refresh className="w-4 h-4"/></button>
+          <div className="w-px h-6 bg-white/10 mx-1"/>
+          <button onClick={onSave} className="btn btn-teal"><Icon.Save className="w-4 h-4"/><span className="hidden sm:inline">Save</span></button>
+          <button onClick={onPrint} className="btn btn-ghost"><Icon.Print className="w-4 h-4"/></button>
+          <button onClick={onPNG} className="btn btn-ghost"><Icon.Image className="w-4 h-4"/><span className="hidden sm:inline">PNG</span></button>
+          <button onClick={onPDF} className="btn btn-gold"><Icon.Download className="w-4 h-4"/><span className="hidden sm:inline">PDF</span></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// SETTINGS
+// ──────────────────────────────────────────────────────────
+function SettingsPanel({ settings, setSettings, onClose }) {
+  const upd = (k) => (e) => setSettings({ ...settings, [k]: e.target.value });
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-20" onClick={onClose}>
+      <div className="panel w-full max-w-2xl p-6 mx-4 max-h-[80vh] overflow-y-auto scrollable" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-display font-bold text-xl gradient-text-gold-dark">ตั้งค่าผู้ลงนาม</h2>
+          <button onClick={onClose} className="btn btn-ghost"><Icon.X className="w-5 h-5"/></button>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="lbl">Signer Name (EN)</label><input className="inp" value={settings.signerName} onChange={upd('signerName')}/></div>
+          <div><label className="lbl">ชื่อผู้ลงนาม (TH)</label><input className="inp" value={settings.signerNameTH} onChange={upd('signerNameTH')}/></div>
+          <div><label className="lbl">Title (EN)</label><input className="inp" value={settings.signerTitle} onChange={upd('signerTitle')}/></div>
+          <div><label className="lbl">ตำแหน่ง (TH)</label><input className="inp" value={settings.signerTitleTH} onChange={upd('signerTitleTH')}/></div>
+          <div><label className="lbl">Organization URL</label><input className="inp" value={settings.organizationURL} onChange={upd('organizationURL')}/></div>
+          <div><label className="lbl">Verify Base URL</label><input className="inp" value={settings.verifyBase} onChange={upd('verifyBase')}/></div>
+        </div>
+        <div className="mt-5 text-xs text-slate-500">บันทึกอัตโนมัติใน browser นี้ (localStorage)</div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// HISTORY
+// ──────────────────────────────────────────────────────────
+function HistoryDrawer({ history, onLoad, onDelete, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end" onClick={onClose}>
+      <div className="panel w-full max-w-md h-full overflow-y-auto scrollable rounded-none border-l border-gold-600/15" onClick={e => e.stopPropagation()}>
+        <div className="p-5 border-b border-white/10 flex items-center justify-between sticky top-0 bg-ink-950/95 backdrop-blur-xl z-10">
+          <h2 className="font-display font-bold text-lg gradient-text-gold-dark">ประวัติใบรับรอง ({history.length})</h2>
+          <button onClick={onClose} className="btn btn-ghost"><Icon.X className="w-5 h-5"/></button>
+        </div>
+        <div className="p-4 space-y-2">
+          {history.length === 0 && <div className="text-center text-slate-500 py-12 text-sm">ยังไม่มีใบรับรองในประวัติ — กด <b className="text-teal-400">Save</b> เพื่อบันทึก</div>}
+          {history.map(h => {
+            const courseName = h.useCustomCourse ? h.customCourseName : (COURSES.find(c => c.num === h.courseNum)?.name || '');
+            return (
+              <div key={h.no} className="panel p-3 hover:border-gold-500/30 transition-colors group">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono font-bold text-xs gradient-text-gold-dark">{h.no}</div>
+                    <div className="text-sm text-white mt-0.5 truncate">{h.studentName || h.studentNameTH || '(ไม่มีชื่อ)'}</div>
+                    <div className="text-xs text-slate-500 mt-0.5 truncate">{courseName}</div>
+                    <div className="text-xs text-slate-500 mt-1">{formatThaiDate(h.completionDate)}</div>
+                  </div>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => onLoad(h)} className="btn btn-teal py-1 px-2 text-xs"><Icon.Copy className="w-3 h-3"/></button>
+                    <button onClick={() => { if(confirm('ลบ ' + h.no + '?')) onDelete(h.no); }} className="btn btn-ghost btn-danger py-1 px-2"><Icon.Trash className="w-3 h-3"/></button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// FORM
+// ──────────────────────────────────────────────────────────
+function FormPanel(props) {
+  const {
+    certNo, setCertNo,
+    studentName, setStudentName, studentNameTH, setStudentNameTH, nameStyle, setNameStyle,
+    courseNum, setCourseNum, useCustomCourse, setUseCustomCourse,
+    customCourseName, setCustomCourseName, customCourseTopic, setCustomCourseTopic,
+    format, setFormat, hours, setHours, achievement, setAchievement,
+    completionDate, setCompletionDate, issueDate, setIssueDate, customMessage, setCustomMessage,
+  } = props;
+
+  return (
+    <div className="space-y-4">
+      {/* Cert meta */}
+      <Section title="ข้อมูลใบรับรอง">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2"><label className="lbl">เลขที่ใบรับรอง</label><input className="inp font-mono text-xs" value={certNo} onChange={e => setCertNo(e.target.value)}/></div>
+          <div><label className="lbl">วันที่เรียนจบ</label><input className="inp" type="date" value={completionDate} onChange={e => setCompletionDate(e.target.value)}/></div>
+          <div><label className="lbl">วันที่ออกใบ</label><input className="inp" type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)}/></div>
+        </div>
+      </Section>
+
+      {/* Student */}
+      <Section title="ข้อมูลนักเรียน">
+        <div className="space-y-3">
+          <div><label className="lbl">ชื่อ-นามสกุล (Thai)</label><input className="inp" value={studentNameTH} onChange={e => setStudentNameTH(e.target.value)} placeholder="เช่น สมชาย ใจดี"/></div>
+          <div><label className="lbl">Name (English)</label><input className="inp" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Somchai Jaidee"/></div>
+          <div>
+            <label className="lbl">รูปแบบชื่อในใบ</label>
+            <div className="flex gap-2">
+              {[
+                { k: 'script', l: '✒️ ลายเซ็น (Script)' },
+                { k: 'serif',  l: '📜 ตัวพิมพ์หรู (Serif)' },
+              ].map(o => (
+                <button key={o.k} onClick={() => setNameStyle(o.k)}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    nameStyle === o.k
+                      ? 'bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950'
+                      : 'border border-gold-600/20 text-slate-400 hover:border-gold-500/40 hover:text-white'
+                  }`}>{o.l}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Course */}
+      <Section title="คอร์สที่เรียน">
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <button onClick={() => setUseCustomCourse(false)}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                !useCustomCourse
+                  ? 'bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950'
+                  : 'border border-gold-600/20 text-slate-400 hover:border-gold-500/40 hover:text-white'
+              }`}>📚 เลือกจาก Catalog</button>
+            <button onClick={() => setUseCustomCourse(true)}
+              className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                useCustomCourse
+                  ? 'bg-gradient-to-br from-gold-400 to-gold-500 text-ink-950'
+                  : 'border border-gold-600/20 text-slate-400 hover:border-gold-500/40 hover:text-white'
+              }`}>✏️ Custom</button>
+          </div>
+
+          {!useCustomCourse ? (
+            <select className="inp text-sm" value={courseNum} onChange={e => setCourseNum(e.target.value)}>
+              {COURSES.map(c => <option key={c.num} value={c.num} className="bg-ink-900">{c.num} · {c.name} ({c.hrs} ชม.)</option>)}
+            </select>
+          ) : (
+            <>
+              <div><label className="lbl">ชื่อคอร์ส</label><input className="inp" value={customCourseName} onChange={e => setCustomCourseName(e.target.value)} placeholder="เช่น AI for Marketing Workshop"/></div>
+              <div><label className="lbl">หัวข้อ / Topics covered</label><textarea rows="2" className="inp text-sm" value={customCourseTopic} onChange={e => setCustomCourseTopic(e.target.value)} placeholder="เนื้อหาที่เรียน"/></div>
+            </>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="lbl">Format</label>
+              <select className="inp text-sm" value={format} onChange={e => setFormat(e.target.value)}>
+                {FORMATS.map(f => <option key={f.key} value={f.key} className="bg-ink-900">{f.label}</option>)}
+              </select>
+            </div>
+            <div><label className="lbl">ชั่วโมงเรียน</label><input className="inp text-sm" type="number" value={hours} onChange={e => setHours(e.target.value)} placeholder="auto-fill"/></div>
+          </div>
+
+          <div>
+            <label className="lbl">ผลการเรียน / Achievement</label>
+            <select className="inp text-sm" value={achievement} onChange={e => setAchievement(e.target.value)}>
+              {ACHIEVEMENTS.map(a => <option key={a.key} value={a.key} className="bg-ink-900">{a.label}</option>)}
+            </select>
+          </div>
+        </div>
+      </Section>
+
+      {/* Custom message */}
+      <Section title="ข้อความเพิ่มเติม (Optional)">
+        <textarea rows="3" className="inp text-sm" value={customMessage} onChange={e => setCustomMessage(e.target.value)} placeholder="เช่น 'For outstanding dedication and creative project completion'"/>
+        <div className="text-xs text-slate-500 mt-1">จะแสดงเป็น tagline ใต้ชื่อคอร์ส</div>
+      </Section>
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div className="panel p-4">
+      <div className="text-xs font-semibold gradient-text-gold-dark uppercase tracking-widest mb-3 font-display">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// CERTIFICATE PREVIEW (A4 LANDSCAPE) — capture target
+// ──────────────────────────────────────────────────────────
+function Certificate({ settings, certNo, studentName, studentNameTH, nameStyle, course, formatLabel, achievement, achievementLabel, completionDate, issueDate, customMessage }) {
+
+  const displayName = studentName || studentNameTH;
+  const hasBothNames = studentName && studentNameTH;
+
+  // Determine name style
+  const isScript = nameStyle === 'script';
+  const containsThai = /[฀-๿]/.test(displayName);
+  // Force serif for Thai-only display (Great Vibes doesn't support Thai)
+  const useScript = isScript && !containsThai;
+
+  return (
+    <div className="cert-paper">
+      {/* Decorative frames */}
+      <div className="cert-frame-outer"/>
+      <div className="cert-frame-inner"/>
+
+      {/* Corner ornaments */}
+      <CornerOrnament className="corner tl"/>
+      <CornerOrnament className="corner tr"/>
+      <CornerOrnament className="corner bl"/>
+      <CornerOrnament className="corner br"/>
+
+      {/* Watermark seal — TONPALEARN logo background */}
+      <SealOrnament/>
+
+      {/* Content */}
+      <div className="absolute inset-0 px-20 py-14 flex flex-col" style={{ paddingTop: '60px', paddingBottom: '60px' }}>
+
+        {/* TOP — Brand */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white text-lg"
+                 style={{ background: 'linear-gradient(135deg, #C8A84B, #9A7A2B)' }}>
+              T
+            </div>
+            <div>
+              <div className="font-bold text-lg tracking-tight leading-none" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <span className="text-gray-900">TON</span>
+                <span className="cert-gold-gradient">PA</span>
+                <span style={{ color: '#0D9488' }}>LEARN</span>
+              </div>
+              <div className="text-[9px] text-gray-500 mt-0.5 tracking-wider uppercase">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-[9px] text-gray-500 tracking-wider uppercase">Certificate No.</div>
+            <div className="font-mono font-bold text-sm" style={{ color: '#6B5419' }}>{certNo}</div>
+          </div>
+        </div>
+
+        {/* TITLE */}
+        <div className="mt-8 text-center">
+          <div className="cert-serif text-5xl font-semibold cert-gold-gradient tracking-wide" style={{ letterSpacing: '0.08em' }}>
+            CERTIFICATE OF COMPLETION
+          </div>
+          <div className="mt-1 text-base text-gray-600 tracking-widest" style={{ fontWeight: 500 }}>
+            ใบรับรองการเรียนรู้
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <div className="cert-divider-thick w-32"/>
+            <svg viewBox="0 0 24 24" className="w-4 h-4" style={{ color: '#C8A84B' }} fill="currentColor">
+              <path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6z"/>
+            </svg>
+            <div className="cert-divider-thick w-32"/>
+          </div>
+        </div>
+
+        {/* CERTIFY */}
+        <div className="mt-6 text-center">
+          <div className="cert-serif text-xl text-gray-700 italic" style={{ fontWeight: 400 }}>
+            This is to certify that
+          </div>
+          <div className="text-sm text-gray-500 mt-0.5">— ขอรับรองว่า —</div>
+        </div>
+
+        {/* STUDENT NAME — main hero */}
+        <div className="mt-3 text-center">
+          {useScript ? (
+            <div className="cert-script text-7xl text-gray-900 leading-tight" style={{ color: '#1a1a2a' }}>
+              {displayName}
+            </div>
+          ) : (
+            <div className="text-5xl font-bold text-gray-900 tracking-tight" style={{ letterSpacing: '0.01em' }}>
+              {displayName || '(กรอกชื่อนักเรียน)'}
+            </div>
+          )}
+          {hasBothNames && (
+            <div className="text-base text-gray-600 mt-1" style={{ fontWeight: 500 }}>
+              {useScript ? studentNameTH : `(${studentNameTH})`}
+            </div>
+          )}
+          <div className="mt-2 mx-auto w-72 h-px bg-gray-400"/>
+        </div>
+
+        {/* COMPLETION TEXT */}
+        <div className="mt-5 text-center px-12">
+          <div className="cert-serif text-lg text-gray-700 italic">
+            has successfully completed the course
+          </div>
+          <div className="text-xs text-gray-500 mt-0.5">— ได้สำเร็จการเรียนรู้หลักสูตร —</div>
+        </div>
+
+        {/* COURSE NAME */}
+        <div className="mt-3 text-center">
+          <div className="text-3xl font-bold cert-gold-gradient tracking-tight" style={{ fontFamily: "'Sarabun', sans-serif" }}>
+            {course.name || course.nameEN || '(เลือกคอร์ส)'}
+          </div>
+          {course.topic && (
+            <div className="text-sm text-gray-600 mt-1 max-w-2xl mx-auto" style={{ fontWeight: 400 }}>
+              {course.topic}
+            </div>
+          )}
+          {customMessage && (
+            <div className="text-xs text-gray-500 italic mt-2 max-w-2xl mx-auto">
+              "{customMessage}"
+            </div>
+          )}
+        </div>
+
+        {/* META PILLS */}
+        <div className="mt-4 flex items-center justify-center gap-4 flex-wrap">
+          <Pill icon="⏱" text={`${course.hrs || '-'} hours`}/>
+          <Pill icon="📋" text={formatLabel}/>
+          {achievement !== 'none' && <Pill icon="🏆" text={achievementLabel} gold/>}
+        </div>
+
+        {/* SPACER */}
+        <div className="flex-1"/>
+
+        {/* BOTTOM — Date + Signature */}
+        <div className="grid grid-cols-3 gap-6 items-end mt-4">
+          <div className="text-center">
+            <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Date Issued · วันที่ออกใบ</div>
+            <div className="cert-serif text-lg text-gray-900 font-semibold">{formatEngDate(issueDate)}</div>
+            <div className="text-xs text-gray-600 mt-0.5">{formatThaiDate(issueDate)}</div>
+          </div>
+
+          <div className="text-center">
+            <div className="cert-script text-3xl mb-1" style={{ color: '#1a1a2a' }}>
+              {settings.signerName?.split(' ')[0] || 'Chaiwat'}
+            </div>
+            <div className="mx-auto w-56 h-px bg-gray-700"/>
+            <div className="mt-1 text-sm font-bold text-gray-900">{settings.signerName}</div>
+            <div className="text-[11px] text-gray-600">{settings.signerTitle}</div>
+            <div className="text-[10px] text-gray-500">{settings.signerNameTH} · {settings.signerTitleTH}</div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Verify · ตรวจสอบ</div>
+            <div className="font-mono text-xs text-gray-700">{settings.verifyBase}</div>
+            <div className="font-mono text-[10px] text-gray-500 mt-0.5">?id={certNo}</div>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="mt-4 text-center text-[9px] text-gray-400 tracking-widest uppercase">
+          {settings.organizationURL} · Issued under TONPALEARN authority
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Pill({ icon, text, gold }) {
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold ${
+      gold ? 'border border-gold-600' : 'border border-gray-300'
+    }`}
+    style={{
+      background: gold ? 'linear-gradient(135deg, rgba(230,184,75,0.15), rgba(200,168,75,0.1))' : 'rgba(0,0,0,0.02)',
+      color: gold ? '#6B5419' : '#374151',
+    }}>
+      <span>{icon}</span>
+      <span>{text}</span>
+    </div>
+  );
+}
+
+function CornerOrnament({ className }) {
+  return (
+    <svg viewBox="0 0 80 80" className={className}>
+      <g fill="none" stroke="#C8A84B" strokeWidth="1.2">
+        <path d="M 5 5 L 35 5"/>
+        <path d="M 5 5 L 5 35"/>
+        <path d="M 12 12 L 28 12 L 28 28 L 12 28 Z" strokeWidth="0.8" opacity="0.6"/>
+        <circle cx="20" cy="20" r="2.5" fill="#C8A84B"/>
+        <path d="M 5 12 Q 12 12 12 5" opacity="0.5"/>
+        <path d="M 35 5 Q 35 12 42 12" opacity="0.4"/>
+        <path d="M 5 35 Q 12 35 12 42" opacity="0.4"/>
+      </g>
+    </svg>
+  );
+}
+
+function SealOrnament() {
+  return (
+    <svg className="cert-seal" viewBox="0 0 200 200">
+      <g fill="none" stroke="#C8A84B" strokeWidth="0.6">
+        <circle cx="100" cy="100" r="95"/>
+        <circle cx="100" cy="100" r="85"/>
+        <circle cx="100" cy="100" r="60"/>
+        <circle cx="100" cy="100" r="50"/>
+        {/* Star burst */}
+        {Array.from({ length: 24 }).map((_, i) => {
+          const angle = (i * 15 * Math.PI) / 180;
+          const x1 = 100 + Math.cos(angle) * 50;
+          const y1 = 100 + Math.sin(angle) * 50;
+          const x2 = 100 + Math.cos(angle) * 60;
+          const y2 = 100 + Math.sin(angle) * 60;
+          return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}/>;
+        })}
+      </g>
+      <text x="100" y="115" textAnchor="middle" fontSize="48" fontWeight="700" fill="#C8A84B" fontFamily="Space Grotesk, sans-serif">T</text>
+    </svg>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// MOUNT
+// ──────────────────────────────────────────────────────────
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
