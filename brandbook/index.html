@@ -16,7 +16,8 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
+    html { background: #08080F; }
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; min-height: 100vh; }
     *::selection { background: rgba(230,184,75,0.25); color: #fff; }
     .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
     .font-serif   { font-family: 'Cormorant Garamond', serif; }
@@ -30,8 +31,8 @@
     .scrollable::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
 
     .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.12);
       backdrop-filter: blur(10px);
       border-radius: 14px;
     }
@@ -100,7 +101,7 @@
     }
   </style>
 </head>
-<body class="mesh-bg">
+<body>
 
 <div id="root"></div>
 
@@ -261,9 +262,8 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen relative">
-      <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none"/>
-      <div className="absolute inset-0 noise pointer-events-none"/>
+    <div className="min-h-screen relative" style={{ background: '#08080F' }}>
+      <div className="absolute inset-0 grid-bg opacity-20 pointer-events-none"/>
 
       <TopNav/>
 
