@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · Booking Admin</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html { background: #08080F; }
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+    .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
+    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+    }
+    .grad-text-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect } = React;
+
+const STATUS_META = {
+  pending_payment: { label: 'รอชำระเงิน',     color: '#94a3b8' },
+  slip_uploaded:   { label: 'รอ admin ยืนยัน', color: '#F0CC72' },
+  admin_review:    { label: 'กำลังตรวจสอบ',    color: '#F0CC72' },
+  confirmed:       { label: 'ยืนยันแล้ว',       color: '#2DD4BF' },
+  rejected:        { label: 'ปฏิเสธ',           color: '#EF4444' },
+  cancelled:       { label: 'ยกเลิก',           color: '#94a3b8' },
+};
+
+function App() {
+  const params = new URLSearchParams(window.location.search);
+  const bookingId = params.get('id');
+
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [notes, setNotes] = useState('');
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!bookingId) { setError('Missing booking id'); setLoading(false); return; }
+    (async () => {
+      try {
+        const resp = await fetch(`/api/bookings?id=${bookingId}`);
+        if (!resp.ok) throw new Error(await resp.text());
+        setBooking(await resp.json());
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [bookingId]);
+
+  const handleAction = async (action) => {
+    if (action === 'reject' && !reason) {
+      alert('กรุณาระบุเหตุผล');
+      return;
+    }
+    if (!confirm(`ยืนยัน ${action === 'confirm' ? 'อนุมัติ' : 'ปฏิเสธ'} booking นี้?`)) return;
+    setActionLoading(true); setError('');
+    try {
+      const resp = await fetch('/api/confirm-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: bookingId, action, admin_notes: notes, rejection_reason: reason }),
+      });
+      if (!resp.ok) throw new Error(await resp.text());
+      setBooking(await resp.json());
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) return <Center>กำลังโหลด...</Center>;
+  if (error)   return <Center><span className="text-red-400">⚠️ {error}</span></Center>;
+  if (!booking) return <Center>ไม่พบ booking</Center>;
+
+  const status = STATUS_META[booking.status] || { label: booking.status, color: '#FFF' };
+  const isFinalized = ['confirmed', 'rejected', 'cancelled'].includes(booking.status);
+
+  return (
+    <div className="mx-auto max-w-2xl px-5 py-8">
+      <header className="mb-6">
+        <a href="/" className="font-display font-bold text-base">
+          <span className="text-white">TON</span>
+          <span className="grad-text-gold">PA</span>
+          <span style={{ background: 'linear-gradient(135deg, #67E8F9, #2DD4BF)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>LEARN</span>
+          <span className="text-slate-500 mx-2 text-sm font-normal">·</span>
+          <span className="text-sm text-slate-400 font-normal">Booking Admin</span>
+        </a>
+      </header>
+
+      <div className="panel p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="font-mono text-xs text-slate-500">Booking</div>
+            <div className="font-display font-bold text-2xl grad-text-gold">{booking.booking_no}</div>
+          </div>
+          <span className="px-3 py-1 rounded-md text-xs font-bold uppercase tracking-widest"
+                style={{ background: status.color + '20', color: status.color, border: `1px solid ${status.color}40` }}>
+            {status.label}
+          </span>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 mt-4">
+          <Field k="ชื่อลูกค้า" v={booking.customer_name}/>
+          <Field k="เบอร์โทร" v={<a href={`tel:${booking.customer_phone}`} className="text-teal-400 hover:underline">{booking.customer_phone}</a>}/>
+          <Field k="Email" v={booking.customer_email || '—'}/>
+          <Field k="บริษัท" v={booking.customer_company || '—'}/>
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-white/10 grid sm:grid-cols-2 gap-4">
+          <Field k="คอร์ส" v={`${booking.course_num} · ${booking.course_name}`}/>
+          <Field k="Format" v={`${booking.format_label} · ${booking.num_attendees} คน · ${booking.hours} ชม.`}/>
+          <Field k="วันที่จอง" v={`${booking.preferred_date} · ${booking.preferred_time}`}/>
+          <Field k="ยอดชำระ" v={<span className="grad-text-gold font-bold">฿{booking.amount?.toLocaleString()}</span>}/>
+        </div>
+
+        {booking.slip_url && (
+          <div className="mt-5 pt-4 border-t border-white/10">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2">Slip</div>
+            <a href={booking.slip_url} target="_blank" rel="noopener" className="block panel p-2 hover:border-gold-500/40 transition">
+              <img src={booking.slip_url} alt="Slip" className="max-h-96 w-auto mx-auto rounded"
+                   onError={(e) => { e.target.style.display='none'; }}/>
+              <div className="text-center text-xs text-slate-400 mt-2">เปิดไฟล์ขนาดเต็ม ↗</div>
+            </a>
+          </div>
+        )}
+
+        {!isFinalized && (
+          <div className="mt-5 pt-4 border-t border-white/10 space-y-3">
+            <div>
+              <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">Admin notes (optional)</label>
+              <textarea rows="2" value={notes} onChange={e => setNotes(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-gold-500"/>
+            </div>
+            <div>
+              <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">เหตุผลปฏิเสธ (ถ้า reject)</label>
+              <input value={reason} onChange={e => setReason(e.target.value)}
+                     placeholder="เช่น ยอดไม่ตรง · slip ปลอม · เวลาขัด"
+                     className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-gold-500"/>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button onClick={() => handleAction('reject')} disabled={actionLoading}
+                      className="flex-1 px-4 py-2.5 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/10 transition font-display font-semibold disabled:opacity-30">
+                ✕ ปฏิเสธ
+              </button>
+              <button onClick={() => handleAction('confirm')} disabled={actionLoading}
+                      className="flex-1 px-4 py-2.5 rounded-lg font-display font-bold transition disabled:opacity-30"
+                      style={{ background: 'linear-gradient(135deg, #14B8A6, #0D9488)', color: '#FFF' }}>
+                {actionLoading ? '...' : '✓ อนุมัติ + สร้าง Calendar event'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isFinalized && (
+          <div className="mt-5 pt-4 border-t border-white/10 text-sm space-y-2">
+            {booking.admin_notes && <Field k="Admin notes" v={booking.admin_notes}/>}
+            {booking.rejection_reason && <Field k="เหตุผลปฏิเสธ" v={<span className="text-red-300">{booking.rejection_reason}</span>}/>}
+            {booking.calendar_event_id && <Field k="Calendar event" v={<code className="text-teal-400 text-xs">{booking.calendar_event_id}</code>}/>}
+            {booking.confirmed_at && <Field k="ยืนยันเมื่อ" v={new Date(booking.confirmed_at).toLocaleString('th-TH')}/>}
+            {booking.rejected_at && <Field k="ปฏิเสธเมื่อ" v={new Date(booking.rejected_at).toLocaleString('th-TH')}/>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Field({ k, v }) {
+  return (
+    <div>
+      <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{k}</div>
+      <div className="text-sm text-white mt-0.5">{v}</div>
+    </div>
+  );
+}
+
+function Center({ children }) {
+  return (
+    <div className="min-h-screen flex items-center justify-center text-slate-400 px-5 text-center">
+      {children}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

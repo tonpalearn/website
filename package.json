@@ -1,0 +1,10 @@
+{
+  "name": "tonpalearn-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TONPALEARN website with serverless booking system",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "googleapis": "^144.0.0"
+  }
+}
