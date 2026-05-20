@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · Brand Book</title>
+  <meta name="description" content="TONPALEARN brand book — design system, color palette, typography, components, voice & tone. Reference for all touchpoints." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Great+Vibes&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
+    *::selection { background: rgba(230,184,75,0.25); color: #fff; }
+    .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
+    .font-serif   { font-family: 'Cormorant Garamond', serif; }
+    .font-sarabun { font-family: 'Sarabun', sans-serif; }
+    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+    .font-script  { font-family: 'Great Vibes', cursive; }
+
+    .scrollable::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollable::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+    .scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 4px; }
+    .scrollable::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+    }
+
+    .grad-text-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-text-teal {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-text-violet {
+      background: linear-gradient(135deg, #C4B5FD 0%, #7C5CFC 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .mesh-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 20%, rgba(124,92,252,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 15% 80%, rgba(45,212,191,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 45% at 85% 75%, rgba(230,184,75,0.08) 0%, transparent 55%);
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(230,184,75,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(230,184,75,0.04) 1px, transparent 1px);
+      background-size: 56px 56px;
+    }
+    .noise {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0 0.5 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.025; mix-blend-mode: overlay;
+    }
+
+    .shine { position: relative; overflow: hidden; }
+    .shine::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+      transform: translateX(-100%); transition: transform 0.8s;
+    }
+    .shine:hover::after { transform: translateX(100%); }
+
+    /* Copy badge */
+    @keyframes copyPing {
+      0%   { transform: translateY(0) scale(1);   opacity: 1; }
+      100% { transform: translateY(-12px) scale(1.05); opacity: 0; }
+    }
+    .copy-ping { animation: copyPing 0.6s ease-out forwards; }
+
+    /* Nav sticky highlight */
+    .nav-active { background: rgba(230,184,75,0.10); color: #F5D67A; border-left-color: #E6B84B; }
+
+    /* Demo card hover */
+    .card-glass-hover { transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; }
+    .card-glass-hover:hover { transform: translateY(-3px); border-color: rgba(230,184,75,0.30); box-shadow: 0 16px 40px -16px rgba(230,184,75,0.20); }
+
+    /* Logo seal */
+    .logo-seal {
+      background: radial-gradient(circle at 30% 30%, #F5D67A, #C8A84B 50%, #9A7A2B 100%);
+      box-shadow: 0 8px 24px -8px rgba(230,184,75,0.50), inset 0 -6px 16px rgba(106,84,25,0.35);
+    }
+
+    @media print {
+      .no-print, aside { display: none !important; }
+      main { padding-left: 0 !important; }
+    }
+  </style>
+</head>
+<body class="mesh-bg">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef } = React;
+
+// ───────────────────────────────────────────────────────────
+// COLORS — the source of truth
+// ───────────────────────────────────────────────────────────
+const PALETTE = {
+  ink: {
+    label: 'Ink (Dark base)',
+    role:  'Backgrounds · primary surfaces',
+    shades: [
+      { name: '950', hex: '#08080F', use: 'page background' },
+      { name: '900', hex: '#0D0D14', use: 'subtle layer' },
+      { name: '850', hex: '#101019', use: 'panel raised' },
+      { name: '800', hex: '#12121E', use: 'card depth' },
+      { name: '700', hex: '#1A1A2A', use: 'border / divider' },
+      { name: '600', hex: '#23233A', use: 'high contrast border' },
+    ],
+  },
+  gold: {
+    label: 'Gold (Primary accent)',
+    role:  'CTAs · headings · brand highlight',
+    shades: [
+      { name: '300', hex: '#F5D67A', use: 'light text / hover' },
+      { name: '400', hex: '#F0CC72', use: 'gradient stop' },
+      { name: '500', hex: '#E6B84B', use: 'primary CTA' },
+      { name: '600', hex: '#C8A84B', use: 'border / line' },
+      { name: '700', hex: '#9A7A2B', use: 'deep accent' },
+    ],
+  },
+  teal: {
+    label: 'Teal (Secondary accent)',
+    role:  'Tertiary CTAs · success · info',
+    shades: [
+      { name: '300', hex: '#67E8F9', use: 'light highlight' },
+      { name: '400', hex: '#2DD4BF', use: 'primary teal' },
+      { name: '500', hex: '#14B8A6', use: 'mid teal' },
+      { name: '600', hex: '#0D9488', use: 'deep teal' },
+    ],
+  },
+  violet: {
+    label: 'Violet (Tertiary accent)',
+    role:  'Decorative · gradient depth · creator mood',
+    shades: [
+      { name: '300', hex: '#C4B5FD', use: 'light violet' },
+      { name: '400', hex: '#A78BFA', use: 'primary violet' },
+      { name: '500', hex: '#7C5CFC', use: 'deep violet' },
+      { name: '600', hex: '#5B21B6', use: 'darkest' },
+    ],
+  },
+};
+
+// ───────────────────────────────────────────────────────────
+// TYPOGRAPHY SCALE
+// ───────────────────────────────────────────────────────────
+const TYPE_SCALE = [
+  { name: 'Display XL', size: '72px', weight: '700', family: 'display', use: 'Hero title · landing page', sample: 'AI ง่ายขึ้น' },
+  { name: 'Display L',  size: '60px', weight: '700', family: 'display', use: 'Section hero',           sample: 'เรียนได้ทุกระดับ' },
+  { name: 'Display M',  size: '48px', weight: '600', family: 'display', use: 'Page title',             sample: 'หลักสูตร 12 คอร์ส' },
+  { name: 'Serif Display', size: '60px', weight: '500', family: 'serif', use: 'Certificate · profile name', sample: 'Chaiwat' },
+  { name: 'Heading 1',  size: '36px', weight: '700', family: 'display', use: 'Section heading',         sample: 'About TONPALEARN' },
+  { name: 'Heading 2',  size: '28px', weight: '600', family: 'display', use: 'Subsection',             sample: 'หลักสูตร AI Agentic' },
+  { name: 'Heading 3',  size: '20px', weight: '600', family: 'body',    use: 'Card title',              sample: 'AI Agentic' },
+  { name: 'Body L',     size: '16px', weight: '400', family: 'body',    use: 'Lead paragraph',          sample: 'AI ที่ใช้ได้จริง — สอนโดยต้น' },
+  { name: 'Body',       size: '14px', weight: '400', family: 'body',    use: 'Default text',            sample: 'เรียนรู้ AI ที่ใช้งานได้จริง' },
+  { name: 'Body S',     size: '12px', weight: '400', family: 'body',    use: 'Caption',                 sample: 'ปรึกษาฟรี · ไม่มีข้อผูกมัด' },
+  { name: 'Mono',       size: '11px', weight: '500', family: 'mono',    use: 'Code · numbers · meta',   sample: 'TPL-2605-001' },
+];
+
+// ───────────────────────────────────────────────────────────
+// SPACING / RADIUS / SHADOW tokens
+// ───────────────────────────────────────────────────────────
+const SPACING = [
+  { name: '0',  px: '0px',  rem: '0',     use: 'no space' },
+  { name: '1',  px: '4px',  rem: '0.25rem', use: 'tight' },
+  { name: '2',  px: '8px',  rem: '0.5rem',  use: 'icon gap' },
+  { name: '3',  px: '12px', rem: '0.75rem', use: 'inline elements' },
+  { name: '4',  px: '16px', rem: '1rem',    use: 'default gap' },
+  { name: '5',  px: '20px', rem: '1.25rem', use: 'card padding' },
+  { name: '6',  px: '24px', rem: '1.5rem',  use: 'section gap' },
+  { name: '8',  px: '32px', rem: '2rem',    use: 'panel padding' },
+  { name: '12', px: '48px', rem: '3rem',    use: 'block gap' },
+  { name: '16', px: '64px', rem: '4rem',    use: 'section gap' },
+  { name: '20', px: '80px', rem: '5rem',    use: 'hero padding' },
+  { name: '24', px: '96px', rem: '6rem',    use: 'page section' },
+];
+
+const RADIUS = [
+  { name: 'sm',   px: '6px',  use: 'small chips' },
+  { name: 'md',   px: '8px',  use: 'inputs · buttons small' },
+  { name: 'lg',   px: '12px', use: 'cards' },
+  { name: 'xl',   px: '16px', use: 'panels' },
+  { name: '2xl',  px: '24px', use: 'hero panels' },
+  { name: '3xl',  px: '32px', use: 'bento cells' },
+  { name: 'full', px: '999px',use: 'pills · avatars' },
+];
+
+const SHADOWS = [
+  { name: 'glow',     css: '0 0 40px -10px rgba(230,184,75,0.35)',  use: 'gold CTA hover' },
+  { name: 'glowTeal', css: '0 0 40px -10px rgba(45,212,191,0.35)',  use: 'teal accent hover' },
+  { name: 'glowVio',  css: '0 0 50px -10px rgba(167,139,250,0.35)', use: 'violet accent hover' },
+  { name: 'lift',     css: '0 18px 50px -20px rgba(0,0,0,0.55)',    use: 'elevated panel' },
+];
+
+// ───────────────────────────────────────────────────────────
+// NAV
+// ───────────────────────────────────────────────────────────
+const NAV = [
+  { id: 'brand',      label: 'Brand Essence' },
+  { id: 'logo',       label: 'Logo' },
+  { id: 'colors',     label: 'Colors' },
+  { id: 'typography', label: 'Typography' },
+  { id: 'spacing',    label: 'Spacing · Radius · Shadow' },
+  { id: 'gradients',  label: 'Gradients & Effects' },
+  { id: 'buttons',    label: 'Buttons' },
+  { id: 'cards',      label: 'Cards' },
+  { id: 'badges',     label: 'Badges · Chips' },
+  { id: 'inputs',     label: 'Inputs' },
+  { id: 'voice',      label: 'Voice & Tone' },
+  { id: 'donts',      label: "Don'ts" },
+  { id: 'code',       label: 'Code Tokens' },
+];
+
+// ───────────────────────────────────────────────────────────
+// MAIN APP
+// ───────────────────────────────────────────────────────────
+function App() {
+  const [active, setActive] = useState('brand');
+  const [copied, setCopied] = useState(null);
+
+  const copy = async (text, key) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    }
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1200);
+  };
+
+  // Active section based on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) setActive(e.target.id);
+      });
+    }, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+    NAV.forEach(n => {
+      const el = document.getElementById(n.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="min-h-screen relative">
+      <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none"/>
+      <div className="absolute inset-0 noise pointer-events-none"/>
+
+      <TopNav/>
+
+      <div className="relative mx-auto max-w-[1500px] flex gap-6 px-6 pt-6">
+        <SideNav active={active}/>
+
+        <main className="flex-1 min-w-0 pb-32">
+          <Brand/>
+          <Logo copy={copy} copied={copied}/>
+          <Colors copy={copy} copied={copied}/>
+          <Typography/>
+          <Spacing copy={copy} copied={copied}/>
+          <Gradients copy={copy} copied={copied}/>
+          <Buttons/>
+          <Cards/>
+          <Badges/>
+          <Inputs/>
+          <Voice/>
+          <Donts/>
+          <CodeTokens copy={copy} copied={copied}/>
+
+          <footer className="mt-24 pt-8 border-t border-white/10 text-center text-xs text-slate-500">
+            <div className="font-mono uppercase tracking-widest mb-2">TONPALEARN · Brand Book</div>
+            <div>© 2026 ชัยวัฒน์ ภูวนนท์จิรกวิน · Updated 20 พ.ค. 2569</div>
+            <div className="mt-1">Reference at <a href="https://tonpalearn.com/brandbook/" className="grad-text-gold">tonpalearn.com/brandbook</a></div>
+          </footer>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// TOP NAV
+// ───────────────────────────────────────────────────────────
+function TopNav() {
+  return (
+    <header className="no-print sticky top-0 z-40 border-b border-white/10 bg-ink-950/85 backdrop-blur-xl">
+      <div className="mx-auto max-w-[1500px] px-6 h-16 flex items-center justify-between">
+        <a href="/" className="font-display font-bold text-lg tracking-tight">
+          <span className="text-white">TON</span>
+          <span className="grad-text-gold">PA</span>
+          <span className="grad-text-teal">LEARN</span>
+        </a>
+        <div className="font-mono text-[10px] tracking-widest text-slate-500 uppercase">Brand Book · v1.0</div>
+        <a href="/" className="text-sm text-slate-400 hover:text-white transition-colors">← Home</a>
+      </div>
+    </header>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SIDE NAV
+// ───────────────────────────────────────────────────────────
+function SideNav({ active }) {
+  return (
+    <aside className="no-print w-56 flex-shrink-0 hidden lg:block">
+      <div className="sticky top-24">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3 px-4">Contents</div>
+        <nav className="space-y-0.5">
+          {NAV.map((item, i) => (
+            <a key={item.id} href={`#${item.id}`}
+               className={`block pl-4 pr-3 py-2 text-sm border-l-2 transition ${
+                 active === item.id
+                   ? 'nav-active font-semibold'
+                   : 'border-transparent text-slate-400 hover:text-white hover:bg-white/[0.03]'
+               }`}>
+              <span className="font-mono text-[10px] text-slate-500 mr-2">{String(i+1).padStart(2,'0')}</span>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </aside>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SECTION WRAPPER
+// ───────────────────────────────────────────────────────────
+function Section({ id, num, title, sub, children }) {
+  return (
+    <section id={id} className="scroll-mt-24 mb-24">
+      <div className="mb-8 pb-4 border-b border-white/10">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">Section {num}</div>
+        <h2 className="mt-1 font-serif text-4xl text-white">{title}</h2>
+        {sub && <p className="mt-2 text-sm text-slate-400 max-w-2xl">{sub}</p>}
+      </div>
+      <div className="space-y-6">{children}</div>
+    </section>
+  );
+}
+
+function Sub({ title, children }) {
+  return (
+    <div>
+      <h3 className="font-display font-semibold text-xs uppercase tracking-widest text-gold-400 mb-3" style={{ color: '#E6B84B' }}>{title}</h3>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 1. BRAND ESSENCE
+// ───────────────────────────────────────────────────────────
+function Brand() {
+  return (
+    <Section id="brand" num="01" title="Brand Essence" sub="The soul of TONPALEARN — what we stand for in one breath">
+      <div className="panel p-8 md:p-12">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-gold-400 mb-3" style={{ color: '#E6B84B' }}>Mission</div>
+        <p className="font-serif italic text-2xl text-white leading-snug">
+          สอน AI ให้คนใช้ได้จริง — เปลี่ยนความรู้เป็น <span className="grad-text-gold not-italic font-semibold">รายได้ + เวลา + อิสระ</span>
+        </p>
+
+        <div className="grid md:grid-cols-3 gap-6 mt-10">
+          <BrandKV k="Tagline"  v="AI ง่ายขึ้น เมื่อมีต้นพาไป"/>
+          <BrandKV k="Audience" v="คนทำงาน · เจ้าของธุรกิจ · องค์กร — ไม่ต้องพื้นฐาน IT"/>
+          <BrandKV k="Promise"  v="Hands-on · ใช้งานได้จริง · ไม่ใช่ทฤษฎี"/>
+        </div>
+
+        <div className="mt-8 pt-8 border-t border-white/10 grid md:grid-cols-2 gap-6">
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-teal-400 mb-2" style={{ color: '#2DD4BF' }}>Personality (DISC)</div>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              <b className="text-white">🔴 D — Dominant</b> primary · <b className="text-white">🔵 C — Conscientious</b> secondary<br/>
+              ตรงประเด็น · ตัดสินใจเร็ว · ข้อมูลแม่น · flag ความไม่แน่ใจชัดเจน
+            </p>
+          </div>
+          <div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-teal-400 mb-2" style={{ color: '#2DD4BF' }}>Archetype</div>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              <b className="text-white">🎨 Creator</b> 70% · <b className="text-white">🦉 Sage</b> 20% · <b className="text-white">👥 Everyman</b> 10%<br/>
+              สร้างสิ่งใหม่ · อ้างอิงข้อมูลจริง · พูดเหมือนคนคุยกัน
+            </p>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function BrandKV({ k, v }) {
+  return (
+    <div>
+      <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{k}</div>
+      <div className="mt-1 text-base text-white font-semibold">{v}</div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 2. LOGO
+// ───────────────────────────────────────────────────────────
+function Logo({ copy, copied }) {
+  return (
+    <Section id="logo" num="02" title="Logo" sub="TONPALEARN wordmark uses a tri-gradient letter split — TON (white) · PA (gold) · LEARN (teal)">
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="panel p-8 flex items-center justify-center" style={{ minHeight: 200 }}>
+          <div className="font-display font-bold text-5xl tracking-tight">
+            <span className="text-white">TON</span>
+            <span className="grad-text-gold">PA</span>
+            <span className="grad-text-teal">LEARN</span>
+          </div>
+        </div>
+
+        <div className="panel p-8 flex items-center justify-center bg-white" style={{ minHeight: 200 }}>
+          <div className="font-display font-bold text-5xl tracking-tight">
+            <span style={{ color: '#1A1A2A' }}>TON</span>
+            <span style={{ background: 'linear-gradient(135deg, #C8A84B, #9A7A2B)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PA</span>
+            <span style={{ background: 'linear-gradient(135deg, #14B8A6, #0D9488)', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>LEARN</span>
+          </div>
+        </div>
+      </div>
+
+      <Sub title="Letter Seal · 'T'">
+        <div className="grid md:grid-cols-4 gap-4">
+          {[24, 40, 60, 80].map(sz => (
+            <div key={sz} className="panel p-6 flex flex-col items-center justify-center">
+              <div className="logo-seal flex items-center justify-center font-display font-bold text-white"
+                   style={{ width: sz*2, height: sz*2, borderRadius: sz/3, fontSize: sz*0.6 }}>
+                T
+              </div>
+              <div className="mt-3 text-[10px] font-mono text-slate-500">{sz*2}×{sz*2}px</div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Clear space + don'ts">
+        <div className="panel p-6 text-sm text-slate-300 space-y-2 leading-relaxed">
+          <p>✅ Always keep clear space equal to the "TON" letter width around the logo.</p>
+          <p>✅ Use white on dark · use ink-on-light for printed material (certificates, paper).</p>
+          <p>❌ Don't rotate, stretch, or recolor the wordmark.</p>
+          <p>❌ Don't drop a single segment (e.g. show only "PA" alone) outside of icon/seal use.</p>
+          <p>❌ Don't outline the wordmark — gradient must remain filled.</p>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 3. COLORS
+// ───────────────────────────────────────────────────────────
+function Colors({ copy, copied }) {
+  return (
+    <Section id="colors" num="03" title="Colors" sub="Dark base + 3 accents — click any swatch to copy hex">
+      {Object.entries(PALETTE).map(([key, group]) => (
+        <Sub key={key} title={group.label}>
+          <p className="text-xs text-slate-400 mb-3 -mt-2">{group.role}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {group.shades.map(s => {
+              const isCopied = copied === `${key}-${s.name}`;
+              return (
+                <button
+                  key={s.name}
+                  onClick={() => copy(s.hex, `${key}-${s.name}`)}
+                  className="panel overflow-hidden text-left hover:scale-[1.02] transition group"
+                >
+                  <div className="aspect-square relative" style={{ backgroundColor: s.hex }}>
+                    {isCopied && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                        <span className="text-white font-bold text-xs copy-ping">✓ Copied</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="flex items-baseline justify-between">
+                      <span className="font-display font-bold text-sm text-white">{key}-{s.name}</span>
+                      <span className="font-mono text-[10px] text-slate-500">→</span>
+                    </div>
+                    <div className="font-mono text-xs text-slate-300 mt-0.5">{s.hex.toUpperCase()}</div>
+                    <div className="text-[10px] text-slate-500 mt-1">{s.use}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </Sub>
+      ))}
+
+      <Sub title="Usage rules">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="panel p-5">
+            <div className="text-xs font-semibold text-white mb-2">60 · 30 · 10 rule</div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              <b className="text-white">60%</b> Ink (dark base) · <b style={{ color: '#E6B84B' }}>30%</b> Gold (accent + text emphasis) · <b style={{ color: '#2DD4BF' }}>10%</b> Teal + Violet (secondary highlights)
+            </p>
+          </div>
+          <div className="panel p-5">
+            <div className="text-xs font-semibold text-white mb-2">Contrast (WCAG AA)</div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              ใช้ ink-950 BG → text-white = AAA<br/>
+              gold-500 on ink-950 = AA (3.4:1 — large text only)<br/>
+              gold-300 on ink-950 = AAA — use for body
+            </p>
+          </div>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 4. TYPOGRAPHY
+// ───────────────────────────────────────────────────────────
+function Typography() {
+  return (
+    <Section id="typography" num="04" title="Typography" sub="Mixed Thai-English typography — modern display + classical serif + clean body">
+      <Sub title="Font families">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { name: 'Space Grotesk',     family: 'display',  weights: '400 · 500 · 600 · 700', use: 'Logo · display headings (EN-prefer)', sample: 'TONPALEARN' },
+            { name: 'Cormorant Garamond',family: 'serif',    weights: '400 · 500 · 600 (italic)', use: 'Cert title · profile name · pull quote', sample: 'Certificate' },
+            { name: 'IBM Plex Sans Thai',family: 'body',     weights: '300 · 400 · 500 · 600 · 700', use: 'Body · landing UI', sample: 'AI ง่ายขึ้น' },
+            { name: 'Sarabun',           family: 'sarabun',  weights: '300 · 400 · 500 · 600 · 700', use: 'Documents · certificates · invoices', sample: 'ใบรับรองการเรียนรู้' },
+            { name: 'JetBrains Mono',    family: 'mono',     weights: '400 · 500 · 700', use: 'Code · numbers · meta · cert IDs', sample: 'TPL-2605-001' },
+            { name: 'Great Vibes',       family: 'script',   weights: '400 (script only)', use: 'Cert script names (EN only)', sample: 'Chaiwat' },
+          ].map(f => (
+            <div key={f.name} className="panel p-5">
+              <div className={`font-${f.family} text-3xl text-white mb-2 ${f.family === 'script' ? 'text-4xl' : ''}`}>{f.sample}</div>
+              <div className="font-display font-bold text-sm text-white">{f.name}</div>
+              <div className="font-mono text-[10px] text-slate-500 mt-0.5">{f.weights}</div>
+              <div className="text-xs text-slate-400 mt-2">{f.use}</div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Type scale">
+        <div className="panel p-6 space-y-4">
+          {TYPE_SCALE.map((t, i) => (
+            <div key={i} className="flex items-baseline gap-6 py-2 border-b border-white/5 last:border-0">
+              <div className="w-32 flex-shrink-0">
+                <div className="text-xs font-mono text-slate-500">{t.name}</div>
+                <div className="text-[10px] font-mono text-slate-600">{t.size} · {t.weight}</div>
+              </div>
+              <div className={`flex-1 font-${t.family} text-white`} style={{ fontSize: t.size, lineHeight: 1.1, fontWeight: t.weight }}>
+                {t.sample}
+              </div>
+              <div className="text-[10px] text-slate-500 w-44 text-right hidden md:block">{t.use}</div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Pairing rules">
+        <div className="panel p-5 text-xs text-slate-300 space-y-2 leading-relaxed">
+          <p>✅ <b>Hero:</b> Space Grotesk display + Cormorant Garamond italic accent (e.g. "AI ง่ายขึ้น เมื่อมี<i>ต้นพา</i>ไป")</p>
+          <p>✅ <b>Body Thai:</b> IBM Plex Sans Thai 400 · 14px+ · line-height 1.5–1.7</p>
+          <p>✅ <b>Document Thai:</b> Sarabun (เอกสารทางการ · cert · invoice)</p>
+          <p>✅ <b>Code / IDs:</b> JetBrains Mono 11–12px · tracking-tighter</p>
+          <p>❌ Don't use 3+ display fonts in one viewport — Space Grotesk OR Cormorant, not both at hero scale</p>
+          <p>❌ Don't use Great Vibes for Thai (no Thai glyphs)</p>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 5. SPACING / RADIUS / SHADOW
+// ───────────────────────────────────────────────────────────
+function Spacing({ copy, copied }) {
+  return (
+    <Section id="spacing" num="05" title="Spacing · Radius · Shadow" sub="Tailwind-based token scale">
+      <Sub title="Spacing scale (Tailwind)">
+        <div className="panel p-6">
+          {SPACING.map(s => (
+            <div key={s.name} className="flex items-center gap-4 py-2 border-b border-white/5 last:border-0">
+              <div className="w-20 font-mono text-xs text-slate-400 flex-shrink-0">space-{s.name}</div>
+              <div className="w-24 font-mono text-[11px] text-slate-500 flex-shrink-0">{s.px} · {s.rem}</div>
+              <div className="bg-gradient-to-r from-gold-500 to-gold-400" style={{ width: s.px, height: 16, background: 'linear-gradient(90deg, #F0CC72, #E6B84B)' }}/>
+              <div className="text-[10px] text-slate-500 hidden md:block">{s.use}</div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Border radius">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          {RADIUS.map(r => (
+            <div key={r.name} className="panel p-4 text-center">
+              <div className="mx-auto mb-2 bg-gradient-to-br from-gold-400 to-gold-600" style={{ width: 56, height: 56, borderRadius: r.px, background: 'linear-gradient(135deg, #F0CC72, #C8A84B)' }}/>
+              <div className="font-mono text-xs text-white">rounded-{r.name}</div>
+              <div className="font-mono text-[9px] text-slate-500">{r.px}</div>
+              <div className="text-[9px] text-slate-500 mt-1">{r.use}</div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Shadows & Glows">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {SHADOWS.map(s => (
+            <div key={s.name} className="panel p-5 text-center">
+              <div className="mx-auto mb-3" style={{ width: 80, height: 80, borderRadius: 16, background: 'linear-gradient(135deg, #E6B84B, #C8A84B)', boxShadow: s.css }}/>
+              <div className="font-mono text-xs text-white">shadow-{s.name}</div>
+              <div className="text-[10px] text-slate-500 mt-1">{s.use}</div>
+              <button onClick={() => copy(s.css, `shadow-${s.name}`)} className="mt-2 text-[10px] font-mono text-slate-400 hover:text-white">
+                {copied === `shadow-${s.name}` ? '✓ Copied' : 'copy CSS'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 6. GRADIENTS & EFFECTS
+// ───────────────────────────────────────────────────────────
+function Gradients({ copy, copied }) {
+  const grads = [
+    { name: 'gold',   css: 'linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%)' },
+    { name: 'teal',   css: 'linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%)' },
+    { name: 'violet', css: 'linear-gradient(135deg, #C4B5FD 0%, #7C5CFC 100%)' },
+    { name: 'tri',    css: 'linear-gradient(90deg, #E6B84B 0%, #2DD4BF 50%, #A78BFA 100%)' },
+    { name: 'aurora', css: 'radial-gradient(ellipse 80% 60% at 70% 20%, rgba(124,92,252,0.30) 0%, transparent 55%), radial-gradient(ellipse 60% 50% at 15% 80%, rgba(45,212,191,0.20) 0%, transparent 55%), radial-gradient(ellipse 50% 45% at 85% 75%, rgba(230,184,75,0.20) 0%, transparent 55%), #08080F' },
+  ];
+  return (
+    <Section id="gradients" num="06" title="Gradients & Effects" sub="Signature gradient combos + atmospheric meshes">
+      <Sub title="Linear gradients">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {grads.slice(0, 4).map(g => (
+            <button key={g.name} onClick={() => copy(g.css, `grad-${g.name}`)}
+              className="panel overflow-hidden hover:scale-[1.02] transition text-left">
+              <div className="aspect-[2/1]" style={{ background: g.css }}/>
+              <div className="p-3">
+                <div className="font-display font-bold text-sm text-white">grad-{g.name}</div>
+                <div className="font-mono text-[10px] text-slate-500 mt-1 truncate">{g.css.slice(0, 50)}…</div>
+                <div className="text-[10px] mt-1" style={{ color: copied === `grad-${g.name}` ? '#10b981' : '#94a3b8' }}>
+                  {copied === `grad-${g.name}` ? '✓ Copied!' : 'click to copy'}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Aurora mesh (atmospheric)">
+        <div className="panel overflow-hidden">
+          <div className="aspect-[3/1]" style={{ background: grads[4].css }}/>
+          <div className="p-4">
+            <div className="font-display font-bold text-sm text-white">mesh-bg</div>
+            <div className="text-xs text-slate-400 mt-1">ใช้เป็น background ของ hero / cta · ผสม violet · teal · gold radial</div>
+            <button onClick={() => copy(grads[4].css, 'mesh')} className="mt-2 text-[10px] font-mono text-slate-400 hover:text-white">
+              {copied === 'mesh' ? '✓ Copied' : 'copy CSS'}
+            </button>
+          </div>
+        </div>
+      </Sub>
+
+      <Sub title="Text gradients">
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="panel p-6 text-center">
+            <div className="font-display font-bold text-3xl grad-text-gold">Gold Gradient</div>
+            <div className="font-mono text-[10px] text-slate-500 mt-3">.grad-text-gold</div>
+          </div>
+          <div className="panel p-6 text-center">
+            <div className="font-display font-bold text-3xl grad-text-teal">Teal Gradient</div>
+            <div className="font-mono text-[10px] text-slate-500 mt-3">.grad-text-teal</div>
+          </div>
+          <div className="panel p-6 text-center">
+            <div className="font-display font-bold text-3xl grad-text-violet">Violet Gradient</div>
+            <div className="font-mono text-[10px] text-slate-500 mt-3">.grad-text-violet</div>
+          </div>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 7. BUTTONS
+// ───────────────────────────────────────────────────────────
+function Buttons() {
+  return (
+    <Section id="buttons" num="07" title="Buttons" sub="Three tiers — primary (gold gradient) · secondary (teal outline) · ghost (subtle)">
+      <Sub title="Tiers">
+        <div className="panel p-8 flex flex-wrap items-center gap-3">
+          <button className="shine inline-flex items-center gap-2 px-6 py-3 rounded-xl font-display font-bold transition-shadow"
+                  style={{ background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' }}>
+            จองเรียนเดี๋ยวนี้ →
+          </button>
+          <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-display font-semibold border transition-colors"
+                  style={{ borderColor: 'rgba(45,212,191,0.4)', color: '#2DD4BF' }}>
+            ดูคอร์สทั้งหมด
+          </button>
+          <button className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition">
+            ปรึกษาฟรี
+          </button>
+        </div>
+      </Sub>
+
+      <Sub title="Sizes">
+        <div className="panel p-8 flex flex-wrap items-end gap-3">
+          {[
+            { sz: 'xs', cls: 'px-3 py-1.5 text-xs',   label: 'Extra small' },
+            { sz: 'sm', cls: 'px-4 py-2 text-sm',     label: 'Small' },
+            { sz: 'md', cls: 'px-5 py-2.5 text-sm',   label: 'Medium · default' },
+            { sz: 'lg', cls: 'px-6 py-3 text-base',   label: 'Large · hero' },
+            { sz: 'xl', cls: 'px-8 py-4 text-lg',     label: 'XL · CTA' },
+          ].map(b => (
+            <div key={b.sz} className="flex flex-col items-center gap-1">
+              <button className={`shine inline-flex items-center rounded-xl font-display font-bold transition ${b.cls}`}
+                      style={{ background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' }}>
+                Button {b.sz}
+              </button>
+              <span className="text-[10px] font-mono text-slate-500">{b.label}</span>
+            </div>
+          ))}
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 8. CARDS
+// ───────────────────────────────────────────────────────────
+function Cards() {
+  return (
+    <Section id="cards" num="08" title="Cards" sub="Glass-morphic panels — subtle gradient + gold border on hover">
+      <Sub title="Glass card">
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { title: 'AI Basic',       sub: '2 ชม. · Self-paced',     emoji: '🌱' },
+            { title: 'AI Agentic',     sub: '4 ชม. · Online Group',   emoji: '⚡', featured: true },
+            { title: 'MCP Connector',  sub: '5 ชม. · Online 1:1',     emoji: '🔌' },
+          ].map((c, i) => (
+            <div key={i} className="panel card-glass-hover p-6 relative overflow-hidden">
+              {c.featured && (
+                <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest"
+                     style={{ background: '#2DD4BF', color: '#08080F' }}>
+                  ⭐ ยอดนิยม
+                </div>
+              )}
+              <div className="text-4xl mb-3">{c.emoji}</div>
+              <h3 className="font-display font-bold text-lg text-white">{c.title}</h3>
+              <p className="text-xs text-slate-400 mt-1">{c.sub}</p>
+              <div className="mt-4 inline-flex items-center gap-1 text-xs font-display font-semibold grad-text-gold">
+                เรียนรู้เพิ่ม →
+              </div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Panel (larger)">
+        <div className="panel p-8">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-gold-400 mb-3" style={{ color: '#E6B84B' }}>หลักสูตร</div>
+          <h3 className="font-serif text-3xl text-white">เรียนได้ทุกระดับ</h3>
+          <p className="text-sm text-slate-400 mt-2 max-w-md">จากมือใหม่ที่ไม่รู้ code จนถึงสร้างระบบ AI อัตโนมัติให้ธุรกิจ</p>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 9. BADGES & CHIPS
+// ───────────────────────────────────────────────────────────
+function Badges() {
+  return (
+    <Section id="badges" num="09" title="Badges · Chips" sub="Small labels for status, category, metadata">
+      <Sub title="Solid badges">
+        <div className="panel p-6 flex flex-wrap items-center gap-2">
+          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest" style={{ background: '#2DD4BF', color: '#08080F' }}>⭐ ยอดนิยม</span>
+          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest text-white" style={{ background: 'linear-gradient(135deg, #A78BFA, #7C5CFC)' }}>✨ NEW</span>
+          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest" style={{ background: '#F0CC72', color: '#08080F' }}>RECOMMENDED</span>
+          <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest" style={{ background: '#EF4444', color: '#FFFFFF' }}>SOLD OUT</span>
+        </div>
+      </Sub>
+
+      <Sub title="Outline chips">
+        <div className="panel p-6 flex flex-wrap gap-2">
+          {[
+            { l: 'Banking',    c: { border: 'rgba(230,184,75,0.4)', text: '#F5D67A', bg: 'rgba(230,184,75,0.10)' } },
+            { l: 'Telecom',    c: { border: 'rgba(45,212,191,0.4)', text: '#67E8F9', bg: 'rgba(45,212,191,0.10)' } },
+            { l: 'Government', c: { border: 'rgba(167,139,250,0.4)', text: '#C4B5FD', bg: 'rgba(167,139,250,0.10)' } },
+            { l: 'AI Agent',   c: { border: 'rgba(230,184,75,0.4)', text: '#F5D67A', bg: 'rgba(230,184,75,0.10)' } },
+            { l: 'Wellness',   c: { border: 'rgba(244,114,182,0.4)', text: '#F9A8D4', bg: 'rgba(244,114,182,0.10)' } },
+          ].map((t, i) => (
+            <span key={i} className="px-3 py-1 rounded-full text-xs font-display font-semibold border"
+                  style={{ borderColor: t.c.border, backgroundColor: t.c.bg, color: t.c.text }}>
+              {t.l}
+            </span>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Meta chips (mono + dot)">
+        <div className="panel p-6 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-ink-950/70 backdrop-blur border border-white/10 font-mono text-[10px] text-slate-300">
+            ⏱ 4 ชม.
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-ink-950/70 backdrop-blur border font-mono text-[10px]" style={{ borderColor: 'rgba(230,184,75,0.3)', color: '#F5D67A' }}>
+            COURSE 02
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+            Online · Live
+          </span>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 10. INPUTS
+// ───────────────────────────────────────────────────────────
+function Inputs() {
+  return (
+    <Section id="inputs" num="10" title="Inputs" sub="Form controls — subtle backgrounds with gold focus rings">
+      <Sub title="Text · select · textarea">
+        <div className="panel p-6 space-y-4 max-w-lg">
+          <div>
+            <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1.5">Full name</label>
+            <input type="text" placeholder="กรุณากรอกชื่อ-นามสกุล"
+                   className="w-full px-3 py-2.5 rounded-lg text-sm text-white bg-white/[0.04] border border-white/10 focus:outline-none focus:border-gold-500 placeholder:text-slate-600 transition"
+                   style={{ borderColor: 'rgba(255,255,255,0.10)' }}
+                   onFocus={(e) => e.target.style.borderColor = '#E6B84B'}
+                   onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.10)'}/>
+          </div>
+          <div>
+            <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1.5">Format</label>
+            <select className="w-full px-3 py-2.5 rounded-lg text-sm text-white bg-white/[0.04] border border-white/10 focus:outline-none focus:border-gold-500 transition">
+              <option className="bg-ink-900">Online Group</option>
+              <option className="bg-ink-900">Online 1:1</option>
+              <option className="bg-ink-900">On-site</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1.5">Notes</label>
+            <textarea rows="3" placeholder="รายละเอียดเพิ่มเติม..."
+                      className="w-full px-3 py-2.5 rounded-lg text-sm text-white bg-white/[0.04] border border-white/10 focus:outline-none focus:border-gold-500 placeholder:text-slate-600 resize-none transition"/>
+          </div>
+          <div className="flex items-center gap-2">
+            <input id="opt" type="checkbox" className="w-4 h-4 accent-gold-500"/>
+            <label htmlFor="opt" className="text-sm text-slate-300">Send me a quote summary by email</label>
+          </div>
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 11. VOICE & TONE
+// ───────────────────────────────────────────────────────────
+function Voice() {
+  return (
+    <Section id="voice" num="11" title="Voice & Tone" sub="How TONPALEARN sounds — direct, knowing, human">
+      <Sub title="Voice attributes">
+        <div className="grid md:grid-cols-3 gap-4">
+          {[
+            { k: 'Direct',  v: 'ตอบก่อน · ขยายความทีหลัง', c: '#E6B84B' },
+            { k: 'Knowing', v: 'อ้างอิงข้อมูลจริง · ไม่เดา', c: '#2DD4BF' },
+            { k: 'Human',   v: 'พูดเหมือนนั่งคุยในคาเฟ่', c: '#A78BFA' },
+          ].map((v, i) => (
+            <div key={i} className="panel p-5">
+              <div className="text-xs font-display font-bold uppercase tracking-widest" style={{ color: v.c }}>{v.k}</div>
+              <div className="mt-2 text-base text-white">{v.v}</div>
+            </div>
+          ))}
+        </div>
+      </Sub>
+
+      <Sub title="Sample copy — same content, three tones">
+        <div className="grid md:grid-cols-3 gap-4">
+          <VoiceSample title="Hero" tone="Direct">
+            "AI ง่ายขึ้น เมื่อมีต้นพาไป"
+            <br/><br/>
+            <span className="text-xs text-slate-400 italic">เรียนรู้ AI ที่ใช้งานได้จริง — สอนโดยต้น วิศวกรคอมพิวเตอร์ PM 15 ปี</span>
+          </VoiceSample>
+          <VoiceSample title="FAQ" tone="Knowing">
+            <b className="text-white">ถ้าไม่มีพื้นฐาน IT เรียนได้มั้ย?</b>
+            <br/><br/>
+            ได้แน่นอน — คอร์สส่วนใหญ่ออกแบบสำหรับคนที่ไม่เคยเขียนโค้ด · เริ่มจาก 0 ได้เลย
+          </VoiceSample>
+          <VoiceSample title="CTA" tone="Human">
+            พร้อมให้<span className="grad-text-gold font-semibold">ต้นพาไป</span>แล้วหรือยัง?
+            <br/><br/>
+            <span className="text-xs text-slate-400">ทักมาคุยฟรี — บอกว่าต้องการอะไร ต้นจะแนะนำหลักสูตรที่เหมาะ</span>
+          </VoiceSample>
+        </div>
+      </Sub>
+
+      <Sub title="Signature phrases (✅ use)">
+        <div className="panel p-5 flex flex-wrap gap-2">
+          {[
+            'ลองมองแบบนี้แทน',
+            'ตามข้อมูลที่มี...',
+            'ทำได้เลย — เริ่มจากนี้',
+            'AI ง่ายขึ้น',
+            'ใช้งานได้จริง',
+            'ไม่ต้องพื้นฐาน IT',
+          ].map((p, i) => (
+            <span key={i} className="px-3 py-1.5 rounded-full text-xs font-semibold border border-white/10 text-slate-200">
+              "{p}"
+            </span>
+          ))}
+        </div>
+      </Sub>
+    </Section>
+  );
+}
+
+function VoiceSample({ title, tone, children }) {
+  return (
+    <div className="panel p-5">
+      <div className="flex items-baseline justify-between mb-3 pb-2 border-b border-white/5">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{title}</div>
+        <div className="text-[10px] font-mono uppercase tracking-widest" style={{ color: '#2DD4BF' }}>{tone}</div>
+      </div>
+      <div className="text-sm text-slate-200 leading-relaxed">{children}</div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 12. DON'TS
+// ───────────────────────────────────────────────────────────
+function Donts() {
+  return (
+    <Section id="donts" num="12" title="Don'ts" sub="Anti-patterns — what TONPALEARN never does">
+      <div className="grid md:grid-cols-2 gap-4">
+        {[
+          { title: 'Don\'t use "Great question!"', body: 'Opener-as-filler that adds no value. Start with the answer.' },
+          { title: 'Don\'t list everything equally', body: 'If you have 5 options, recommend one. Boldness > balance.' },
+          { title: 'Don\'t hallucinate numbers', body: 'If you don\'t know — say so. Never fabricate prices, dates, or specs.' },
+          { title: 'Don\'t use 3+ display fonts', body: 'Space Grotesk + Cormorant Garamond is plenty. Adding more = visual chaos.' },
+          { title: 'Don\'t recolor the wordmark', body: 'TON-PA-LEARN tri-gradient is fixed. Use it as-is or use the seal letter.' },
+          { title: 'Don\'t overuse emoji', body: 'Sparingly. One emoji per heading max. Two in a body para max.' },
+          { title: 'Don\'t use neon/saturated colors', body: 'TONPALEARN palette is muted/premium. Avoid #FF00FF / #00FF00 etc.' },
+          { title: 'Don\'t pad responses', body: '"In conclusion..." "It is important to note..." → delete. Get to the point.' },
+        ].map((d, i) => (
+          <div key={i} className="panel p-5 border-l-2" style={{ borderLeftColor: '#EF4444' }}>
+            <div className="text-sm font-display font-bold text-white">❌ {d.title}</div>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">{d.body}</p>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// 13. CODE TOKENS
+// ───────────────────────────────────────────────────────────
+function CodeTokens({ copy, copied }) {
+  const tailwindConfig = `tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Space Grotesk', 'IBM Plex Sans Thai', 'sans-serif'],
+        serif:   ['Cormorant Garamond', 'serif'],
+        body:    ['IBM Plex Sans Thai', 'sans-serif'],
+        sarabun: ['Sarabun', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'monospace'],
+      },
+      colors: {
+        ink:    { 950: '#08080F', 900: '#0D0D14', 800: '#12121E', 700: '#1A1A2A', 600: '#23233A' },
+        gold:   { 300: '#F5D67A', 400: '#F0CC72', 500: '#E6B84B', 600: '#C8A84B', 700: '#9A7A2B' },
+        teal:   { 300: '#67E8F9', 400: '#2DD4BF', 500: '#14B8A6', 600: '#0D9488' },
+        brand:  { violet: '#A78BFA', violetDeep: '#7C5CFC' },
+      },
+      boxShadow: {
+        glow:     '0 0 40px -10px rgba(230,184,75,0.35)',
+        glowTeal: '0 0 40px -10px rgba(45,212,191,0.35)',
+        glowVio:  '0 0 50px -10px rgba(167,139,250,0.35)',
+        lift:     '0 18px 50px -20px rgba(0,0,0,0.55)',
+      },
+    }
+  }
+};`;
+
+  const cssVars = `:root {
+  --ink-950: #08080F;
+  --ink-900: #0D0D14;
+  --ink-800: #12121E;
+
+  --gold-300: #F5D67A;
+  --gold-500: #E6B84B;
+  --gold-600: #C8A84B;
+  --gold-700: #9A7A2B;
+
+  --teal-400: #2DD4BF;
+  --teal-500: #14B8A6;
+
+  --violet-400: #A78BFA;
+  --violet-deep: #7C5CFC;
+
+  --grad-gold:   linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+  --grad-teal:   linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+  --grad-violet: linear-gradient(135deg, #C4B5FD 0%, #7C5CFC 100%);
+}`;
+
+  const googleFonts = `<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Great+Vibes&display=swap" rel="stylesheet" />`;
+
+  return (
+    <Section id="code" num="13" title="Code Tokens" sub="Drop-in snippets for any project">
+      <Sub title="Tailwind config">
+        <CodeBlock code={tailwindConfig} lang="js" id="tw" copy={copy} copied={copied}/>
+      </Sub>
+      <Sub title="CSS variables (vanilla)">
+        <CodeBlock code={cssVars} lang="css" id="css" copy={copy} copied={copied}/>
+      </Sub>
+      <Sub title="Google Fonts (link tags)">
+        <CodeBlock code={googleFonts} lang="html" id="fonts" copy={copy} copied={copied}/>
+      </Sub>
+    </Section>
+  );
+}
+
+function CodeBlock({ code, lang, id, copy, copied }) {
+  return (
+    <div className="panel overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-ink-950/60">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500">{lang}</span>
+        <button onClick={() => copy(code, id)}
+                className="text-[10px] font-mono px-2 py-0.5 rounded transition"
+                style={{
+                  background: copied === id ? '#10b981' : 'rgba(255,255,255,0.05)',
+                  color: copied === id ? '#fff' : '#94a3b8',
+                }}>
+          {copied === id ? '✓ Copied' : 'Copy'}
+        </button>
+      </div>
+      <pre className="px-4 py-3 font-mono text-[11px] leading-relaxed text-slate-300 overflow-x-auto scrollable whitespace-pre">
+        {code}
+      </pre>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
