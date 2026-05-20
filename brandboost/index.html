@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>AI Agentic × BRAND BOOST · Proposal by TONPALEARN</title>
+  <meta name="description" content="ข้อเสนอ AI Agentic สำหรับ BRAND BOOST — โดย TONPALEARN: Internal Training และ Co-Training Partnership" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Prompt:wght@400;500;600;700;800;900&family=Noto+Sans+Thai:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: "#fffbeb", 100: "#fef3c7", 200: "#fde68a", 300: "#fcd34d", 400: "#fbbf24", 500: "#f59e0b", 600: "#d97706", 700: "#b45309", 800: "#92400e", 900: "#78350f" },
+            primary: { 50: "#eef2ff", 100: "#e0e7ff", 200: "#c7d2fe", 300: "#a5b4fc", 400: "#818cf8", 500: "#6366f1", 600: "#4338ca", 700: "#3730a3", 800: "#312e81", 900: "#1e1b4b" },
+          },
+          fontFamily: {
+            sans: ["Inter", "Prompt", "Noto Sans Thai", "sans-serif"],
+            display: ["Prompt", "Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "Fira Code", "monospace"],
+          },
+          backgroundImage: {
+            "hero-gradient": "linear-gradient(135deg, #eef2ff 0%, #ffffff 50%, #fffbeb 100%)",
+            "indigo-gradient": "linear-gradient(135deg, #4338ca 0%, #312e81 100%)",
+            "cta-gradient": "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+          },
+          animation: {
+            "fade-in": "fadeIn 0.6s ease-out",
+            "slide-up": "slideUp 0.5s ease-out",
+            "float": "float 6s ease-in-out infinite",
+          },
+          keyframes: {
+            fadeIn: { "0%": { opacity: 0 }, "100%": { opacity: 1 } },
+            slideUp: { "0%": { opacity: 0, transform: "translateY(20px)" }, "100%": { opacity: 1, transform: "translateY(0)" } },
+            float: { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-12px)" } },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: 'Inter', 'Prompt', 'Noto Sans Thai', sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.6;
+    }
+    h1, h2, h3, h4, h5, h6 { font-family: 'Prompt', 'Inter', sans-serif; font-weight: 700; line-height: 1.2; }
+    .text-gradient-amber {
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .text-gradient-indigo {
+      background: linear-gradient(135deg, #6366f1 0%, #312e81 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Print styles */
+    @media print {
+      .no-print { display: none !important; }
+      .print-break { page-break-before: always; }
+      body { background: white !important; }
+      section { padding: 1.5rem 0 !important; }
+    }
+
+    /* Custom utility */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+  </style>
+</head>
+<body class="bg-white">
+  <div id="root"></div>
+
+  <!-- React 18 + ReactDOM 18 + Babel Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    /* =========================================================
+       NAVIGATION
+       ========================================================= */
+    const NavBar = ({ activeSection }) => {
+      const links = [
+        { id: "mapping", label: "AI × Marketing" },
+        { id: "model-1", label: "Model 1" },
+        { id: "model-2", label: "Model 2" },
+        { id: "curriculum", label: "Curriculum" },
+        { id: "pricing", label: "Pricing" },
+      ];
+      return (
+        <header className="no-print sticky top-0 z-50 border-b border-slate-100/80 bg-white/85 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
+            <a href="https://tonpalearn.com" className="flex items-center gap-2 group">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-gradient text-white font-black text-sm shadow-lg shadow-indigo-500/30">T</div>
+              <span className="font-black text-lg tracking-tight text-slate-900">
+                TONPA<span className="text-gradient-indigo">LEARN</span>
+              </span>
+              <span className="hidden sm:inline-block ml-2 text-xs font-medium text-slate-400">× BRAND BOOST</span>
+            </a>
+            <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
+              {links.map(l => (
+                <a
+                  key={l.id}
+                  href={`#${l.id}`}
+                  className={`px-3 py-2 rounded-lg transition-colors ${activeSection === l.id ? "text-indigo-700 bg-indigo-50" : "hover:text-indigo-600 hover:bg-slate-50"}`}
+                >
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+            <a
+              href="#cta"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm shadow-lg shadow-amber-500/30 transition"
+            >
+              นัดประชุม →
+            </a>
+          </div>
+        </header>
+      );
+    };
+
+    /* =========================================================
+       HERO
+       ========================================================= */
+    const Hero = () => (
+      <section className="relative overflow-hidden bg-hero-gradient">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-indigo-100 opacity-40 blur-3xl animate-float" />
+          <div className="absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full bg-amber-100 opacity-50 blur-3xl" />
+        </div>
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
+          <div className="max-w-3xl">
+            <div className="mb-6 inline-flex animate-fade-in">
+              <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 text-indigo-800 px-4 py-1.5 text-sm font-semibold">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Confidential Proposal · for BRAND BOOST
+              </span>
+            </div>
+            <h1 className="animate-slide-up text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 mb-4">
+              AI Agentic
+              <br />
+              สำหรับ <span className="text-gradient-indigo">BRAND BOOST</span>
+            </h1>
+            <p className="text-lg text-slate-600 max-w-2xl mb-8">
+              ทำงาน Marketing Consult ให้เร็วขึ้น 50–70%, สร้าง service tier ใหม่ที่มี AI เป็นคุณค่า,
+              และให้ทีมเป็นเจ้าของ AI capability เอง — โดยไม่ต้องสร้างทีม tech
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <a href="#mapping" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-500/30 transition">
+                ดูข้อเสนอ →
+              </a>
+              <a href="#cta" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-300 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 text-slate-700 font-semibold transition">
+                คุยกับต้น
+              </a>
+            </div>
+
+            <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6">
+              {[
+                { v: "50–70%", l: "ลดเวลา Discovery" },
+                { v: "8 ชม.", l: "Workshop 2 วัน" },
+                { v: "5 Agents", l: "ครอบคลุมทุก Phase" },
+                { v: "30 วัน", l: "Post-training support" },
+              ].map((s, i) => (
+                <div key={i}>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900">{s.v}</div>
+                  <div className="text-xs text-slate-500 mt-0.5">{s.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+
+    /* =========================================================
+       WHY NOW STRIP
+       ========================================================= */
+    const WhyNow = () => (
+      <section className="border-y border-slate-100 bg-slate-50/50 py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { stat: "60–70%", text: "ของงาน marketing ops ทำด้วย agentic AI ได้แล้วในปี 2026", src: "BCG · McKinsey" },
+              { stat: "+20–40%", text: "margin ที่สูงขึ้นของบริษัท consult ที่ใช้ AI อย่างเป็นระบบ", src: "industry benchmark" },
+              { stat: "Now", text: "คู่แข่งเริ่ม launch บริการ AI-powered แล้ว — ลูกค้าเริ่มถามว่า \"ทำไม\"", src: "field observation" },
+            ].map((c, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="text-2xl font-black text-gradient-amber">{c.stat}</div>
+                <p className="mt-2 text-sm text-slate-700 leading-relaxed">{c.text}</p>
+                <p className="mt-2 text-xs text-slate-400 italic">{c.src}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+
+    /* =========================================================
+       SECTION 4 — AI × MARKETING MAPPING
+       ========================================================= */
+    const SectionTitle = ({ no, kicker, title, sub }) => (
+      <div className="mb-10">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="inline-flex items-center justify-center h-9 w-9 rounded-xl bg-indigo-gradient text-white font-black text-sm">{no}</span>
+          <span className="text-sm font-semibold text-indigo-700 uppercase tracking-wider">{kicker}</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3">{title}</h2>
+        {sub && <p className="text-lg text-slate-600 max-w-3xl">{sub}</p>}
+      </div>
+    );
+
+    const MAPPING_DATA = {
+      DISCOVER: [
+        { task: "Stakeholder interview synthesis", ai: "AI Agent ฟัง transcript → ดึง theme อัตโนมัติ", out: "Insight + quote bank", save: 70 },
+        { task: "Customer research analysis", ai: "Agentic flow: scrape review/social + sentiment + theme", out: "Customer insight report", save: 60 },
+        { task: "Competitor audit", ai: "Multi-agent scrape web/social/ads → comparison matrix", out: "Competitive landscape", save: 75 },
+        { task: "Brand audit (touchpoint)", ai: "Agent ดู social + web + collateral → consistency score", out: "Brand audit scorecard", save: 60 },
+        { task: "Trend research", ai: "Agent monitor news/trend + weekly summarize", out: "Trend brief", save: 80 },
+      ],
+      DEFINE: [
+        { task: "Positioning development", ai: "AI co-writer with brand framework", out: "Positioning 3–5 options", save: 50 },
+        { task: "Brand personality", ai: "Agent suggest archetypes from discovery data", out: "Archetype + traits", save: 50 },
+        { task: "Brand voice principles", ai: "Agent analyze sample copy → extract voice rules", out: "Voice principles + dos/don'ts", save: 60 },
+        { task: "Messaging framework", ai: "AI generate variants by audience segment", out: "Multi-audience message bank", save: 65 },
+      ],
+      DESIGN: [
+        { task: "Visual mood/concept", ai: "AI image gen (Midjourney/Sora) → mood board", out: "Mood board drafts", save: 70 },
+        { task: "Logo concepts", ai: "AI-assisted logo exploration", out: "First-draft directions", save: 40 },
+        { task: "Voice/copy samples", ai: "AI Agent (with brand voice) → 50+ examples", out: "Headlines, social, email samples", save: 80 },
+        { task: "Brand Book layout", ai: "AI ช่วย structure + content writing", out: "Brand book draft", save: 50 },
+      ],
+      DEPLOY: [
+        { task: "Brand training material", ai: "AI generate training deck + quiz", out: "Training kit", save: 60 },
+        { task: "Content templates", ai: "AI generate 20+ templates ตาม voice", out: "Template library", save: 70 },
+        { task: "Implementation review", ai: "Brand Voice AI Agent ตรวจงานลูกค้าอัตโนมัติ", out: "Compliance report", save: 80 },
+        { task: "Performance review", ai: "Agent pull data + analyze + draft report", out: "Quarterly report", save: 60 },
+      ],
+    };
+
+    const PHASE_META = {
+      DISCOVER: { color: "indigo", icon: "🔍", label: "เข้าใจลูกค้า" },
+      DEFINE: { color: "violet", icon: "🧠", label: "วางกลยุทธ์" },
+      DESIGN: { color: "amber", icon: "🎨", label: "สร้าง assets" },
+      DEPLOY: { color: "emerald", icon: "🚀", label: "เอาไปใช้" },
+    };
+
+    const AgentsRow = () => {
+      const agents = [
+        { icon: "🔍", name: "Research & Insight", role: "ค้นหา + สังเคราะห์ข้อมูล", phase: "Discover · Define" },
+        { icon: "✍️", name: "Brand Voice", role: "เขียน + ตรวจ content ตาม voice", phase: "Define · Design · Deploy" },
+        { icon: "🎨", name: "Creative & Visual", role: "สร้าง mood board + visual exploration", phase: "Design" },
+        { icon: "📋", name: "Brand Book Builder", role: "assemble brand book จาก strategy", phase: "Design" },
+        { icon: "🛡️", name: "Brand Guardian", role: "monitor + audit งานที่ทีมลูกค้าสร้าง", phase: "Deploy (ongoing)" },
+      ];
+      return (
+        <div className="mt-12">
+          <h3 className="text-xl font-bold text-slate-900 mb-2">5 AI Agents สำหรับ Marketing Consult</h3>
+          <p className="text-slate-600 mb-6">แต่ละ agent ทำหน้าที่ชัดเจน — ใช้แยกหรือต่อกันเป็น orchestra ก็ได้</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {agents.map((a, i) => (
+              <div key={i} className="group bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-400 hover:shadow-lg hover:shadow-indigo-100/50 hover:-translate-y-1 transition-all">
+                <div className="text-3xl mb-3">{a.icon}</div>
+                <div className="text-sm font-bold text-slate-900">{a.name}</div>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{a.role}</p>
+                <div className="mt-4 pt-3 border-t border-slate-100 text-[10px] uppercase tracking-wider text-indigo-600 font-semibold">{a.phase}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    const Section4 = () => {
+      const [activePhase, setActivePhase] = useState("DISCOVER");
+      const data = MAPPING_DATA[activePhase];
+      return (
+        <section id="mapping" className="py-20 lg:py-24 relative">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionTitle
+              no="4"
+              kicker="AI × Marketing Mapping"
+              title="AI Agentic ช่วยตรงไหน ในงาน Marketing Consult"
+              sub="แตกงาน 4 phases ของ marketing consult — แล้วชี้ชัดว่า agent ตัวไหนเข้ามาช่วยใน step ไหน ลดเวลาได้กี่ %"
+            />
+
+            {/* Phase tabs */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {Object.keys(MAPPING_DATA).map(phase => {
+                const meta = PHASE_META[phase];
+                const active = activePhase === phase;
+                return (
+                  <button
+                    key={phase}
+                    onClick={() => setActivePhase(phase)}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                      active
+                        ? "bg-indigo-gradient text-white shadow-lg shadow-indigo-500/30"
+                        : "bg-white border border-slate-200 text-slate-700 hover:border-indigo-300 hover:text-indigo-700"
+                    }`}
+                  >
+                    <span>{meta.icon}</span>
+                    <span>{phase}</span>
+                    <span className={`text-xs ${active ? "text-indigo-100" : "text-slate-400"}`}>· {meta.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mapping rows */}
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+              <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div className="col-span-3">งาน Marketing</div>
+                <div className="col-span-5">AI Agentic ที่ใช้</div>
+                <div className="col-span-3">Output</div>
+                <div className="col-span-1 text-right">ลด</div>
+              </div>
+              {data.map((row, i) => (
+                <div key={i} className="grid md:grid-cols-12 gap-4 px-6 py-5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition">
+                  <div className="md:col-span-3 font-semibold text-slate-900">{row.task}</div>
+                  <div className="md:col-span-5 text-sm text-slate-600">{row.ai}</div>
+                  <div className="md:col-span-3 text-sm text-slate-500">{row.out}</div>
+                  <div className="md:col-span-1 md:text-right">
+                    <span className="inline-flex items-center justify-center min-w-[50px] px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold">−{row.save}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <AgentsRow />
+
+            {/* Orchestra view */}
+            <div className="mt-12 bg-indigo-gradient rounded-2xl p-8 text-white relative overflow-hidden">
+              <div className="absolute -top-10 -right-10 h-40 w-40 bg-amber-400/20 rounded-full blur-3xl" />
+              <h3 className="text-xl font-bold mb-2">Orchestra View — Agents ทำงานร่วมกัน</h3>
+              <p className="text-indigo-200 text-sm mb-6">ที่ปรึกษายังเป็น <em>brain</em> — AI คือ <em>hands & eyes</em> ที่ทำงานหนักให้</p>
+              <div className="flex flex-wrap items-center gap-3 text-sm">
+                {[
+                  "Client Brief", "→", "🔍 Research", "→", "🧠 Strategy", "→", "Human review",
+                  "→", "✍️ Voice + 🎨 Visual", "→", "📋 Brand Book", "→", "Delivery", "→", "🛡️ Guardian (ongoing)"
+                ].map((step, i) => (
+                  step === "→" ? (
+                    <span key={i} className="text-amber-300 font-bold">→</span>
+                  ) : (
+                    <span key={i} className="px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur border border-white/20 font-medium">{step}</span>
+                  )
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    /* =========================================================
+       SECTION 5 — MODEL 1: INTERNAL TRAINING
+       ========================================================= */
+    const Section5 = () => {
+      const day1 = [
+        { time: "09:00–11:00", mod: "M1 · AI Agentic 101 สำหรับ Marketing", hands: "Demo: agent ทำ competitor audit สด" },
+        { time: "11:15–13:00", mod: "M2 · 5 AI Agents สำหรับ Marketing Consult", hands: "Workshop: identify 3 งานที่จะใช้ก่อน" },
+        { time: "13:00 พัก", mod: "—", hands: "—" },
+        { time: "13:30–14:45", mod: "M3 · Research & Insight Agent", hands: "Build: research agent จาก case จริง" },
+        { time: "14:45–16:00", mod: "M4 · Brand Voice Agent", hands: "Build: voice agent ตัวอย่าง" },
+      ];
+      const day2 = [
+        { time: "09:00–10:30", mod: "M5 · Brand Book Builder Agent", hands: "Build: generate brand book draft" },
+        { time: "10:30–12:00", mod: "M6 · Brand Guardian Agent", hands: "Build: compliance check agent" },
+        { time: "13:00–14:30", mod: "M7 · Orchestra — Multi-Agent", hands: "Connect 3 agents เข้าด้วยกัน" },
+        { time: "14:30–16:00", mod: "M8 · ปรับใช้กับบริการ + Roadmap", hands: "Present individual roadmap" },
+      ];
+
+      return (
+        <section id="model-1" className="py-20 lg:py-24 bg-slate-50 relative">
+          <div className="absolute inset-0 grid-bg opacity-50" />
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionTitle
+              no="5"
+              kicker="Model 1 · Internal Team Training"
+              title="เทรนทีม BRAND BOOST ทั้งทีม — เป็นเจ้าของ AI capability เอง"
+              sub="เหมาะถ้าอยากให้ทีมใช้ AI ได้เอง ไม่ต้องพึ่ง vendor ตลอดเวลา · ลงทุนครั้งเดียว · ใช้ยาว"
+            />
+
+            <div className="grid lg:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">รูปแบบ</div>
+                <div className="text-2xl font-black text-slate-900">2 วัน · 8 ชม.</div>
+                <p className="text-sm text-slate-600 mt-2">วันละ 4 ชม. · On-site / In-person · Hands-on จริง</p>
+              </div>
+              <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <div className="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">ทีมที่เรียน</div>
+                <div className="text-2xl font-black text-slate-900">5–15 คน</div>
+                <p className="text-sm text-slate-600 mt-2">ทีม BRAND BOOST ทั้งหมด · strategist, designer, account</p>
+              </div>
+              <div className="bg-white rounded-2xl border-2 border-amber-400 p-6 relative">
+                <div className="absolute -top-3 left-6 px-2 py-0.5 bg-amber-400 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Investment</div>
+                <div className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">ราคา</div>
+                <div className="text-3xl font-black text-gradient-amber">฿75,000</div>
+                <p className="text-sm text-slate-600 mt-2">รวมทุกอย่าง · เริ่มต้นที่นี่</p>
+              </div>
+            </div>
+
+            {/* Day-by-day */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {[
+                { day: "Day 1", title: "Foundation + Hands-on", rows: day1, color: "indigo" },
+                { day: "Day 2", title: "Advanced + Integration", rows: day2, color: "amber" },
+              ].map((d, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                  <div className={`px-6 py-4 ${i === 0 ? "bg-indigo-50 border-b border-indigo-100" : "bg-amber-50 border-b border-amber-100"}`}>
+                    <div className={`text-xs font-bold uppercase tracking-wider ${i === 0 ? "text-indigo-700" : "text-amber-700"}`}>{d.day}</div>
+                    <div className="text-lg font-bold text-slate-900">{d.title}</div>
+                  </div>
+                  <div className="divide-y divide-slate-100">
+                    {d.rows.map((r, j) => (
+                      <div key={j} className="p-4">
+                        <div className="flex items-center gap-3 text-xs font-mono text-slate-500 mb-1">{r.time}</div>
+                        <div className="font-semibold text-slate-900 text-sm">{r.mod}</div>
+                        {r.hands !== "—" && <div className="text-xs text-slate-500 mt-1">→ {r.hands}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Deliverables */}
+            <div className="mt-8 bg-white rounded-2xl border border-slate-200 p-6">
+              <h3 className="text-lg font-bold text-slate-900 mb-4">ทีม BRAND BOOST จะได้กลับไป</h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[
+                  "AI Agent Playbook (30–50 หน้า)",
+                  "5 AI Agents prototype พร้อมใช้",
+                  "Prompt library 50+ prompts",
+                  "Service redesign roadmap (90 วัน)",
+                  "Post-training support 30 วัน",
+                  "Demo case study + reference",
+                ].map((d, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                    <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                    <span>{d}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    /* =========================================================
+       SECTION 6 — MODEL 2: CO-TRAINING + CALCULATOR
+       ========================================================= */
+    const Section6 = () => {
+      const [headcount, setHeadcount] = useState(20);
+      const [hours, setHours] = useState(4);
+      const ratePerHead = 2500; // บาท / หัว / 4 ชม.
+      const ratePerHour = ratePerHead / 4;
+      const total = useMemo(() => headcount * hours * ratePerHour, [headcount, hours]);
+
+      const services = [
+        { name: "AI-Powered Brand Book", desc: "Brand Book + AI Brand Voice Agent ที่ลูกค้าใช้งานต่อได้", split: "BRAND BOOST: strategy & design · TONPALEARN: AI agent setup" },
+        { name: "AI Brand Guardian Retainer", desc: "Brand audit รายเดือน + ตรวจงานทีมลูกค้า + report", split: "BRAND BOOST: client management · TONPALEARN: AI monitoring" },
+        { name: "AI Marketing Bootcamp", desc: "คอร์ส 5–7 วันสำหรับทีม marketing องค์กรลูกค้า", split: "BRAND BOOST: marketing fundamentals · TONPALEARN: AI workflow" },
+      ];
+
+      return (
+        <section id="model-2" className="py-20 lg:py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-50/40 via-white to-indigo-50/30" />
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionTitle
+              no="6"
+              kicker="Model 2 · Co-Training Partnership"
+              title="ร่วมเป็น Partner — TONPALEARN × BRAND BOOST"
+              sub="ออกแบบบริการ/คอร์สใหม่ที่ merge Marketing expertise (BRAND BOOST) + AI capability (TONPALEARN) · ขายร่วมกัน แบ่งรายได้"
+            />
+
+            {/* Calculator */}
+            <div className="bg-white rounded-2xl border-2 border-indigo-200 shadow-xl shadow-indigo-100/50 p-6 sm:p-8 mb-10">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="text-xs font-bold text-indigo-700 uppercase tracking-wider">Live Pricing Calculator</div>
+                  <h3 className="text-xl font-bold text-slate-900 mt-1">คำนวณราคาคอร์สร่วม</h3>
+                </div>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Real-time
+                </div>
+              </div>
+
+              <div className="grid lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  {/* Headcount slider */}
+                  <div>
+                    <div className="flex justify-between items-baseline mb-2">
+                      <label className="text-sm font-semibold text-slate-700">จำนวนผู้เรียน</label>
+                      <span className="text-2xl font-black text-indigo-700">{headcount} คน</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="5"
+                      max="100"
+                      value={headcount}
+                      onChange={e => setHeadcount(+e.target.value)}
+                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400 mt-1">
+                      <span>5</span><span>50</span><span>100</span>
+                    </div>
+                  </div>
+
+                  {/* Hours slider */}
+                  <div>
+                    <div className="flex justify-between items-baseline mb-2">
+                      <label className="text-sm font-semibold text-slate-700">ระยะเวลา</label>
+                      <span className="text-2xl font-black text-amber-600">{hours} ชม.</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="4"
+                      max="40"
+                      step="2"
+                      value={hours}
+                      onChange={e => setHours(+e.target.value)}
+                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer accent-amber-500"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400 mt-1">
+                      <span>4 ชม.</span><span>20 ชม.</span><span>40 ชม.</span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3 leading-relaxed">
+                    <strong>Rate:</strong> 2,500 บาท / คน / 4 ชม. ({ratePerHour.toLocaleString()} บาท / คน / ชม.)
+                    <br /><strong>Revenue split:</strong> 50/50 หรือตกลงตาม contribution ของแต่ละ service
+                  </div>
+                </div>
+
+                {/* Result */}
+                <div className="bg-indigo-gradient rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
+                  <div className="absolute -top-10 -right-10 h-40 w-40 bg-amber-400/30 rounded-full blur-3xl" />
+                  <div className="relative">
+                    <div className="text-sm font-semibold text-indigo-200 uppercase tracking-wider">ราคารวม</div>
+                    <div className="mt-2 text-5xl sm:text-6xl font-black tabular-nums">
+                      ฿{total.toLocaleString()}
+                    </div>
+                    <div className="mt-1 text-sm text-indigo-200">
+                      {headcount} คน × {hours} ชม. × {ratePerHour.toLocaleString()} บาท/คน/ชม.
+                    </div>
+                    <div className="mt-6 pt-6 border-t border-white/20 grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <div className="text-indigo-200 text-xs uppercase tracking-wider">/ คน</div>
+                        <div className="font-bold text-lg">฿{(hours * ratePerHour).toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-indigo-200 text-xs uppercase tracking-wider">/ ชม.</div>
+                        <div className="font-bold text-lg">฿{(headcount * ratePerHour).toLocaleString()}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sample services */}
+            <h3 className="text-xl font-bold text-slate-900 mb-2">ตัวอย่างบริการที่ Co-Create ร่วมกันได้</h3>
+            <p className="text-slate-600 mb-6">เลือก 1 service launch ก่อน · ทดสอบกับลูกค้า 1 ราย · จากนั้น scale</p>
+            <div className="grid lg:grid-cols-3 gap-4">
+              {services.map((s, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 hover:border-indigo-300 hover:shadow-lg transition-all">
+                  <div className="text-xs font-bold text-amber-700 uppercase tracking-wider">Service {String.fromCharCode(65 + i)}</div>
+                  <h4 className="mt-1 text-lg font-bold text-slate-900">{s.name}</h4>
+                  <p className="mt-2 text-sm text-slate-600 leading-relaxed">{s.desc}</p>
+                  <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
+                    <strong className="text-slate-700">Split:</strong> {s.split}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Why Model 2 */}
+            <div className="mt-10 grid md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">ทำไม BRAND BOOST ได้ประโยชน์</h3>
+                <ul className="space-y-2 text-sm text-slate-700">
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span><span>ไม่ต้องสร้าง AI capability ในทีมเอง — ประหยัดเวลา</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span><span>ขายบริการพรีเมียมที่มี AI ได้ทันที</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span><span>Co-brand BRAND BOOST × TONPALEARN = น่าเชื่อถือคู่</span></li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span><span>รายได้ recurring จากการร่วมขาย</span></li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-2xl border border-slate-200 p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-3">90-day Rollout</h3>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex gap-3">
+                    <span className="font-mono text-xs font-bold text-indigo-600 mt-0.5">W 1–3</span>
+                    <span className="text-slate-700">สัญญา · roles · เลือก 1 service launch ก่อน</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="font-mono text-xs font-bold text-indigo-600 mt-0.5">W 4–8</span>
+                    <span className="text-slate-700">Co-design service ร่วมกัน + test กับลูกค้า 1 ราย</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="font-mono text-xs font-bold text-indigo-600 mt-0.5">W 9–12</span>
+                    <span className="text-slate-700">Go-to-market + ขายให้ลูกค้า 2–3 รายแรก</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    /* =========================================================
+       SECTION 7 — CURRICULUM
+       ========================================================= */
+    const Section7 = () => {
+      const [openIdx, setOpenIdx] = useState(0);
+      const modules = [
+        {
+          n: "M1", title: "AI Agentic 101 — สำหรับ Marketing Consultant",
+          time: "1.5 ชม.",
+          points: ["AI Agentic ต่างจาก AI ทั่วไปยังไง", "ทำไม Marketing Consult ที่ใช้ AI เร็วกว่า 50–70%", "Demo สด: Agent ทำ competitor audit ใน 5 นาที"],
+          hands: "ทุกคน list 3 งานในมือที่อยาก speed up",
+        },
+        {
+          n: "M2", title: "5 AI Agents สำหรับ Marketing Consult",
+          time: "1.5 ชม.",
+          points: ["Map งาน Marketing → AI Agent ที่เหมาะ", "5 categories: Research, Voice, Visual, Brand Book, Guardian", "Live walkthrough ทั้ง 5 agent"],
+          hands: "เลือก 1 agent ที่จะ build ก่อน",
+        },
+        {
+          n: "M3", title: "Research & Insight Agent",
+          time: "1.5 ชม.",
+          points: ["Build agent ที่ทำ competitor audit + customer research", "Tools: Claude + web search + Notion", "Prompt ที่ดึง insight ได้จริง"],
+          hands: "สร้าง research agent สำหรับ case ของตัวเอง",
+        },
+        {
+          n: "M4", title: "Brand Voice Agent",
+          time: "1.5 ชม.",
+          points: ["Train AI ให้รู้จัก voice ของแบรนด์หนึ่งๆ", "Voice profile structure (rules + examples + counter-examples)", "Generate content ที่ on-brand"],
+          hands: "Build voice agent สำหรับ 1 ลูกค้าตัวอย่าง",
+        },
+        {
+          n: "M5", title: "Brand Book Builder",
+          time: "1.5 ชม.",
+          points: ["Workflow: strategy → AI structure → brand book draft", "Tools: Claude + Notion/Docs + auto-formatting", "Template library setup"],
+          hands: "Generate brand book section จาก strategy notes",
+        },
+        {
+          n: "M6", title: "Brand Guardian Agent",
+          time: "1.5 ชม.",
+          points: ["Compliance check: voice consistency + visual guidelines", "Setup ongoing monitoring (Slack/Line bot)", "Auto-report generation"],
+          hands: "Build guardian agent ตรวจ social post",
+        },
+        {
+          n: "M7", title: "AI Orchestra — Multi-Agent Workflow",
+          time: "1.5 ชม.",
+          points: ["Connect agents ให้ทำงานต่อเนื่อง", "Hand-off pattern (Research → Strategy → Content)", "MCP Connector — เชื่อม AI กับ tool ที่ใช้อยู่"],
+          hands: "Connect 2–3 agents เข้าด้วยกัน",
+        },
+        {
+          n: "M8", title: "ปรับใช้กับธุรกิจ + Roadmap",
+          time: "1.5 ชม.",
+          points: ["ออกแบบ service line ใหม่ที่มี AI", "Pricing premium tier", "90-day implementation roadmap"],
+          hands: "Present individual roadmap",
+        },
+      ];
+
+      return (
+        <section id="curriculum" className="py-20 lg:py-24 bg-slate-50 relative">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionTitle
+              no="7"
+              kicker="Curriculum · 8 Modules"
+              title="หลักสูตร AI Agentic สำหรับ Marketing Consult"
+              sub="ไม่ใช้ catalog ทั่วไป — ออกแบบใหม่เฉพาะ Marketing Consult ทุกโมดูลมี hands-on จากงานจริงในมือ"
+            />
+
+            <div className="grid lg:grid-cols-12 gap-4">
+              {/* Module list */}
+              <div className="lg:col-span-5 space-y-2">
+                {modules.map((m, i) => {
+                  const open = openIdx === i;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setOpenIdx(i)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${
+                        open
+                          ? "bg-white border-indigo-400 shadow-lg shadow-indigo-100"
+                          : "bg-white/70 border-slate-200 hover:border-indigo-200 hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`flex items-center justify-center h-8 w-8 rounded-lg font-mono font-bold text-xs ${
+                          open ? "bg-indigo-gradient text-white" : "bg-slate-100 text-slate-700"
+                        }`}>{m.n}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-semibold text-sm ${open ? "text-indigo-900" : "text-slate-900"} line-clamp-1`}>{m.title}</div>
+                          <div className="text-xs text-slate-500">{m.time}</div>
+                        </div>
+                        <span className={`text-xs font-bold ${open ? "text-indigo-600" : "text-slate-300"}`}>{open ? "—" : "+"}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Detail panel */}
+              <div className="lg:col-span-7 lg:sticky lg:top-24 self-start">
+                <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="flex items-center justify-center h-12 w-12 rounded-xl bg-indigo-gradient text-white font-mono font-black">{modules[openIdx].n}</span>
+                    <div>
+                      <div className="text-xs uppercase tracking-wider text-indigo-700 font-semibold">{modules[openIdx].time}</div>
+                      <h3 className="text-xl font-bold text-slate-900">{modules[openIdx].title}</h3>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">เนื้อหาที่เรียน</div>
+                    <ul className="space-y-2">
+                      {modules[openIdx].points.map((p, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
+                          <span className="text-indigo-500 mt-0.5">▸</span>
+                          <span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-slate-100">
+                    <div className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-2">Hands-on</div>
+                    <p className="text-sm text-slate-700 leading-relaxed">{modules[openIdx].hands}</p>
+                  </div>
+                </div>
+
+                {/* Tool stack */}
+                <div className="mt-4 bg-slate-900 rounded-2xl p-6 text-white">
+                  <div className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3">Tool Stack ที่ใช้สอน</div>
+                  <div className="flex flex-wrap gap-2">
+                    {["Claude (Anthropic)", "ChatGPT", "Notion", "Make.com / n8n", "Canva", "MCP Connectors", "Claude Code"].map((t, i) => (
+                      <span key={i} className="px-3 py-1 rounded-lg bg-white/10 border border-white/20 text-xs font-mono">{t}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    /* =========================================================
+       SECTION 8 — PRICING COMPARISON
+       ========================================================= */
+    const Section8 = () => {
+      const features = [
+        { f: "ระยะเวลา", m1: "2 วัน · 8 ชม. รวม", m2: "ยืดหยุ่น (4 ชม. ขึ้นไป)" },
+        { f: "ผู้เรียน", m1: "ทีม BRAND BOOST ทั้งทีม", m2: "ลูกค้าของ BRAND BOOST (ขายร่วม)" },
+        { f: "ราคา", m1: "฿75,000 · เหมาจ่าย", m2: "฿2,500 / คน / 4 ชม." },
+        { f: "Hands-on", m1: "ทุก module", m2: "ทุก module" },
+        { f: "AI Playbook + Prototype", m1: "✓", m2: "ตามตกลง" },
+        { f: "Post-training support", m1: "30 วัน", m2: "ตามแพ็ก" },
+        { f: "Revenue model", m1: "One-time", m2: "Split 50/50 หรือตาม contribution" },
+        { f: "เหมาะกับ", m1: "ทีมที่อยากเป็นเจ้าของ AI capability", m2: "ทีมที่อยาก launch บริการ AI เร็ว ไม่ต้อง upskill ทั้งทีม" },
+      ];
+
+      return (
+        <section id="pricing" className="py-20 lg:py-24 relative">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionTitle
+              no="8"
+              kicker="Pricing & Bundle"
+              title="เลือก Model ที่ใช่กับ BRAND BOOST"
+              sub="เริ่ม Model 1 ก่อนได้ · ถ้าตัดสินใจทำ Model 2 ภายใน 90 วัน หัก 50% ของค่า Model 1 ใน setup partnership"
+            />
+
+            <div className="grid lg:grid-cols-2 gap-6 mb-10">
+              {/* Model 1 card */}
+              <div className="bg-white rounded-3xl border-2 border-slate-200 p-8 relative">
+                <div className="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">Model 1</div>
+                <h3 className="text-2xl font-black text-slate-900 mb-1">Internal Team Training</h3>
+                <p className="text-sm text-slate-500 mb-6">ทีม BRAND BOOST เป็นเจ้าของ AI capability เอง</p>
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-5xl font-black text-slate-900">฿75,000</span>
+                  <span className="text-sm text-slate-500">/ เหมาจ่าย · 2 วัน</span>
+                </div>
+                <ul className="space-y-3 text-sm">
+                  {["8 ชม. workshop (4 ชม. × 2 วัน)", "5 AI Agent prototypes", "Playbook 30–50 หน้า", "Prompt library 50+", "Service redesign roadmap", "Post-training support 30 วัน"].map((x, i) => (
+                    <li key={i} className="flex items-start gap-2 text-slate-700"><span className="text-emerald-500 mt-0.5">✓</span>{x}</li>
+                  ))}
+                </ul>
+                <a href="#cta" className="mt-6 inline-flex items-center justify-center w-full gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold transition">
+                  เลือก Model 1
+                </a>
+              </div>
+
+              {/* Model 2 card */}
+              <div className="bg-indigo-gradient rounded-3xl p-8 relative overflow-hidden text-white">
+                <div className="absolute -top-10 -right-10 h-40 w-40 bg-amber-400/30 rounded-full blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 h-40 w-40 bg-indigo-400/30 rounded-full blur-3xl" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">Model 2</span>
+                    <span className="text-[10px] font-bold bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full uppercase tracking-wider">Recommended</span>
+                  </div>
+                  <h3 className="text-2xl font-black mb-1">Co-Training Partnership</h3>
+                  <p className="text-sm text-indigo-200 mb-6">ขายบริการ AI ร่วมกัน · BRAND BOOST × TONPALEARN</p>
+                  <div className="flex items-baseline gap-2 mb-6">
+                    <span className="text-5xl font-black">฿2,500</span>
+                    <span className="text-sm text-indigo-200">/ คน / 4 ชม.</span>
+                  </div>
+                  <ul className="space-y-3 text-sm">
+                    {["Flex หลายสเกล (10–100 คน)", "Co-branded service", "Revenue split 50/50", "Joint go-to-market", "ลูกค้าได้ AI ทันที", "Recurring revenue"].map((x, i) => (
+                      <li key={i} className="flex items-start gap-2"><span className="text-amber-300 mt-0.5">✓</span>{x}</li>
+                    ))}
+                  </ul>
+                  <a href="#cta" className="mt-6 inline-flex items-center justify-center w-full gap-2 px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-900 font-bold transition">
+                    เลือก Model 2
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Comparison table */}
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+              <div className="grid grid-cols-3 gap-4 px-6 py-4 bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <div>Feature</div>
+                <div>Model 1 · Internal</div>
+                <div>Model 2 · Co-Train</div>
+              </div>
+              {features.map((row, i) => (
+                <div key={i} className="grid grid-cols-3 gap-4 px-6 py-4 border-b border-slate-100 last:border-b-0">
+                  <div className="font-semibold text-slate-900 text-sm">{row.f}</div>
+                  <div className="text-sm text-slate-700">{row.m1}</div>
+                  <div className="text-sm text-slate-700">{row.m2}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bundle bonus */}
+            <div className="mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <span className="flex items-center justify-center h-12 w-12 rounded-xl bg-amber-400 text-amber-900 text-xl font-black flex-shrink-0">★</span>
+              <div className="flex-1">
+                <div className="text-sm font-bold text-amber-900">Bundle Bonus</div>
+                <p className="text-sm text-amber-800 mt-1">เริ่ม Model 1 ก่อน · ถ้าตัดสินใจทำ Model 2 ภายใน 90 วัน — <strong>หัก 50% ของค่า Model 1 ใน setup partnership</strong></p>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    /* =========================================================
+       CTA + FOOTER
+       ========================================================= */
+    const CTA = () => (
+      <section id="cta" className="py-20 lg:py-24 bg-slate-950 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-indigo-600 blur-3xl" />
+          <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-amber-500 blur-3xl" />
+        </div>
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-5xl font-black mb-4">
+            พร้อมเริ่มแล้วใช่ไหม?
+          </h2>
+          <p className="text-lg text-slate-300 max-w-2xl mx-auto mb-8">
+            ขอ scope session 1 ชม. ฟรี — ดู workflow ปัจจุบันของ BRAND BOOST แล้วทำ tailored proposal ที่เจาะจง คน + งาน + ราคา
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <a href="mailto:hello@tonpalearn.com?subject=BRAND%20BOOST%20×%20TONPALEARN%20Discovery%20Call" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold shadow-lg shadow-amber-500/30 transition">
+              📧 นัด Discovery Call
+            </a>
+            <a href="https://tonpalearn.com" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/20 hover:border-white/40 hover:bg-white/5 text-white font-semibold transition">
+              เยี่ยมชม tonpalearn.com →
+            </a>
+          </div>
+
+          <div className="mt-12 pt-8 border-t border-white/10 grid sm:grid-cols-3 gap-6 text-sm">
+            <div>
+              <div className="text-amber-400 font-bold mb-1">ต้น · TONPALEARN</div>
+              <div className="text-slate-400">Computer Engineer · PM 15 ปี · ทำคอร์ส AI 10+ คอร์ส</div>
+            </div>
+            <div>
+              <div className="text-amber-400 font-bold mb-1">ปรัชญา</div>
+              <div className="text-slate-400">เราไม่แทนคุณ · เราทำให้คุณ deliver ได้เร็วและดีกว่า</div>
+            </div>
+            <div>
+              <div className="text-amber-400 font-bold mb-1">เริ่มเล็กได้</div>
+              <div className="text-slate-400">ไม่จำเป็นต้องทุ่มทั้งหมดในก้าวแรก</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+
+    const Footer = () => (
+      <footer className="bg-slate-950 border-t border-white/10 py-8 text-center text-xs text-slate-500">
+        <div className="max-w-6xl mx-auto px-4">
+          <p>© 2026 TONPALEARN · Confidential Proposal for BRAND BOOST · Generated 20 พ.ค. 2569</p>
+          <p className="mt-1">tonpalearn.com/brandboost</p>
+        </div>
+      </footer>
+    );
+
+    /* =========================================================
+       APP — scroll spy
+       ========================================================= */
+    const App = () => {
+      const [activeSection, setActiveSection] = useState("mapping");
+
+      useEffect(() => {
+        const ids = ["mapping", "model-1", "model-2", "curriculum", "pricing"];
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); });
+          },
+          { rootMargin: "-30% 0px -60% 0px" }
+        );
+        ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+        return () => observer.disconnect();
+      }, []);
+
+      return (
+        <>
+          <NavBar activeSection={activeSection} />
+          <main>
+            <Hero />
+            <WhyNow />
+            <Section4 />
+            <Section5 />
+            <Section6 />
+            <Section7 />
+            <Section8 />
+            <CTA />
+          </main>
+          <Footer />
+        </>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
