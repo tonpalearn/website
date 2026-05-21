@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · Services · บริการสำหรับธุรกิจ</title>
+  <meta name="description" content="TONPALEARN — บริการสอน AI · Consulting · Development สำหรับองค์กรและบุคคล จาก Retail · Telecom · Automotive · Manufacturer และอื่นๆ" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    html { background: #08080F; scroll-behavior: smooth; }
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    *::selection { background: rgba(230,184,75,0.25); color: #fff; }
+    .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
+    .font-serif   { font-family: 'Cormorant Garamond', serif; }
+    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+    .grad-text-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-text-teal {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-text-violet {
+      background: linear-gradient(135deg, #C4B5FD 0%, #7C5CFC 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-text-tri {
+      background: linear-gradient(90deg, #E6B84B 0%, #2DD4BF 50%, #A78BFA 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .mesh-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 20%, rgba(124,92,252,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 15% 80%, rgba(45,212,191,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 45% at 85% 75%, rgba(230,184,75,0.10) 0%, transparent 55%);
+    }
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(230,184,75,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(230,184,75,0.035) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+    .noise {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3CfeColorMatrix values='0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0 0.5 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.025; mix-blend-mode: overlay;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
+      border: 1px solid rgba(230,184,75,0.14);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+    }
+    .panel-hover { transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s; }
+    .panel-hover:hover { transform: translateY(-3px); border-color: rgba(230,184,75,0.35); box-shadow: 0 18px 50px -16px rgba(230,184,75,0.20); }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    .scroll-progress {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+      background: linear-gradient(90deg, #E6B84B, #2DD4BF, #A78BFA);
+      z-index: 60; transition: width 0.1s linear;
+    }
+
+    .marquee-mask {
+      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+    @keyframes mq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .marquee { animation: mq 35s linear infinite; }
+
+    .shine { position: relative; overflow: hidden; }
+    .shine::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+      transform: translateX(-100%); transition: transform 0.8s;
+    }
+    .shine:hover::after { transform: translateX(100%); }
+
+    .mega-type {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+    }
+
+    .vert-text {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      letter-spacing: 0.3em;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect } = React;
+
+// ───────────────────────────────────────────────────────────
+// Icons
+// ───────────────────────────────────────────────────────────
+const Icon = {
+  Arrow:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M5 12h14M13 5l7 7-7 7"/></svg>,
+  Back:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>,
+  Spark:   (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2l1.6 5.4L19 9l-5.4 1.6L12 16l-1.6-5.4L5 9l5.4-1.6z"/></svg>,
+  Line:    (p) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M24 10.3C24 4.9 18.6.6 12 .6S0 4.9 0 10.3c0 4.8 4.3 8.9 10 9.6.4.1.9.3 1.1.6.1.3.1.8 0 1.1l-.2 1c-.1.3-.2 1.2 1.1.7 1.3-.5 7-4.1 9.5-7 1.7-1.9 2.5-3.8 2.5-6"/></svg>,
+  Book:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
+  Compass: (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="12" cy="12" r="9"/><path d="m15 9-2 5-5 2 2-5z"/></svg>,
+  Code:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>,
+  Cpu:     (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/></svg>,
+  Users:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1A4 4 0 0 1 16 11"/></svg>,
+  Building:(p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></svg>,
+  Briefcase:(p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>,
+  Layers:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="m12 2 10 6-10 6L2 8l10-6zM2 16l10 6 10-6M2 12l10 6 10-6"/></svg>,
+  Wand:    (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="m15 4 5 5L9 20H4v-5L15 4zM12 7l5 5"/></svg>,
+  Target:  (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>,
+  Check:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" {...p}><path d="m5 13 4 4L19 7"/></svg>,
+  Chart:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M3 3v18h18M7 14l3-3 4 4 5-6"/></svg>,
+  Globe:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>,
+  Phone:   (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+};
+
+// ───────────────────────────────────────────────────────────
+// Hooks
+// ───────────────────────────────────────────────────────────
+function useReveal() {
+  useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    const observe = () => document.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
+    observe();
+    const mo = new MutationObserver(observe);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => { io.disconnect(); mo.disconnect(); };
+  }, []);
+}
+
+function useScrollProgress() {
+  useEffect(() => {
+    const bar = document.getElementById('scrollProgress');
+    const onScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      if (bar) bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+}
+
+// ───────────────────────────────────────────────────────────
+// MAIN
+// ───────────────────────────────────────────────────────────
+function App() {
+  useReveal();
+  useScrollProgress();
+  return (
+    <>
+      <Nav/>
+      <Hero/>
+      <IndustriesStrip/>
+      <ServicesOverview/>
+      <Service1Training/>
+      <Service2Consult/>
+      <Service3Development/>
+      <Methodology/>
+      <Instructor/>
+      <CTA/>
+      <Footer/>
+    </>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// NAV
+// ───────────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all ${scrolled ? 'bg-ink-950/85 backdrop-blur-xl border-b border-gold-600/15' : 'bg-transparent'}`}
+         style={{ backgroundColor: scrolled ? 'rgba(8,8,15,0.85)' : 'transparent', borderColor: scrolled ? 'rgba(200,168,75,0.15)' : 'transparent', borderBottomWidth: scrolled ? '1px' : '0' }}>
+      <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
+        <a href="/" className="font-display font-bold text-lg tracking-tight">
+          <span className="text-white">TON</span>
+          <span className="grad-text-gold">PA</span>
+          <span className="grad-text-teal">LEARN</span>
+        </a>
+        <div className="font-mono text-[10px] tracking-widest text-slate-500 uppercase hidden sm:block">Services · Corporate Proposal</div>
+        <a href="https://line.me/ti/p/@tonpalearn" target="_blank" rel="noopener"
+           className="inline-flex items-center gap-1.5 text-sm font-display font-semibold px-4 py-2 rounded-lg text-white"
+           style={{ background: '#06c755' }}>
+          <Icon.Line className="w-4 h-4"/> ปรึกษาฟรี
+        </a>
+      </div>
+    </nav>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// HERO
+// ───────────────────────────────────────────────────────────
+function Hero() {
+  return (
+    <section className="relative min-h-screen pt-32 pb-20 overflow-hidden flex items-center">
+      <div className="absolute inset-0 mesh-bg pointer-events-none"/>
+      <div className="absolute inset-0 grid-bg opacity-50 pointer-events-none"/>
+      <div className="absolute inset-0 noise pointer-events-none"/>
+
+      <div className="absolute top-32 -right-32 w-[28rem] h-[28rem] rounded-full opacity-25 blur-3xl"
+           style={{ background: '#7C5CFC' }}/>
+      <div className="absolute bottom-20 -left-32 w-[28rem] h-[28rem] rounded-full opacity-15 blur-3xl"
+           style={{ background: '#14B8A6' }}/>
+
+      <div className="relative mx-auto max-w-7xl px-6 w-full">
+        <div className="font-mono text-xs tracking-widest uppercase mb-6 flex items-center gap-3" style={{ color: '#E6B84B' }}>
+          <span className="w-8 h-px" style={{ background: 'rgba(230,184,75,0.4)' }}/>
+          Services · Corporate Proposal · 2026
+        </div>
+
+        <h1 className="mega-type text-6xl md:text-8xl lg:text-9xl text-white max-w-5xl">
+          <span className="block">นำ <span className="italic grad-text-gold">AI</span></span>
+          <span className="block">เข้ามาทำงาน</span>
+          <span className="block italic grad-text-teal">ในธุรกิจคุณ</span>
+        </h1>
+
+        <p className="mt-8 text-xl md:text-2xl text-slate-300 font-serif italic max-w-3xl" style={{ lineHeight: '1.6' }}>
+          "จาก <span className="not-italic font-semibold text-white">สอนทีมงาน</span> · <span className="not-italic font-semibold grad-text-gold">วิเคราะห์ Gap ด้วย AI</span> · จนถึง <span className="not-italic font-semibold grad-text-teal">พัฒนาระบบ Multi-Agent</span> ที่ใช้งานจริง — บริการเดียวจบ"
+        </p>
+
+        <div className="mt-10 flex flex-wrap gap-3">
+          <a href="#services" className="shine inline-flex items-center gap-2 px-7 py-4 rounded-xl font-display font-bold text-base transition-shadow"
+             style={{ background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' }}>
+            ดูบริการทั้งหมด →
+          </a>
+          <a href="#cta" className="inline-flex items-center gap-2 px-7 py-4 rounded-xl font-display font-semibold border text-base"
+             style={{ borderColor: 'rgba(45,212,191,0.4)', color: '#2DD4BF' }}>
+            <Icon.Phone className="w-4 h-4"/> นัดคุย Strategy
+          </a>
+        </div>
+
+        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px rounded-2xl overflow-hidden max-w-4xl"
+             style={{ background: 'rgba(230,184,75,0.10)' }}>
+          {[
+            { num: '3',    sub: 'Service Lines',  hint: 'Train · Consult · Build' },
+            { num: '15+',  sub: 'ปี PM',           hint: 'Banking · Telecom · Gov' },
+            { num: '12',   sub: 'AI Courses',      hint: 'Basic → Multi-Agent' },
+            { num: '∞',    sub: 'Industries',      hint: 'Retail · Auto · Manuf.' },
+          ].map((s, i) => (
+            <div key={i} className="p-5 text-center" style={{ background: 'rgba(13,13,20,0.6)', backdropFilter: 'blur(8px)' }}>
+              <div className="font-serif text-4xl md:text-5xl font-medium grad-text-gold tracking-tight">{s.num}</div>
+              <div className="mt-2 text-xs font-display font-semibold text-white">{s.sub}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">{s.hint}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-mono text-slate-600 tracking-widest uppercase flex flex-col items-center gap-2">
+        <span>Scroll</span>
+        <div className="w-px h-8" style={{ background: 'linear-gradient(180deg, rgba(230,184,75,0.5), transparent)' }}/>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// INDUSTRIES STRIP
+// ───────────────────────────────────────────────────────────
+function IndustriesStrip() {
+  const items = ['Banking', 'Telecom', 'Government', 'Retail', 'Automotive', 'Manufacturer', 'Wellness', 'EdTech', 'F&B', 'Insurance', 'Real Estate', 'Logistics'];
+  return (
+    <section className="py-14 border-y" style={{ borderColor: 'rgba(200,168,75,0.10)', backgroundColor: 'rgba(13,13,20,0.4)' }}>
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 mb-6">
+          <div className="text-xs uppercase tracking-widest font-display font-semibold whitespace-nowrap" style={{ color: '#94a3b8' }}>
+            ประสบการณ์ทำงานกับองค์กรใน →
+          </div>
+          <div className="flex-1 overflow-hidden marquee-mask">
+            <div className="flex gap-12 marquee whitespace-nowrap w-max">
+              {[...items, ...items].map((n, i) => (
+                <span key={i} className="font-display font-semibold text-lg" style={{ color: '#94a3b8' }}>
+                  {n}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SERVICES OVERVIEW (3 cards)
+// ───────────────────────────────────────────────────────────
+function ServicesOverview() {
+  const services = [
+    {
+      icon: Icon.Book, color: 'gold',
+      tag:   'SERVICE 01',
+      title: 'Training & Education',
+      sub:   'สอน AI ทุกระดับ — ตั้งแต่ Basic ถึง Multi-Agent Architect',
+      body:  'หลักสูตรครบ 12 คอร์ส + Custom Curriculum สำหรับองค์กร — ผู้สอนคนเดียวกันที่ลงมือใช้ AI ในงานจริงทุกวัน',
+      anchor: '#service-training',
+    },
+    {
+      icon: Icon.Compass, color: 'teal',
+      tag:   'SERVICE 02',
+      title: 'Business Consulting',
+      sub:   'หา Gap · วาง Roadmap · เลือก AI ที่ใช่กับธุรกิจ',
+      body:  'วิเคราะห์ workflow ขององค์กร — ระบุจุดที่ AI Agentic เพิ่ม value ได้จริง · ออกแบบ pilot project · ROI projection',
+      anchor: '#service-consult',
+    },
+    {
+      icon: Icon.Code, color: 'violet',
+      tag:   'SERVICE 03',
+      title: 'Development & Systems',
+      sub:   'พัฒนา App · Website · Multi-Agent System ที่ใช้งานจริง',
+      body:  'จาก kickoff ถึง production — Internal tools · Public-facing apps · Custom AI workflows ที่เชื่อมระบบเดิมขององค์กร',
+      anchor: '#service-development',
+    },
+  ];
+  const tint = {
+    gold:   { bg: 'rgba(230,184,75,0.15)',  text: '#F5D67A', border: 'rgba(230,184,75,0.30)' },
+    teal:   { bg: 'rgba(45,212,191,0.15)',  text: '#2DD4BF', border: 'rgba(45,212,191,0.30)' },
+    violet: { bg: 'rgba(167,139,250,0.15)', text: '#A78BFA', border: 'rgba(167,139,250,0.30)' },
+  };
+
+  return (
+    <section id="services" className="py-24 md:py-32 relative">
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="reveal text-center mb-16 max-w-2xl mx-auto">
+          <div className="text-xs font-mono tracking-widest uppercase mb-3" style={{ color: '#E6B84B' }}>— 3 Service Lines —</div>
+          <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
+            บริการที่ <span className="italic grad-text-gold">ครอบคลุม</span> ทั้ง journey
+          </h2>
+          <p className="mt-4 text-slate-400">
+            ตั้งแต่ทีมเริ่มต้นใช้ AI ครั้งแรก → จนถึงสร้าง Multi-Agent System ระดับองค์กร
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-5">
+          {services.map((s, i) => (
+            <a key={i} href={s.anchor}
+               className="reveal panel panel-hover p-7 group block"
+               style={{ transitionDelay: `${i*0.06}s` }}>
+              <div className="flex items-center justify-between mb-5">
+                <div className="text-[10px] font-mono tracking-widest" style={{ color: tint[s.color].text }}>{s.tag}</div>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center border"
+                     style={{ background: tint[s.color].bg, borderColor: tint[s.color].border, color: tint[s.color].text }}>
+                  <s.icon className="w-6 h-6"/>
+                </div>
+              </div>
+              <h3 className="font-serif text-3xl text-white font-medium leading-tight">{s.title}</h3>
+              <p className="mt-2 text-sm" style={{ color: tint[s.color].text }}>{s.sub}</p>
+              <p className="mt-4 text-sm text-slate-400 leading-relaxed">{s.body}</p>
+              <div className="mt-6 inline-flex items-center gap-1.5 text-xs font-display font-semibold group-hover:gap-2 transition-all"
+                   style={{ color: tint[s.color].text }}>
+                ดูรายละเอียด →
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SERVICE 1 — Training
+// ───────────────────────────────────────────────────────────
+function Service1Training() {
+  const tiers = [
+    {
+      level: 'Level 1', name: 'Foundation', emoji: '🌱',
+      who:    'พนักงานทุกระดับ · ไม่ต้องพื้นฐาน IT',
+      what:   'AI คืออะไร · Prompt Engineering · ใช้ AI ทำงานประจำให้เร็วขึ้น',
+      eg:     ['ตอบ email อัตโนมัติ', 'สรุปเอกสาร', 'เขียน Content', 'แปลภาษา'],
+    },
+    {
+      level: 'Level 2', name: 'AI Builder', emoji: '⚡',
+      who:    'PA · Marketing · Operations · ที่อยากใช้ AI เป็นทีมงาน',
+      what:   'AI Agentic — Setup Cowork · สร้าง Skill ของตัวเอง · เชื่อม MCP (Notion · Gmail · Slack)',
+      eg:     ['Email assistant ที่จำ tone ของเจ้านาย', 'Sales pipeline automation', 'Content production system'],
+    },
+    {
+      level: 'Level 3', name: 'Architect', emoji: '🧱',
+      who:    'Tech-curious · IT Manager · Product Owner',
+      what:   'พัฒนา Application — Front-end + Back-end ที่ใช้งานในองค์กรจริง',
+      eg:     ['Internal dashboard', 'Customer portal', 'Workflow automation app', 'Web/App ที่ deploy production'],
+    },
+    {
+      level: 'Level 4', name: 'Orchestra', emoji: '🎼',
+      who:    'CEO · CTO · Department Head ที่ต้องการ scale operations',
+      what:   'Multi-Agent Orchestration — ทีม AI หลาย agent ทำงานพร้อมกัน',
+      eg:     ['Content factory (idea → publish)', 'Sales Agent + Researcher + Writer', 'Auto-deploy + QA system', 'CEO Personal Assistant ใช้ Agentic'],
+    },
+  ];
+
+  const audiences = [
+    { who: 'พนักงานทั่วไป',  what: 'ใช้ AI ในงาน routine ให้เร็วขึ้น',                  metric: '+ 5-10 ชม. ต่อสัปดาห์' },
+    { who: 'CEO · Founders', what: 'ใช้ AI Agentic เป็น Personal Assistant ระดับ exec', metric: 'ตัดสินใจเร็วขึ้น 3x' },
+    { who: 'Finance · Strategy',  what: 'วิเคราะห์ Financial Model + ทำ Pitching ให้นักลงทุน', metric: 'Pitch deck เสร็จใน 1 วัน' },
+  ];
+
+  return (
+    <section id="service-training" className="py-24 md:py-28 relative" style={{ background: 'rgba(13,13,20,0.5)', borderTop: '1px solid rgba(230,184,75,0.10)' }}>
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="reveal mb-12">
+          <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#E6B84B' }}>SERVICE 01 · TRAINING</div>
+          <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
+            สอน AI <span className="italic grad-text-gold">ทุกระดับ</span>
+            <br/>ภายใต้ผู้สอน <span className="italic">คนเดียวกัน</span>
+          </h2>
+          <p className="mt-4 text-slate-400 max-w-2xl">
+            หลักสูตร 12 คอร์สครอบคลุมตั้งแต่ "ไม่เคยใช้ AI" จนถึง "Architect ระบบ Multi-Agent" — ผู้สอนคนเดียวที่ลงมือใช้ AI ในงาน CEO + PM + Content ทุกวัน
+          </p>
+        </div>
+
+        {/* 4 levels */}
+        <div className="grid md:grid-cols-2 gap-5 mb-12">
+          {tiers.map((t, i) => (
+            <div key={i} className="reveal panel panel-hover p-6" style={{ transitionDelay: `${i*0.05}s` }}>
+              <div className="flex items-start gap-4">
+                <div className="text-4xl flex-shrink-0">{t.emoji}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] font-mono tracking-widest" style={{ color: '#E6B84B' }}>{t.level}</div>
+                  <h3 className="font-display font-bold text-xl text-white mt-0.5">{t.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1">สำหรับ: {t.who}</p>
+                  <p className="text-sm text-slate-300 mt-3 leading-relaxed">{t.what}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {t.eg.map((e, j) => (
+                      <span key={j} className="px-2 py-0.5 rounded-full text-[10px] font-display font-semibold border text-slate-300"
+                            style={{ borderColor: 'rgba(255,255,255,0.10)', background: 'rgba(255,255,255,0.03)' }}>
+                        {e}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Custom Corporate */}
+        <div className="reveal panel p-8 mb-12 relative overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ background: '#7C5CFC' }}/>
+          <div className="relative grid md:grid-cols-3 gap-6 items-center">
+            <div className="md:col-span-2">
+              <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#A78BFA' }}>BESPOKE · LEVEL ∞</div>
+              <h3 className="font-serif text-3xl md:text-4xl text-white font-medium leading-tight">
+                Custom Curriculum<br/>
+                <span className="italic grad-text-violet">สำหรับองค์กรของคุณโดยเฉพาะ</span>
+              </h3>
+              <p className="mt-3 text-slate-400 leading-relaxed">
+                ออกแบบเนื้อหา + workflow examples + Skills ที่ตรงกับ business ขององค์กร — ไม่ใช่หลักสูตร generic · ทุก case studies มาจากระบบจริงของคุณ
+              </p>
+            </div>
+            <div>
+              <div className="text-xs text-slate-500 mb-2">เหมาะกับ</div>
+              <ul className="space-y-2 text-sm text-slate-300">
+                {['Corporate L&D budget', 'ทีม 10+ คนใน department', 'มี business workflow ชัด', 'อยากได้ AI ที่ตรงงาน'].map((x, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Icon.Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#A78BFA' }}/>
+                    <span>{x}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Audience proof */}
+        <div className="reveal">
+          <div className="text-xs font-mono tracking-widest uppercase mb-4" style={{ color: '#94a3b8' }}>— Who we've trained · ใครเคยเรียนกับเรา —</div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {audiences.map((a, i) => (
+              <div key={i} className="panel p-5">
+                <Icon.Users className="w-6 h-6 mb-3" style={{ color: '#E6B84B' }}/>
+                <div className="font-display font-bold text-base text-white">{a.who}</div>
+                <p className="text-sm text-slate-400 mt-1.5 leading-snug">{a.what}</p>
+                <div className="mt-3 text-xs font-mono" style={{ color: '#2DD4BF' }}>{a.metric}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="reveal mt-12 text-center">
+          <a href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border font-display font-semibold text-sm text-white hover:bg-white/5 transition"
+             style={{ borderColor: 'rgba(255,255,255,0.20)' }}>
+            ดูคอร์สทั้งหมด 12 คอร์ส →
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SERVICE 2 — Consulting
+// ───────────────────────────────────────────────────────────
+function Service2Consult() {
+  const steps = [
+    { n: '01', t: 'Discovery & Audit',   d: 'นั่งคุย stakeholder · audit workflow ปัจจุบัน · map ความเจ็บ + opportunity', icon: Icon.Compass },
+    { n: '02', t: 'AI Gap Analysis',     d: 'ระบุจุดที่ AI Agentic เพิ่ม leverage ได้ — มาจาก data จริง ไม่ใช่ template', icon: Icon.Target },
+    { n: '03', t: 'Roadmap & ROI',       d: 'Pilot project (90-day) + scale plan + ROI projection ที่ defensible', icon: Icon.Chart },
+    { n: '04', t: 'Implementation Plan', d: 'Team structure · tool stack · skill development · success metrics', icon: Icon.Layers },
+  ];
+
+  return (
+    <section id="service-consult" className="py-24 md:py-28 relative">
+      <div className="absolute inset-0 mesh-bg opacity-50 pointer-events-none"/>
+      <div className="relative mx-auto max-w-7xl px-6">
+        <div className="reveal mb-12 max-w-3xl">
+          <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#2DD4BF' }}>SERVICE 02 · CONSULTING</div>
+          <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
+            Business Consult<br/>
+            <span className="italic grad-text-teal">ด้วย AI Lens</span>
+          </h2>
+          <p className="mt-4 text-slate-400 leading-relaxed">
+            หา <span className="text-white font-semibold">Gap</span> ที่ AI Agentic เพิ่ม value ได้จริง · วาง <span className="text-white font-semibold">Roadmap</span> ที่ defensible · ออกแบบ <span className="text-white font-semibold">Pilot</span> ที่วัดผลได้ภายใน 90 วัน — ไม่ใช่ "AI strategy deck" ที่ขึ้นหิ้ง
+          </p>
+        </div>
+
+        {/* 4-step process */}
+        <div className="grid md:grid-cols-4 gap-4 mb-12">
+          {steps.map((s, i) => (
+            <div key={i} className="reveal panel p-6 relative" style={{ transitionDelay: `${i*0.05}s` }}>
+              <div className="absolute top-3 right-3 font-mono text-[10px] tracking-widest" style={{ color: 'rgba(45,212,191,0.5)' }}>{s.n}</div>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center border mb-4"
+                   style={{ background: 'rgba(45,212,191,0.15)', borderColor: 'rgba(45,212,191,0.30)', color: '#2DD4BF' }}>
+                <s.icon className="w-6 h-6"/>
+              </div>
+              <h3 className="font-display font-bold text-lg text-white leading-tight">{s.t}</h3>
+              <p className="mt-2 text-xs text-slate-400 leading-relaxed">{s.d}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Deliverables */}
+        <div className="reveal panel p-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <div className="text-xs font-mono tracking-widest uppercase mb-3" style={{ color: '#2DD4BF' }}>คุณได้รับอะไร</div>
+              <ul className="space-y-3 text-sm text-slate-200">
+                {[
+                  'AI Opportunity Map — visual workflow + Gap highlights',
+                  'Top 3 Pilot Projects ที่จะให้ ROI เร็วที่สุด',
+                  '90-day Implementation Roadmap (week-by-week)',
+                  'Tool/Platform recommendations พร้อม cost-benefit',
+                  'Risk register + mitigation plan',
+                  'Executive summary deck สำหรับ board / leadership',
+                ].map((d, i) => (
+                  <li key={i} className="flex items-start gap-2.5">
+                    <Icon.Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#2DD4BF' }}/>
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="text-xs font-mono tracking-widest uppercase mb-3" style={{ color: '#2DD4BF' }}>เหมาะกับองค์กรที่</div>
+              <ul className="space-y-3 text-sm text-slate-200">
+                {[
+                  'รู้ว่า AI สำคัญ แต่ไม่รู้จะเริ่มที่ไหน',
+                  'มี pain ที่ชัด แต่ไม่แน่ใจ AI แก้ได้ไหม',
+                  'อยาก scale operations โดยไม่จ้างเพิ่ม',
+                  'ต้องการ defensible ROI ก่อน commit budget',
+                  'เคยลอง AI tool แล้ว — ไม่ได้ผล ต้องการ approach ใหม่',
+                ].map((d, i) => (
+                  <li key={i} className="flex items-start gap-2.5">
+                    <Icon.Spark className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#2DD4BF' }}/>
+                    <span>{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SERVICE 3 — Development
+// ───────────────────────────────────────────────────────────
+function Service3Development() {
+  const offerings = [
+    {
+      icon: Icon.Building,
+      title: 'Internal Tools',
+      sub:   'ระบบเฉพาะองค์กร · ใช้ภายใน',
+      eg:    ['Custom dashboard', 'Workflow automation', 'HR / Finance tool', 'Data pipeline + analytics'],
+    },
+    {
+      icon: Icon.Globe,
+      title: 'Public-Facing Web',
+      sub:   'Website · Customer portal · Booking',
+      eg:    ['Brand landing page', 'Online quotation system', 'Customer self-service portal', 'Multi-channel booking'],
+    },
+    {
+      icon: Icon.Cpu,
+      title: 'Multi-Agent Systems',
+      sub:   'AI Agents ทำงานร่วมกันเป็นทีม',
+      eg:    ['Content factory (idea → publish)', 'Sales pipeline agents', 'Research + Analyst + Reporter', 'Customer service bots'],
+    },
+  ];
+
+  return (
+    <section id="service-development" className="py-24 md:py-28 relative" style={{ background: 'rgba(13,13,20,0.5)', borderTop: '1px solid rgba(167,139,250,0.10)' }}>
+      <div className="mx-auto max-w-7xl px-6">
+        <div className="reveal mb-12 max-w-3xl">
+          <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#A78BFA' }}>SERVICE 03 · DEVELOPMENT</div>
+          <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
+            จากแนวคิด<br/>
+            <span className="italic grad-text-violet">สู่ระบบที่ใช้งานจริง</span>
+          </h2>
+          <p className="mt-4 text-slate-400 leading-relaxed">
+            พัฒนาระบบให้องค์กรมี <span className="text-white font-semibold">เครื่องมือของตัวเอง</span> — ตั้งแต่ Website ที่บอกตัวตน · App ที่ช่วยปิด deal · จนถึง Multi-Agent System ที่ run business 24/7 — ทำงานกับ tech stack ที่ทีมคุณดูแลต่อได้
+          </p>
+        </div>
+
+        {/* 3 offering types */}
+        <div className="grid md:grid-cols-3 gap-5 mb-12">
+          {offerings.map((o, i) => (
+            <div key={i} className="reveal panel panel-hover p-7" style={{ transitionDelay: `${i*0.05}s` }}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center border mb-5"
+                   style={{ background: 'rgba(167,139,250,0.15)', borderColor: 'rgba(167,139,250,0.30)', color: '#A78BFA' }}>
+                <o.icon className="w-7 h-7"/>
+              </div>
+              <h3 className="font-display font-bold text-xl text-white">{o.title}</h3>
+              <p className="text-sm mt-1" style={{ color: '#A78BFA' }}>{o.sub}</p>
+              <div className="mt-5 space-y-2">
+                {o.eg.map((e, j) => (
+                  <div key={j} className="flex items-start gap-2 text-sm text-slate-300">
+                    <span className="text-slate-500 mt-0.5">→</span>
+                    <span>{e}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* What's included */}
+        <div className="reveal panel p-8">
+          <div className="text-xs font-mono tracking-widest uppercase mb-4" style={{ color: '#A78BFA' }}>End-to-end · ทุก project ครบ</div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { t: 'Discovery',   d: 'Stakeholder interview · scope ชัด · success criteria' },
+              { t: 'Design',      d: 'Wireframe · UX flow · technical architecture' },
+              { t: 'Build',       d: 'Production-grade code · CI/CD · test coverage' },
+              { t: 'Deploy & Handover', d: 'Production deploy · doc · team training' },
+            ].map((s, i) => (
+              <div key={i}>
+                <div className="text-2xl font-serif text-white mb-1">0{i+1}</div>
+                <div className="text-sm font-display font-bold text-white">{s.t}</div>
+                <p className="text-xs text-slate-400 mt-1 leading-snug">{s.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent work hint */}
+        <div className="reveal mt-12 text-center text-xs text-slate-500">
+          ตัวอย่างผลงาน: <a href="/" className="text-white hover:underline">tonpalearn.com</a> · <a href="/quotation/" className="text-white hover:underline">/quotation</a> · <a href="/certificate/" className="text-white hover:underline">/certificate</a> · <a href="/booking/" className="text-white hover:underline">/booking</a> · <a href="/brandboost/" className="text-white hover:underline">/brandboost</a> — ทั้งหมด design + build เอง
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// METHODOLOGY
+// ───────────────────────────────────────────────────────────
+function Methodology() {
+  return (
+    <section className="py-24 md:py-28 relative">
+      <div className="absolute inset-0 mesh-bg opacity-30 pointer-events-none"/>
+      <div className="relative mx-auto max-w-5xl px-6 text-center">
+        <div className="reveal">
+          <div className="text-[10px] font-mono tracking-widest uppercase mb-3" style={{ color: '#E6B84B' }}>— Methodology —</div>
+          <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
+            <span>ทำงานแบบ</span> <span className="italic grad-text-tri">Operator-Grade</span>
+          </h2>
+          <p className="mt-4 text-lg text-slate-300 leading-relaxed max-w-3xl mx-auto">
+            ทุกบริการสร้างจากมุมมองคนที่ run business จริง — ไม่ใช่ทฤษฎี ไม่ใช่ buzzword
+            <br/>
+            <span className="text-slate-400 text-base">"ถ้าผมไม่กล้าใช้กับงานตัวเอง — จะไม่แนะนำให้คุณใช้"</span>
+          </p>
+        </div>
+
+        <div className="reveal mt-12 grid md:grid-cols-3 gap-4">
+          {[
+            { k: 'Real Use First',  v: 'ทดสอบใน UP Wellness + TONPALEARN ก่อนส่งให้ client', color: '#E6B84B' },
+            { k: 'Output ใช้ได้จริง', v: 'จบ session มี artifact · ไม่ใช่แค่ slide',          color: '#2DD4BF' },
+            { k: 'Transparent ROI', v: 'ทุกการเสนอ มาพร้อม metric ที่วัดได้',                color: '#A78BFA' },
+          ].map((s, i) => (
+            <div key={i} className="panel p-6">
+              <div className="text-xs font-display font-bold uppercase tracking-widest" style={{ color: s.color }}>{s.k}</div>
+              <p className="mt-2 text-sm text-slate-300 leading-relaxed">{s.v}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// INSTRUCTOR
+// ───────────────────────────────────────────────────────────
+function Instructor() {
+  return (
+    <section className="py-24 md:py-32 relative" style={{ background: 'rgba(13,13,20,0.5)', borderTop: '1px solid rgba(230,184,75,0.10)' }}>
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="grid md:grid-cols-5 gap-10 items-center">
+          <div className="md:col-span-2 reveal">
+            <div className="relative">
+              <div className="absolute -inset-3 rounded-3xl blur-2xl"
+                   style={{ background: 'linear-gradient(135deg, rgba(230,184,75,0.30), rgba(45,212,191,0.15), rgba(167,139,250,0.20))' }}/>
+              <div className="relative rounded-3xl overflow-hidden border" style={{ borderColor: 'rgba(200,168,75,0.25)' }}>
+                <img src="/chaiwat/assets/portrait-crop.jpg" alt="Chaiwat" className="w-full aspect-[3/4] object-cover"
+                     onError={(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }}/>
+                <div style={{ display:'none' }} className="absolute inset-0 items-center justify-center text-7xl">
+                  👤
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-5"
+                     style={{ background: 'linear-gradient(0deg, #08080F, rgba(8,8,15,0.6) 60%, transparent)' }}>
+                  <div className="text-xs font-mono tracking-widest uppercase" style={{ color: '#E6B84B' }}>Bangkok · 2026</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="md:col-span-3 reveal">
+            <div className="text-[10px] font-mono tracking-widest uppercase mb-2" style={{ color: '#E6B84B' }}>— About the Practitioner —</div>
+            <h2 className="font-serif text-5xl md:text-6xl text-white">
+              <span>ผู้ที่</span> <span className="italic grad-text-gold">ใช้จริงทุกวัน</span>
+              <br/><span>ไม่ใช่</span> <span className="italic">แค่รู้ทฤษฎี</span>
+            </h2>
+
+            <p className="mt-5 text-slate-300 leading-relaxed text-base">
+              <span className="text-white font-semibold">ชัยวัฒน์ ภูวนนท์จิรกวิน (ต้น)</span> — Founder TONPALEARN · CEO UP Wellness · วิศวกรคอมพิวเตอร์ · PM 15 ปี ในธุรกิจระดับองค์กรขนาดใหญ่
+            </p>
+
+            <ul className="mt-6 space-y-2.5">
+              {[
+                { k: 'Computer Engineering', v: 'รู้ฐาน technical · เข้าใจ stack จริง' },
+                { k: 'PM Banking · Telecom · Government 15+ ปี', v: 'บริหารโครงการระดับ enterprise · จัดการ stakeholder ระดับสูง' },
+                { k: 'CEO ของ UP Wellness', v: 'run business เอง · ใช้ AI ในทุก operation' },
+                { k: 'AI Practitioner Daily', v: 'Claude · ChatGPT · Gemini · MCP · Cowork — ใช้ในงานทุกวัน' },
+                { k: 'สอนทั้ง บุคคล + องค์กร', v: 'Retail · Telecom · Automotive · Manufacturer และอื่นๆ' },
+              ].map((x, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <Icon.Check className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: '#E6B84B' }}/>
+                  <div>
+                    <span className="text-white font-semibold text-sm">{x.k}</span>
+                    <span className="text-slate-400 text-sm"> — {x.v}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-7 panel p-4 border-l-2" style={{ borderLeftColor: '#E6B84B' }}>
+              <p className="font-serif italic text-base text-slate-200 leading-relaxed">
+                "สอน AI จากรากฐานของการเป็นเจ้าของธุรกิจส่วนตัว
+                <br/>ผ่านงาน Project Management ในองค์กร Banking · Telecom · Government
+                <br/>สู่การสอน AI ให้ทั้งบุคคลและองค์กร — Retail · Automotive · Manufacturer และอื่น ๆ"
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <a href="/chaiwat/" className="inline-flex items-center gap-2 text-sm font-display font-semibold px-4 py-2 rounded-lg border text-white hover:bg-white/5 transition"
+                 style={{ borderColor: 'rgba(255,255,255,0.20)' }}>
+                ดูประวัติเต็ม →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// CTA
+// ───────────────────────────────────────────────────────────
+function CTA() {
+  return (
+    <section id="cta" className="relative py-28 md:py-36 overflow-hidden">
+      <div className="absolute inset-0 mesh-bg"/>
+      <div className="absolute inset-0 grid-bg opacity-40"/>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-15"
+           style={{ background: '#E6B84B' }}/>
+
+      <div className="relative mx-auto max-w-4xl px-6 text-center">
+        <div className="reveal text-xs font-mono tracking-widest uppercase mb-4" style={{ color: '#E6B84B' }}>— Let's Talk —</div>
+        <h2 className="reveal font-serif text-5xl md:text-7xl tracking-tight text-white">
+          <span>เริ่มต้น</span> <span className="italic grad-text-gold">conversation</span>
+          <br/>
+          <span>ก่อน</span> <span className="italic">ตัดสินใจ</span>
+        </h2>
+        <p className="reveal mt-5 text-lg text-slate-300 max-w-2xl mx-auto">
+          ปรึกษาฟรี · ไม่มีข้อผูกมัด · ตอบทุกวัน
+          <br/>เล่าให้ฟังว่าธุรกิจคุณอยู่ตรงไหน — ผมจะบอกว่า AI ช่วยได้จริงไหม + ทางไหน
+        </p>
+
+        <div className="reveal mt-12 grid sm:grid-cols-3 gap-4">
+          {[
+            { icon: Icon.Line,  label: 'LINE OA',  value: '@tonpalearn', href: 'https://line.me/ti/p/@tonpalearn', highlight: true },
+            { icon: Icon.Phone, label: 'Phone',    value: '093-914-9397', href: 'tel:0939149397' },
+            { icon: Icon.Book,  label: 'Booking',  value: 'จองตารางได้เลย', href: '/booking/' },
+          ].map((c, i) => (
+            <a key={i} href={c.href} target={c.href.startsWith('http') ? '_blank' : undefined} rel="noopener"
+               className="panel panel-hover p-6 group block"
+               style={c.highlight ? { boxShadow: '0 0 40px -10px rgba(230,184,75,0.40)' } : {}}>
+              <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+                   style={c.highlight ? { background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' } : { background: 'rgba(45,212,191,0.15)', color: '#2DD4BF' }}>
+                <c.icon className="w-6 h-6"/>
+              </div>
+              <div className="text-[10px] font-mono tracking-widest text-slate-500 uppercase">{c.label}</div>
+              <div className="mt-1 font-display font-bold text-white">{c.value}</div>
+            </a>
+          ))}
+        </div>
+
+        <p className="reveal mt-10 text-sm text-slate-500 inline-flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#10b981' }}/>
+          Available for new conversations
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// FOOTER
+// ───────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="py-10 border-t" style={{ borderColor: 'rgba(200,168,75,0.10)' }}>
+      <div className="mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+        <div className="text-slate-500">
+          © 2026 TONPALEARN · ชัยวัฒน์ ภูวนนท์จิรกวิน — บริการสอน AI · Consult · Develop
+        </div>
+        <div className="flex items-center gap-5 text-slate-500">
+          <a href="/" className="hover:text-white transition">Home</a>
+          <a href="/chaiwat/" className="hover:text-white transition">About</a>
+          <a href="/brandboost/" className="hover:text-white transition">Brand Boost</a>
+          <a href="/booking/" className="hover:text-white transition">Booking</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
