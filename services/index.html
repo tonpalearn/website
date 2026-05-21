@@ -250,7 +250,7 @@ function Hero() {
         </h1>
 
         <p className="mt-8 text-xl md:text-2xl text-slate-300 font-serif italic max-w-3xl" style={{ lineHeight: '1.6' }}>
-          "จาก <span className="not-italic font-semibold text-white">สอนทีมงาน</span> · <span className="not-italic font-semibold grad-text-gold">วิเคราะห์ Gap ด้วย AI</span> · จนถึง <span className="not-italic font-semibold grad-text-teal">พัฒนาระบบ Multi-Agent</span> ที่ใช้งานจริง — บริการเดียวจบ"
+          "ตั้งแต่ <span className="not-italic font-semibold text-white">สอนทีมงาน</span> · <span className="not-italic font-semibold grad-text-gold">หาจุดที่ AI ช่วยธุรกิจได้</span> · ไปจนถึง <span className="not-italic font-semibold grad-text-teal">พัฒนาระบบ Multi-Agent</span> ที่ใช้งานได้จริง — ครบในที่เดียว"
         </p>
 
         <div className="mt-10 flex flex-wrap gap-3">
@@ -325,24 +325,24 @@ function ServicesOverview() {
       icon: Icon.Book, color: 'gold',
       tag:   'SERVICE 01',
       title: 'Training & Education',
-      sub:   'สอน AI ทุกระดับ — ตั้งแต่ Basic ถึง Multi-Agent Architect',
-      body:  'หลักสูตรครบ 12 คอร์ส + Custom Curriculum สำหรับองค์กร — ผู้สอนคนเดียวกันที่ลงมือใช้ AI ในงานจริงทุกวัน',
+      sub:   'สอน AI ครอบคลุมทุกระดับ — ตั้งแต่พื้นฐานถึง Multi-Agent',
+      body:  'หลักสูตร 12 คอร์ส + ออกแบบเนื้อหาเฉพาะองค์กร — สอนโดยคนที่ใช้ AI ทำงานจริงทุกวัน',
       anchor: '#service-training',
     },
     {
       icon: Icon.Compass, color: 'teal',
       tag:   'SERVICE 02',
       title: 'Business Consulting',
-      sub:   'หา Gap · วาง Roadmap · เลือก AI ที่ใช่กับธุรกิจ',
-      body:  'วิเคราะห์ workflow ขององค์กร — ระบุจุดที่ AI Agentic เพิ่ม value ได้จริง · ออกแบบ pilot project · ROI projection',
+      sub:   'หา Gap · วาง Roadmap · เลือก AI ให้เข้ากับธุรกิจ',
+      body:  'วิเคราะห์ workflow ขององค์กร — ระบุจุดที่ AI Agentic ช่วยได้จริง · ออกแบบ pilot project · คำนวณ ROI ที่อธิบายได้',
       anchor: '#service-consult',
     },
     {
       icon: Icon.Code, color: 'violet',
       tag:   'SERVICE 03',
       title: 'Development & Systems',
-      sub:   'พัฒนา App · Website · Multi-Agent System ที่ใช้งานจริง',
-      body:  'จาก kickoff ถึง production — Internal tools · Public-facing apps · Custom AI workflows ที่เชื่อมระบบเดิมขององค์กร',
+      sub:   'พัฒนา App · Website · Multi-Agent System ที่ใช้งานได้จริง',
+      body:  'ตั้งแต่เริ่มต้นจนถึงใช้งานจริง — Internal tools · Public website · AI workflow ที่เชื่อมต่อกับระบบเดิมขององค์กร',
       anchor: '#service-development',
     },
   ];
@@ -358,10 +358,10 @@ function ServicesOverview() {
         <div className="reveal text-center mb-16 max-w-2xl mx-auto">
           <div className="text-xs font-mono tracking-widest uppercase mb-3" style={{ color: '#E6B84B' }}>— 3 Service Lines —</div>
           <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
-            บริการที่ <span className="italic grad-text-gold">ครอบคลุม</span> ทั้ง journey
+            บริการที่ <span className="italic grad-text-gold">ครอบคลุม</span> ทุกขั้นตอน
           </h2>
           <p className="mt-4 text-slate-400">
-            ตั้งแต่ทีมเริ่มต้นใช้ AI ครั้งแรก → จนถึงสร้าง Multi-Agent System ระดับองค์กร
+            ตั้งแต่ทีมเริ่มต้นใช้ AI ครั้งแรก → จนถึงพัฒนาระบบ Multi-Agent ระดับองค์กร
           </p>
         </div>
 
@@ -400,33 +400,33 @@ function Service1Training() {
     {
       level: 'Level 1', name: 'Foundation', emoji: '🌱',
       who:    'พนักงานทุกระดับ · ไม่ต้องพื้นฐาน IT',
-      what:   'AI คืออะไร · Prompt Engineering · ใช้ AI ทำงานประจำให้เร็วขึ้น',
+      what:   'AI คืออะไร · เขียน Prompt ให้ได้ผล · ใช้ AI ในงานประจำให้เร็วขึ้น',
       eg:     ['ตอบ email อัตโนมัติ', 'สรุปเอกสาร', 'เขียน Content', 'แปลภาษา'],
     },
     {
       level: 'Level 2', name: 'AI Builder', emoji: '⚡',
-      who:    'PA · Marketing · Operations · ที่อยากใช้ AI เป็นทีมงาน',
-      what:   'AI Agentic — Setup Cowork · สร้าง Skill ของตัวเอง · เชื่อม MCP (Notion · Gmail · Slack)',
-      eg:     ['Email assistant ที่จำ tone ของเจ้านาย', 'Sales pipeline automation', 'Content production system'],
+      who:    'PA · Marketing · Operations ที่อยากให้ AI เป็นเหมือนทีมงานคนหนึ่ง',
+      what:   'AI Agentic — Setup Cowork · สร้าง Skill ของตัวเอง · เชื่อม AI กับ Notion · Gmail · Slack',
+      eg:     ['ผู้ช่วยตอบ email ที่จำสไตล์ของคุณ', 'Automate งาน Sales pipeline', 'ระบบผลิต Content ครบวงจร'],
     },
     {
       level: 'Level 3', name: 'Architect', emoji: '🧱',
-      who:    'Tech-curious · IT Manager · Product Owner',
+      who:    'IT Manager · Product Owner · คนสนใจเทคโนโลยี',
       what:   'พัฒนา Application — Front-end + Back-end ที่ใช้งานในองค์กรจริง',
-      eg:     ['Internal dashboard', 'Customer portal', 'Workflow automation app', 'Web/App ที่ deploy production'],
+      eg:     ['Dashboard ใช้ภายใน', 'Customer portal', 'App automate workflow', 'Web/App ที่ deploy ขึ้น production จริง'],
     },
     {
       level: 'Level 4', name: 'Orchestra', emoji: '🎼',
-      who:    'CEO · CTO · Department Head ที่ต้องการ scale operations',
-      what:   'Multi-Agent Orchestration — ทีม AI หลาย agent ทำงานพร้อมกัน',
-      eg:     ['Content factory (idea → publish)', 'Sales Agent + Researcher + Writer', 'Auto-deploy + QA system', 'CEO Personal Assistant ใช้ Agentic'],
+      who:    'CEO · CTO · หัวหน้าฝ่าย ที่อยากขยาย operations ด้วย AI',
+      what:   'Multi-Agent Orchestration — สร้างทีม AI หลายตัว ทำงานพร้อมกันเป็นระบบ',
+      eg:     ['Content factory (ไอเดีย → publish)', 'AI Sales + Research + Writer ทีมเดียวกัน', 'Auto-deploy + QA system', 'CEO Personal Assistant ที่ทำได้ทุกอย่าง'],
     },
   ];
 
   const audiences = [
-    { who: 'พนักงานทั่วไป',  what: 'ใช้ AI ในงาน routine ให้เร็วขึ้น',                  metric: '+ 5-10 ชม. ต่อสัปดาห์' },
-    { who: 'CEO · Founders', what: 'ใช้ AI Agentic เป็น Personal Assistant ระดับ exec', metric: 'ตัดสินใจเร็วขึ้น 3x' },
-    { who: 'Finance · Strategy',  what: 'วิเคราะห์ Financial Model + ทำ Pitching ให้นักลงทุน', metric: 'Pitch deck เสร็จใน 1 วัน' },
+    { who: 'พนักงานทั่วไป',       what: 'ใช้ AI ในงานประจำ ให้เสร็จเร็วขึ้น',                   metric: 'ประหยัด 5-10 ชม./สัปดาห์' },
+    { who: 'CEO · Founders',     what: 'ใช้ AI Agentic เป็น Personal Assistant ส่วนตัว',       metric: 'ตัดสินใจเร็วขึ้น 3 เท่า' },
+    { who: 'Finance · Strategy', what: 'วิเคราะห์ Financial Model · ทำ Pitch Deck หานักลงทุน', metric: 'ทำ Pitch Deck เสร็จใน 1 วัน' },
   ];
 
   return (
@@ -436,10 +436,10 @@ function Service1Training() {
           <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#E6B84B' }}>SERVICE 01 · TRAINING</div>
           <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
             สอน AI <span className="italic grad-text-gold">ทุกระดับ</span>
-            <br/>ภายใต้ผู้สอน <span className="italic">คนเดียวกัน</span>
+            <br/>โดยผู้สอน <span className="italic">คนเดียวกัน</span>
           </h2>
           <p className="mt-4 text-slate-400 max-w-2xl">
-            หลักสูตร 12 คอร์สครอบคลุมตั้งแต่ "ไม่เคยใช้ AI" จนถึง "Architect ระบบ Multi-Agent" — ผู้สอนคนเดียวที่ลงมือใช้ AI ในงาน CEO + PM + Content ทุกวัน
+            หลักสูตร 12 คอร์ส ตั้งแต่ "ไม่เคยใช้ AI มาก่อน" ไปจนถึง "ออกแบบระบบ Multi-Agent" — สอนโดยคนที่ใช้ AI ในงานจริงทุกวัน ทั้งงาน CEO · PM · Content
           </p>
         </div>
 
@@ -473,19 +473,19 @@ function Service1Training() {
           <div className="absolute -top-10 -right-10 w-72 h-72 rounded-full blur-3xl opacity-20" style={{ background: '#7C5CFC' }}/>
           <div className="relative grid md:grid-cols-3 gap-6 items-center">
             <div className="md:col-span-2">
-              <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#A78BFA' }}>BESPOKE · LEVEL ∞</div>
+              <div className="text-[10px] font-mono tracking-widest mb-2" style={{ color: '#A78BFA' }}>CUSTOM · LEVEL ∞</div>
               <h3 className="font-serif text-3xl md:text-4xl text-white font-medium leading-tight">
                 Custom Curriculum<br/>
-                <span className="italic grad-text-violet">สำหรับองค์กรของคุณโดยเฉพาะ</span>
+                <span className="italic grad-text-violet">ออกแบบเฉพาะองค์กรของคุณ</span>
               </h3>
               <p className="mt-3 text-slate-400 leading-relaxed">
-                ออกแบบเนื้อหา + workflow examples + Skills ที่ตรงกับ business ขององค์กร — ไม่ใช่หลักสูตร generic · ทุก case studies มาจากระบบจริงของคุณ
+                ออกแบบเนื้อหา · workflow ตัวอย่าง · Skills ที่ตรงกับธุรกิจของคุณโดยตรง — ไม่ใช่หลักสูตรสำเร็จรูป · ทุก case study มาจากระบบจริงของคุณ
               </p>
             </div>
             <div>
               <div className="text-xs text-slate-500 mb-2">เหมาะกับ</div>
               <ul className="space-y-2 text-sm text-slate-300">
-                {['Corporate L&D budget', 'ทีม 10+ คนใน department', 'มี business workflow ชัด', 'อยากได้ AI ที่ตรงงาน'].map((x, i) => (
+                {['มีงบฝึกอบรมขององค์กร', 'ทีมตั้งแต่ 10 คนขึ้นไป', 'มี workflow ธุรกิจชัดเจน', 'อยากได้ AI ที่ตรงกับงาน'].map((x, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <Icon.Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#A78BFA' }}/>
                     <span>{x}</span>
@@ -527,10 +527,10 @@ function Service1Training() {
 // ───────────────────────────────────────────────────────────
 function Service2Consult() {
   const steps = [
-    { n: '01', t: 'Discovery & Audit',   d: 'นั่งคุย stakeholder · audit workflow ปัจจุบัน · map ความเจ็บ + opportunity', icon: Icon.Compass },
-    { n: '02', t: 'AI Gap Analysis',     d: 'ระบุจุดที่ AI Agentic เพิ่ม leverage ได้ — มาจาก data จริง ไม่ใช่ template', icon: Icon.Target },
-    { n: '03', t: 'Roadmap & ROI',       d: 'Pilot project (90-day) + scale plan + ROI projection ที่ defensible', icon: Icon.Chart },
-    { n: '04', t: 'Implementation Plan', d: 'Team structure · tool stack · skill development · success metrics', icon: Icon.Layers },
+    { n: '01', t: 'Discovery & Audit',   d: 'Review ร่วมกับ stakeholder · audit workflow ปัจจุบัน · map pain-point + opportunity', icon: Icon.Compass },
+    { n: '02', t: 'AI Gap Analysis',     d: 'ระบุจุดที่ AI Agentic ช่วยได้คุ้มที่สุด — วิเคราะห์จาก data จริง ไม่ใช่ template สำเร็จรูป', icon: Icon.Target },
+    { n: '03', t: 'Roadmap & ROI',       d: 'Pilot project 90 วัน + แผน scale + ROI projection ที่อธิบายให้ผู้บริหารได้ชัด', icon: Icon.Chart },
+    { n: '04', t: 'Implementation Plan', d: 'Team structure · tool stack · แผนพัฒนาทักษะทีม · success metrics ที่วัดได้', icon: Icon.Layers },
   ];
 
   return (
@@ -544,7 +544,7 @@ function Service2Consult() {
             <span className="italic grad-text-teal">ด้วย AI Lens</span>
           </h2>
           <p className="mt-4 text-slate-400 leading-relaxed">
-            หา <span className="text-white font-semibold">Gap</span> ที่ AI Agentic เพิ่ม value ได้จริง · วาง <span className="text-white font-semibold">Roadmap</span> ที่ defensible · ออกแบบ <span className="text-white font-semibold">Pilot</span> ที่วัดผลได้ภายใน 90 วัน — ไม่ใช่ "AI strategy deck" ที่ขึ้นหิ้ง
+            หา <span className="text-white font-semibold">Gap</span> ที่ AI Agentic เพิ่ม value ได้จริง · วาง <span className="text-white font-semibold">Roadmap</span> ที่อธิบายให้ผู้บริหารเห็นภาพ · ออกแบบ <span className="text-white font-semibold">Pilot</span> ที่วัดผลได้ภายใน 90 วัน — ไม่ใช่แค่ "AI strategy deck" ที่ขึ้นหิ้ง
           </p>
         </div>
 
@@ -570,12 +570,12 @@ function Service2Consult() {
               <div className="text-xs font-mono tracking-widest uppercase mb-3" style={{ color: '#2DD4BF' }}>คุณได้รับอะไร</div>
               <ul className="space-y-3 text-sm text-slate-200">
                 {[
-                  'AI Opportunity Map — visual workflow + Gap highlights',
-                  'Top 3 Pilot Projects ที่จะให้ ROI เร็วที่สุด',
-                  '90-day Implementation Roadmap (week-by-week)',
-                  'Tool/Platform recommendations พร้อม cost-benefit',
-                  'Risk register + mitigation plan',
-                  'Executive summary deck สำหรับ board / leadership',
+                  'AI Opportunity Map — แผนผัง workflow + จุดที่ AI ช่วยได้',
+                  '3 Pilot Projects ที่ให้ ROI เร็วที่สุด',
+                  '90-day Implementation Roadmap (รายสัปดาห์)',
+                  'แนะนำ tool · platform พร้อม cost-benefit',
+                  'Risk register + แผนป้องกัน',
+                  'Executive summary deck สำหรับ board · leadership',
                 ].map((d, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <Icon.Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#2DD4BF' }}/>
@@ -588,11 +588,11 @@ function Service2Consult() {
               <div className="text-xs font-mono tracking-widest uppercase mb-3" style={{ color: '#2DD4BF' }}>เหมาะกับองค์กรที่</div>
               <ul className="space-y-3 text-sm text-slate-200">
                 {[
-                  'รู้ว่า AI สำคัญ แต่ไม่รู้จะเริ่มที่ไหน',
-                  'มี pain ที่ชัด แต่ไม่แน่ใจ AI แก้ได้ไหม',
-                  'อยาก scale operations โดยไม่จ้างเพิ่ม',
-                  'ต้องการ defensible ROI ก่อน commit budget',
-                  'เคยลอง AI tool แล้ว — ไม่ได้ผล ต้องการ approach ใหม่',
+                  'รู้ว่า AI สำคัญ แต่ไม่รู้จะเริ่มจากตรงไหน',
+                  'มี pain-point ชัด แต่ไม่แน่ใจว่า AI แก้ได้ไหม',
+                  'อยากขยาย operations โดยไม่ต้องจ้างเพิ่ม',
+                  'ต้องการเห็น ROI ที่ชัดเจน ก่อนตัดสินใจลงทุน',
+                  'เคยลอง AI tool แล้วไม่ได้ผล — ต้องการแนวทางที่ใช่กว่าเดิม',
                 ].map((d, i) => (
                   <li key={i} className="flex items-start gap-2.5">
                     <Icon.Spark className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#2DD4BF' }}/>
@@ -616,20 +616,20 @@ function Service3Development() {
     {
       icon: Icon.Building,
       title: 'Internal Tools',
-      sub:   'ระบบเฉพาะองค์กร · ใช้ภายใน',
-      eg:    ['Custom dashboard', 'Workflow automation', 'HR / Finance tool', 'Data pipeline + analytics'],
+      sub:   'ระบบใช้ภายในองค์กร',
+      eg:    ['Custom dashboard', 'Workflow automation', 'ระบบ HR · Finance', 'Data pipeline + analytics'],
     },
     {
       icon: Icon.Globe,
       title: 'Public-Facing Web',
-      sub:   'Website · Customer portal · Booking',
-      eg:    ['Brand landing page', 'Online quotation system', 'Customer self-service portal', 'Multi-channel booking'],
+      sub:   'Website · Customer Portal · Booking',
+      eg:    ['Brand landing page', 'ระบบใบเสนอราคาออนไลน์', 'Self-service portal สำหรับลูกค้า', 'ระบบจองผ่านหลายช่องทาง'],
     },
     {
       icon: Icon.Cpu,
       title: 'Multi-Agent Systems',
       sub:   'AI Agents ทำงานร่วมกันเป็นทีม',
-      eg:    ['Content factory (idea → publish)', 'Sales pipeline agents', 'Research + Analyst + Reporter', 'Customer service bots'],
+      eg:    ['Content factory (ไอเดีย → publish)', 'Sales pipeline agents', 'ทีม Research + Analyst + Writer', 'Customer service bot'],
     },
   ];
 
@@ -643,7 +643,7 @@ function Service3Development() {
             <span className="italic grad-text-violet">สู่ระบบที่ใช้งานจริง</span>
           </h2>
           <p className="mt-4 text-slate-400 leading-relaxed">
-            พัฒนาระบบให้องค์กรมี <span className="text-white font-semibold">เครื่องมือของตัวเอง</span> — ตั้งแต่ Website ที่บอกตัวตน · App ที่ช่วยปิด deal · จนถึง Multi-Agent System ที่ run business 24/7 — ทำงานกับ tech stack ที่ทีมคุณดูแลต่อได้
+            พัฒนาระบบให้องค์กรมี <span className="text-white font-semibold">เครื่องมือเป็นของตัวเอง</span> — ตั้งแต่ Website ที่สื่อสารแบรนด์ · App ที่ช่วยปิดการขาย · ไปจนถึง Multi-Agent ที่ run ระบบให้ 24/7 — ใช้ tech stack ที่ทีมคุณดูแลต่อได้
           </p>
         </div>
 
@@ -674,10 +674,10 @@ function Service3Development() {
           <div className="text-xs font-mono tracking-widest uppercase mb-4" style={{ color: '#A78BFA' }}>End-to-end · ทุก project ครบ</div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { t: 'Discovery',   d: 'Stakeholder interview · scope ชัด · success criteria' },
-              { t: 'Design',      d: 'Wireframe · UX flow · technical architecture' },
-              { t: 'Build',       d: 'Production-grade code · CI/CD · test coverage' },
-              { t: 'Deploy & Handover', d: 'Production deploy · doc · team training' },
+              { t: 'Discovery',   d: 'สัมภาษณ์ stakeholder · กำหนด scope · เซ็ตเกณฑ์ความสำเร็จ' },
+              { t: 'Design',      d: 'Wireframe · UX flow · ออกแบบ technical architecture' },
+              { t: 'Build',       d: 'Code คุณภาพ production · CI/CD · test coverage' },
+              { t: 'Deploy & Handover', d: 'Deploy ขึ้น production · documentation · สอนทีมรับช่วงต่อ' },
             ].map((s, i) => (
               <div key={i}>
                 <div className="text-2xl font-serif text-white mb-1">0{i+1}</div>
@@ -708,20 +708,20 @@ function Methodology() {
         <div className="reveal">
           <div className="text-[10px] font-mono tracking-widest uppercase mb-3" style={{ color: '#E6B84B' }}>— Methodology —</div>
           <h2 className="font-serif text-5xl md:text-6xl tracking-tight text-white">
-            <span>ทำงานแบบ</span> <span className="italic grad-text-tri">Operator-Grade</span>
+            <span>ทำงานแบบ</span> <span className="italic grad-text-tri">คนที่ใช้จริงทุกวัน</span>
           </h2>
           <p className="mt-4 text-lg text-slate-300 leading-relaxed max-w-3xl mx-auto">
-            ทุกบริการสร้างจากมุมมองคนที่ run business จริง — ไม่ใช่ทฤษฎี ไม่ใช่ buzzword
+            ทุกบริการมาจากมุมมองคนที่ run ธุรกิจจริง — ไม่ใช่ทฤษฎี ไม่ใช่แค่ buzzword
             <br/>
-            <span className="text-slate-400 text-base">"ถ้าผมไม่กล้าใช้กับงานตัวเอง — จะไม่แนะนำให้คุณใช้"</span>
+            <span className="text-slate-400 text-base">"ถ้าผมยังไม่กล้าใช้กับงานตัวเอง — ผมจะไม่แนะนำให้คุณใช้"</span>
           </p>
         </div>
 
         <div className="reveal mt-12 grid md:grid-cols-3 gap-4">
           {[
-            { k: 'Real Use First',  v: 'ทดสอบใน UP Wellness + TONPALEARN ก่อนส่งให้ client', color: '#E6B84B' },
-            { k: 'Output ใช้ได้จริง', v: 'จบ session มี artifact · ไม่ใช่แค่ slide',          color: '#2DD4BF' },
-            { k: 'Transparent ROI', v: 'ทุกการเสนอ มาพร้อม metric ที่วัดได้',                color: '#A78BFA' },
+            { k: 'ทดลองใช้เองก่อน',  v: 'ทุกระบบทดสอบใน UP Wellness + TONPALEARN ก่อนส่งให้ลูกค้า', color: '#E6B84B' },
+            { k: 'ผลงานใช้ได้จริง', v: 'จบ session ได้ artifact ติดมือ · ไม่ใช่แค่ slide',          color: '#2DD4BF' },
+            { k: 'ROI ที่อธิบายได้', v: 'ทุก proposal มาพร้อม metric ที่วัดผลได้ชัดเจน',           color: '#A78BFA' },
           ].map((s, i) => (
             <div key={i} className="panel p-6">
               <div className="text-xs font-display font-bold uppercase tracking-widest" style={{ color: s.color }}>{s.k}</div>
