@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · AI Web App Pipeline · TPL08-09</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+
+  <style>
+    html, body { background: #08080F; }
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; color: #FAFAFA; -webkit-font-smoothing: antialiased; margin: 0; overflow-x: auto; }
+    *::selection { background: rgba(230,184,75,0.25); color: #fff; }
+    .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
+    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+    /* 16:9 canvas — 1920×1080 base */
+    .canvas {
+      width: 1920px;
+      height: 1080px;
+      background: #08080F;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Mesh + grid */
+    .canvas::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 15%, rgba(124,92,252,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(230,184,75,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 85% 85%, rgba(45,212,191,0.12) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .canvas::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(230,184,75,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(230,184,75,0.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* Gradient text */
+    .grad-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-teal {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* Step card */
+    .step {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid rgba(230,184,75,0.18);
+      backdrop-filter: blur(8px);
+      border-radius: 18px;
+    }
+
+    /* Number badge */
+    .num {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 22px;
+      color: #08080F;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px -2px rgba(0,0,0,0.4);
+    }
+
+    /* Phase band */
+    .phase-band {
+      border-radius: 24px;
+      padding: 28px 24px 24px;
+      position: relative;
+    }
+    .phase-band-violet { background: linear-gradient(180deg, rgba(167,139,250,0.10), rgba(167,139,250,0.02)); border: 1px solid rgba(167,139,250,0.25); }
+    .phase-band-gold   { background: linear-gradient(180deg, rgba(230,184,75,0.12), rgba(230,184,75,0.02)); border: 1px solid rgba(230,184,75,0.30); }
+    .phase-band-teal   { background: linear-gradient(180deg, rgba(45,212,191,0.10), rgba(45,212,191,0.02)); border: 1px solid rgba(45,212,191,0.25); }
+
+    .phase-label {
+      position: absolute;
+      top: -12px; left: 20px;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 12px; right: 12px;
+      display: flex; gap: 8px;
+      z-index: 50;
+    }
+    .toolbar button {
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+    }
+    .toolbar button:hover { background: rgba(230,184,75,0.20); border-color: rgba(230,184,75,0.40); }
+    .toolbar button.primary { background: linear-gradient(135deg, #F0CC72, #E6B84B); color: #08080F; border: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- Toolbar — hidden when exporting -->
+<div class="toolbar no-export">
+  <button onclick="exportPNG()" class="primary">⬇ Export PNG (1920×1080)</button>
+  <button onclick="window.print()">🖨 Print</button>
+</div>
+
+<div class="canvas" id="canvas">
+
+  <!-- HEADER -->
+  <div style="position: relative; padding: 50px 80px 30px; z-index: 2;">
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+      <div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; letter-spacing: 0.3em; color: #E6B84B; text-transform: uppercase; margin-bottom: 8px;">
+          TPL 08 + 09  ·  AI Agentic Web/App Builder
+        </div>
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 64px; font-weight: 700; letter-spacing: -0.02em; margin: 0;">
+          <span style="color: white;">Pipeline</span>
+          <span class="grad-gold" style="font-style: italic;"> Setup</span>
+          <span style="color: white;"> · 8 Steps</span>
+        </h1>
+        <p style="color: #94a3b8; font-size: 18px; margin: 12px 0 0;">
+          ขั้นตอนการ setup AI Web App Pipeline ครบจบใน 1 หน้า — Claude Cowork → Claude Code → Github → Vercel → Supabase
+        </p>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px;">
+          <span style="color: white;">TON</span>
+          <span class="grad-gold">PA</span>
+          <span class="grad-teal">LEARN</span>
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #64748B; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px;">
+          tonpalearn.com/pipeline
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID — 3 columns: Plan · Code · Infra/Loop -->
+  <div style="position: relative; padding: 0 80px; z-index: 2; display: grid; grid-template-columns: 5fr 3fr 6fr; gap: 24px; margin-top: 16px;">
+
+    <!-- PHASE A · PLAN -->
+    <div class="phase-band phase-band-violet">
+      <div class="phase-label" style="background: #7C5CFC; color: white;">PHASE A · PLAN</div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+
+        <!-- Step 1 -->
+        <div class="step" style="padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="num" style="background: linear-gradient(135deg, #C4B5FD, #7C5CFC);">1</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: #fff;">Claude Cowork Project</div>
+            <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+              เปิด <span style="color: #A78BFA; font-family: monospace;">claude.ai</span> → Projects → <b>+ Create</b>
+              <br/>ตั้งชื่อ project, อัปโหลด reference files
+            </div>
+            <div style="font-family: monospace; font-size: 11px; color: #A78BFA; margin-top: 6px; letter-spacing: 0.05em;">
+              ➜ claude.ai
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" style="padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="num" style="background: linear-gradient(135deg, #C4B5FD, #7C5CFC);">2</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: #fff;">Project Instructions</div>
+            <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+              ใน Project → <b>Custom instructions</b>
+              <br/>เขียน system prompt: บทบาท · style · ภาษา · context
+            </div>
+            <div style="font-family: monospace; font-size: 11px; color: #A78BFA; margin-top: 6px; letter-spacing: 0.05em;">
+              ➜ Project settings
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step" style="padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="num" style="background: linear-gradient(135deg, #C4B5FD, #7C5CFC);">3</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: #fff;">CLAUDE.md</div>
+            <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+              สร้างไฟล์ <b style="font-family: monospace; color: #fff;">CLAUDE.md</b> ใน root folder
+              <br/>ใส่: stack · convention · do/don't · paths
+            </div>
+            <div style="font-family: monospace; font-size: 11px; color: #A78BFA; margin-top: 6px; letter-spacing: 0.05em;">
+              ➜ ./CLAUDE.md
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PHASE B · CODE -->
+    <div class="phase-band phase-band-gold" style="display: flex; flex-direction: column;">
+      <div class="phase-label" style="background: #E6B84B; color: #08080F;">PHASE B · CODE</div>
+
+      <div style="flex: 1; display: flex; align-items: center; padding: 8px 0;">
+        <!-- Step 4 (Hero) -->
+        <div class="step" style="padding: 24px 22px; width: 100%; border-color: rgba(230,184,75,0.45); box-shadow: 0 0 32px -8px rgba(230,184,75,0.30);">
+          <div style="display: flex; gap: 16px; align-items: flex-start;">
+            <div class="num" style="background: linear-gradient(135deg, #F0CC72, #E6B84B); width: 60px; height: 60px; border-radius: 18px; font-size: 28px;">4</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: #E6B84B; text-transform: uppercase; margin-bottom: 4px;">HERO STEP</div>
+              <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; color: #fff;">Claude Code Terminal</div>
+              <div style="font-size: 13px; color: #cbd5e1; margin-top: 6px; line-height: 1.55;">
+                เปิด terminal → <span style="font-family: monospace; color: #F5D67A;">cd</span> ไปที่ project folder
+                <br/>พิมพ์ <span style="font-family: monospace; color: #F5D67A; background: rgba(230,184,75,0.10); padding: 2px 6px; border-radius: 4px;">claude</span> → เริ่ม session
+                <br/>Claude อ่าน <b style="font-family: monospace; color: #fff;">CLAUDE.md</b> auto
+                <br/>สั่งงานเป็น<b>ภาษาไทย</b>ได้เลย
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; padding: 12px; background: rgba(8,8,15,0.6); border: 1px solid rgba(230,184,75,0.20); border-radius: 8px;">
+            <div style="font-family: monospace; font-size: 11px; color: #64748B; margin-bottom: 4px;">$ ตัวอย่างคำสั่ง</div>
+            <div style="font-family: monospace; font-size: 12px; color: #F5D67A; line-height: 1.5;">
+              "สร้าง landing page Hero +<br/>Course list + CTA"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE C · INFRASTRUCTURE -->
+    <div class="phase-band phase-band-teal">
+      <div class="phase-label" style="background: #14B8A6; color: white;">PHASE C · INFRASTRUCTURE</div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+
+        <!-- Step 5 -->
+        <div class="step" style="padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="num" style="background: linear-gradient(135deg, #67E8F9, #14B8A6);">5</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: #fff;">Github Repository</div>
+            <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+              เข้า <b style="font-family: monospace; color: #fff;">github.com</b> → New repo
+              <br/>ใช้ Claude Code <span style="font-family: monospace; color: #67E8F9;">git push</span> upload code
+            </div>
+            <div style="font-family: monospace; font-size: 11px; color: #2DD4BF; margin-top: 6px; letter-spacing: 0.05em;">
+              ➜ github.com/USERNAME/REPO
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step" style="padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="num" style="background: linear-gradient(135deg, #67E8F9, #14B8A6);">6</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: #fff;">Vercel Deployment</div>
+            <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+              <b style="font-family: monospace; color: #fff;">vercel.com</b> → Import Github repo
+              <br/>Auto-deploy → ได้ <span style="font-family: monospace; color: #67E8F9;">project.vercel.app</span>
+              <br/>(option) Settings → Domain → ซื้อโดเมนเอง
+            </div>
+            <div style="font-family: monospace; font-size: 11px; color: #2DD4BF; margin-top: 6px; letter-spacing: 0.05em;">
+              ➜ vercel.com
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="step" style="padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start;">
+          <div class="num" style="background: linear-gradient(135deg, #67E8F9, #14B8A6);">7</div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: #fff;">Supabase Database</div>
+            <div style="font-size: 13px; color: #cbd5e1; margin-top: 4px; line-height: 1.5;">
+              <b style="font-family: monospace; color: #fff;">supabase.com</b> → New project
+              <br/>เก็บ 3 keys: <span style="font-family: monospace; color: #67E8F9;">URL · anon · service_role</span>
+              <br/>ใส่ใน Vercel → Settings → <b>Env Vars</b>
+            </div>
+            <div style="font-family: monospace; font-size: 11px; color: #2DD4BF; margin-top: 6px; letter-spacing: 0.05em;">
+              ➜ supabase.com → Settings → API
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 8 — Production Workflow (full-width strip at bottom) -->
+  <div style="position: relative; padding: 28px 80px 0; z-index: 2;">
+    <div style="background: linear-gradient(90deg, rgba(167,139,250,0.10) 0%, rgba(230,184,75,0.14) 50%, rgba(45,212,191,0.10) 100%); border: 1px solid rgba(230,184,75,0.30); border-radius: 24px; padding: 24px 28px; display: flex; align-items: center; gap: 24px;">
+
+      <div class="num" style="background: linear-gradient(135deg, #F0CC72 0%, #E6B84B 30%, #2DD4BF 60%, #A78BFA 100%); width: 60px; height: 60px; border-radius: 18px; font-size: 28px;">8</div>
+
+      <div style="flex: 1;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.25em; color: #E6B84B; text-transform: uppercase; margin-bottom: 2px;">PHASE D · PRODUCTION LOOP</div>
+        <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 22px; color: #fff;">Daily Workflow — Auto-Deploy</div>
+      </div>
+
+      <!-- Flow diagram -->
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="text-align: center;">
+          <div style="font-family: monospace; font-size: 11px; color: #F5D67A;">CLAUDE CODE</div>
+          <div style="font-size: 12px; color: #cbd5e1;">แก้ code</div>
+        </div>
+        <div style="color: #E6B84B; font-size: 20px;">→</div>
+        <div style="text-align: center;">
+          <div style="font-family: monospace; font-size: 11px; color: #67E8F9;">GITHUB</div>
+          <div style="font-size: 12px; color: #cbd5e1;">git push</div>
+        </div>
+        <div style="color: #2DD4BF; font-size: 20px;">→</div>
+        <div style="text-align: center;">
+          <div style="font-family: monospace; font-size: 11px; color: #C4B5FD;">VERCEL</div>
+          <div style="font-size: 12px; color: #cbd5e1;">auto-deploy (~2 min)</div>
+        </div>
+        <div style="color: #A78BFA; font-size: 20px;">↻</div>
+        <div style="text-align: center;">
+          <div style="font-family: monospace; font-size: 11px; color: #94a3b8;">LIVE</div>
+          <div style="font-size: 12px; color: #fff; font-weight: 700;">tonpalearn.com</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="position: absolute; bottom: 20px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: center; z-index: 2;">
+    <div style="font-family: monospace; font-size: 11px; color: #475569; letter-spacing: 0.2em; text-transform: uppercase;">
+      TONPALEARN · TPL08-09 Setup Guide · v1.0
+    </div>
+    <div style="font-family: monospace; font-size: 11px; color: #475569; letter-spacing: 0.2em; text-transform: uppercase;">
+      สอน AI ใช้ได้จริง · ไม่ต้องเขียนโค้ด
+    </div>
+  </div>
+
+</div>
+
+<script>
+  async function exportPNG() {
+    const canvas = document.getElementById('canvas');
+    document.querySelectorAll('.no-export').forEach(el => el.style.display = 'none');
+    try {
+      const dataUrl = await htmlToImage.toPng(canvas, {
+        pixelRatio: 2,
+        backgroundColor: '#08080F',
+        cacheBust: true,
+        width: 1920,
+        height: 1080,
+      });
+      const link = document.createElement('a');
+      link.download = 'TONPALEARN_TPL08-09_Pipeline_Setup.png';
+      link.href = dataUrl;
+      link.click();
+    } catch (e) {
+      alert('Export failed: ' + e.message);
+    } finally {
+      document.querySelectorAll('.no-export').forEach(el => el.style.display = '');
+    }
+  }
+</script>
+
+</body>
+</html>
