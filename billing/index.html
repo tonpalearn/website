@@ -1061,32 +1061,21 @@ function DocPreview({ doc, customer, settings, docType }) {
 
   const exportPDF = async () => {
     const el = ref.current;
-    // Save original styles
-    const orig = {
-      transform: el.style.transform,
-      width:     el.style.width,
-      maxWidth:  el.style.maxWidth,
-      overflow:  el.style.overflow,
-    };
-    // Force exact A4 width + clip horizontal overflow during capture
-    el.style.transform = 'none';
-    el.style.width     = '794px';
-    el.style.maxWidth  = '794px';
-    el.style.overflow  = 'hidden';
+    const orig = { transform: el.style.transform };
+    el.style.transform = 'none';  // disable zoom · render at natural size
 
     try {
       await document.fonts.ready;
       await new Promise(r => setTimeout(r, 250));
 
+      // Capture at NATURAL size (no width constraint — get full content)
       const opts = {
         pixelRatio: 2,
         backgroundColor: '#fff',
         cacheBust: true,
-        width: 794,           // force A4 exact width
         style: { boxShadow: 'none' },
       };
 
-      // 2-pass capture (warm font cache · then real render)
       await htmlToImage.toPng(el, opts);
       const dataUrl = await htmlToImage.toPng(el, opts);
 
@@ -1094,13 +1083,15 @@ function DocPreview({ doc, customer, settings, docType }) {
       img.src = dataUrl;
       await new Promise(r => { img.onload = r; });
 
+      // Proportional scale: image width → A4 (210mm) · height scaled
       const A4_W = 210, A4_H = 297;
       const imgW = A4_W;
-      const imgH = (img.height * A4_W) / img.width;
+      const imgH = (img.height * A4_W) / img.width;  // preserve aspect
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
+      // Multi-page for tall content
       let heightLeft = imgH;
       let position = 0;
       pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH, undefined, 'FAST');
@@ -1116,11 +1107,7 @@ function DocPreview({ doc, customer, settings, docType }) {
     } catch (e) {
       console.error(e); alert('Export failed: ' + e.message);
     } finally {
-      // Restore styles
       el.style.transform = orig.transform;
-      el.style.width     = orig.width;
-      el.style.maxWidth  = orig.maxWidth;
-      el.style.overflow  = orig.overflow;
     }
   };
 
