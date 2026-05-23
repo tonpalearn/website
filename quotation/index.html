@@ -474,7 +474,7 @@ function App() {
     pixelRatio: 2,
     backgroundColor: '#ffffff',
     cacheBust: true,
-    // No fixed width/height — capture natural full size so multi-page PDF can split it
+    width: 794,  // force A4 exact width · let height auto · multi-page PDF splits
     style: { transform: 'none', margin: '0', boxShadow: 'none' },
     skipFonts: false,
   });
@@ -484,8 +484,16 @@ function App() {
     await warmUpFonts();
     showToast('กำลังสร้าง PDF...');
     const el = document.querySelector('.a4-paper');
-    const prevTransform = el.style.transform;
+    const orig = {
+      transform: el.style.transform,
+      width:     el.style.width,
+      maxWidth:  el.style.maxWidth,
+      overflow:  el.style.overflow,
+    };
     el.style.transform = 'none';
+    el.style.width     = '794px';
+    el.style.maxWidth  = '794px';
+    el.style.overflow  = 'hidden';
     try {
       // 2-pass capture (first warms font cache · second renders)
       await htmlToImage.toPng(el, imgOptions());
@@ -520,7 +528,10 @@ function App() {
       console.error(err);
       showToast('Export ไม่สำเร็จ — ลองกด Print แทน');
     } finally {
-      el.style.transform = prevTransform;
+      el.style.transform = orig.transform;
+      el.style.width     = orig.width;
+      el.style.maxWidth  = orig.maxWidth;
+      el.style.overflow  = orig.overflow;
     }
   };
 
@@ -529,10 +540,17 @@ function App() {
     await warmUpFonts();
     showToast('กำลังสร้างรูป...');
     const el = document.querySelector('.a4-paper');
-    const prevTransform = el.style.transform;
+    const orig = {
+      transform: el.style.transform,
+      width:     el.style.width,
+      maxWidth:  el.style.maxWidth,
+      overflow:  el.style.overflow,
+    };
     el.style.transform = 'none';
+    el.style.width     = '794px';
+    el.style.maxWidth  = '794px';
+    el.style.overflow  = 'hidden';
     try {
-      // 2 passes — first pass warms cache, second renders cleanly
       await htmlToImage.toPng(el, imgOptions());
       const dataUrl = await htmlToImage.toPng(el, imgOptions());
       const link = document.createElement('a');
@@ -544,7 +562,10 @@ function App() {
       console.error(err);
       showToast('Export ไม่สำเร็จ — ลองกด Print แทน');
     } finally {
-      el.style.transform = prevTransform;
+      el.style.transform = orig.transform;
+      el.style.width     = orig.width;
+      el.style.maxWidth  = orig.maxWidth;
+      el.style.overflow  = orig.overflow;
     }
   };
 

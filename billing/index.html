@@ -1061,45 +1061,67 @@ function DocPreview({ doc, customer, settings, docType }) {
 
   const exportPDF = async () => {
     const el = ref.current;
-    const prev = el.style.transform;
+    // Save original styles
+    const orig = {
+      transform: el.style.transform,
+      width:     el.style.width,
+      maxWidth:  el.style.maxWidth,
+      overflow:  el.style.overflow,
+    };
+    // Force exact A4 width + clip horizontal overflow during capture
     el.style.transform = 'none';
+    el.style.width     = '794px';
+    el.style.maxWidth  = '794px';
+    el.style.overflow  = 'hidden';
+
     try {
-      // Warm font cache
       await document.fonts.ready;
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 250));
 
-      // Capture full element (no width/height = use natural size)
-      await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: '#fff', cacheBust: true });
-      const dataUrl = await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: '#fff', cacheBust: true });
+      const opts = {
+        pixelRatio: 2,
+        backgroundColor: '#fff',
+        cacheBust: true,
+        width: 794,           // force A4 exact width
+        style: { boxShadow: 'none' },
+      };
 
-      // Load to get dimensions
+      // 2-pass capture (warm font cache · then real render)
+      await htmlToImage.toPng(el, opts);
+      const dataUrl = await htmlToImage.toPng(el, opts);
+
       const img = new Image();
       img.src = dataUrl;
       await new Promise(r => { img.onload = r; });
 
-      const A4_W = 210;  // mm
-      const A4_H = 297;  // mm
+      const A4_W = 210, A4_H = 297;
       const imgW = A4_W;
-      const imgH = (img.height * A4_W) / img.width;  // scale to fit A4 width
+      const imgH = (img.height * A4_W) / img.width;
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
       let heightLeft = imgH;
       let position = 0;
-      pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH);
+      pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH, undefined, 'FAST');
       heightLeft -= A4_H;
       while (heightLeft > 0.5) {
         position -= A4_H;
         pdf.addPage();
-        pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH);
+        pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH, undefined, 'FAST');
         heightLeft -= A4_H;
       }
 
       pdf.save(`${doc.invoice_no || doc.receipt_no}.pdf`);
     } catch (e) {
       console.error(e); alert('Export failed: ' + e.message);
-    } finally { el.style.transform = prev; }
+    } finally {
+      // Restore styles
+      el.style.transform = orig.transform;
+      el.style.width     = orig.width;
+      el.style.maxWidth  = orig.maxWidth;
+      el.style.overflow  = orig.overflow;
+    }
   };
 
   const items = doc.items || [];
