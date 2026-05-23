@@ -1125,7 +1125,14 @@ function A4Preview({ settings, quoteNo, issueDate, validUntil, customer, items, 
       {/* SIGNATURE */}
       <div className="mt-8 grid grid-cols-2 gap-6 text-[10px]">
         <div className="text-center">
-          <div className="border-b border-gray-700 pb-1 mb-1 h-10"></div>
+          <img
+            src="/signature-ton.png"
+            alt="Signature"
+            className="mx-auto mb-1 object-contain"
+            style={{ height: '40px', maxWidth: '180px' }}
+            onError={(e) => { e.target.style.display='none'; }}
+          />
+          <div className="border-b border-gray-700 pb-0.5 mb-1"></div>
           <div className="text-gray-600">ผู้เสนอราคา</div>
           <div className="font-semibold text-gray-900 mt-0.5">({settings.signatureName})</div>
           <div className="text-gray-500 text-[9px] mt-0.5">วันที่: {formatThaiDate(issueDate)}</div>
