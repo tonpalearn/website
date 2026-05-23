@@ -189,6 +189,25 @@ create index if not exists idx_enrollments_status   on course_enrollments(status
 create index if not exists idx_enrollments_date     on course_enrollments(scheduled_date desc);
 
 -- ──────────────────────────────────────────────────────────
+-- v2 ADDITIONS (May 2026) — VAT modes + payment terms
+-- Run these even if v1 tables already exist (idempotent)
+-- ──────────────────────────────────────────────────────────
+alter table quotations add column if not exists vat_mode      text default 'exclusive';   -- 'exclusive' | 'inclusive' | 'none'
+alter table quotations add column if not exists vat_rate      numeric default 7;
+alter table quotations add column if not exists vat_amount    numeric default 0;
+alter table quotations add column if not exists grand_total   numeric default 0;
+alter table quotations add column if not exists payment_split boolean default false;
+alter table quotations add column if not exists deposit_pct   numeric default 50;
+alter table quotations add column if not exists deposit_amount numeric default 0;
+alter table quotations add column if not exists balance_amount numeric default 0;
+
+alter table invoices   add column if not exists vat_mode      text default 'exclusive';
+alter table invoices   add column if not exists payment_split boolean default false;
+alter table invoices   add column if not exists deposit_pct   numeric default 50;
+alter table invoices   add column if not exists deposit_amount numeric default 0;
+alter table invoices   add column if not exists balance_amount numeric default 0;
+
+-- ──────────────────────────────────────────────────────────
 -- Auto-update updated_at trigger
 -- ──────────────────────────────────────────────────────────
 create or replace function set_updated_at() returns trigger as $$

@@ -790,6 +790,9 @@ function Quotations({ client, settings, showToast }) {
 }
 
 function QuotationModal({ quote, customers, client, settings, onClose, onSaved }) {
+  // Default VAT mode depends on active vendor entity + VAT registration
+  const defaultVatMode = (settings.activeEntity === 'company' && settings.vatRegistered) ? 'exclusive' : 'none';
+
   const [q, setQ] = useState({
     issue_date: todayISO(),
     valid_days: 30,
@@ -797,6 +800,12 @@ function QuotationModal({ quote, customers, client, settings, onClose, onSaved }
     discounts: [],
     use_wht: false,
     wht_rate: 3,
+    // VAT
+    vat_mode: defaultVatMode,          // 'exclusive' (ไม่รวม → บวกบน) | 'inclusive' (รวม → ถอด) | 'none' (ไม่ใส่)
+    vat_rate: settings.vatRate || 7,
+    // Payment terms
+    payment_split: false,
+    deposit_pct: 50,
     terms: 'ชำระ 50% เพื่อยืนยันการจอง · ชำระ 50% หลังเรียนจบ',
     ...quote,
   });
@@ -820,6 +829,7 @@ function QuotationModal({ quote, customers, client, settings, onClose, onSaved }
   const removeItem = (id) => setQ({...q, items: q.items.filter(it => it.id !== id)});
 
   const totals = useMemo(() => {
+    // Per-line: qty × price - discount%
     const lineTotals = q.items.map(it => {
       const sub = (Number(it.qty)||0) * (Number(it.price)||0);
       const disc = sub * ((Number(it.discountPct)||0)/100);
@@ -828,15 +838,53 @@ function QuotationModal({ quote, customers, client, settings, onClose, onSaved }
     const subtotal = lineTotals.reduce((s, l) => s + l.sub, 0);
     const lineDisc = lineTotals.reduce((s, l) => s + l.disc, 0);
     const afterLine = subtotal - lineDisc;
+
+    // Extra discounts (each can be 'pct' or 'amount')
     let extraDisc = 0;
     (q.discounts||[]).forEach(d => {
       if (d.mode === 'pct') extraDisc += afterLine * ((Number(d.pct)||0)/100);
       else extraDisc += Number(d.amount)||0;
     });
-    const net = afterLine - extraDisc;
-    const wht = q.use_wht ? (net * (Number(q.wht_rate)||0)/100) : 0;
-    return { subtotal, lineDisc, extraDisc, net, wht, toPay: net - wht };
-  }, [q.items, q.discounts, q.use_wht, q.wht_rate]);
+
+    // Net before VAT
+    const netBeforeVat = Math.max(0, afterLine - extraDisc);
+
+    // VAT — 3 modes
+    const vatRate = Number(q.vat_rate)||7;
+    let vatAmount = 0;
+    let netForReport = netBeforeVat;     // amount "before VAT" shown on doc
+    let grandTotal = netBeforeVat;
+    if (q.vat_mode === 'exclusive') {
+      // ไม่รวม VAT → บวก VAT บนยอด net
+      vatAmount = netBeforeVat * vatRate / 100;
+      grandTotal = netBeforeVat + vatAmount;
+    } else if (q.vat_mode === 'inclusive') {
+      // รวม VAT → ถอด VAT จากยอด net (net คือ grand)
+      grandTotal = netBeforeVat;
+      vatAmount = grandTotal * vatRate / (100 + vatRate);
+      netForReport = grandTotal - vatAmount;
+    } else {
+      // none (ไม่ใส่ VAT)
+      vatAmount = 0;
+      grandTotal = netBeforeVat;
+    }
+
+    // WHT — withholding tax (off grand_total, paid by customer)
+    const wht = q.use_wht ? (grandTotal * (Number(q.wht_rate)||0)/100) : 0;
+    const toPay = grandTotal - wht;
+
+    // Payment terms — split into deposit + balance
+    const depositPct = Number(q.deposit_pct)||50;
+    const depositAmount = q.payment_split ? (toPay * depositPct / 100) : toPay;
+    const balanceAmount = q.payment_split ? (toPay - depositAmount) : 0;
+
+    return {
+      subtotal, lineDisc, extraDisc,
+      netForReport, vatAmount, grandTotal,
+      wht, toPay,
+      depositAmount, balanceAmount,
+    };
+  }, [q.items, q.discounts, q.use_wht, q.wht_rate, q.vat_mode, q.vat_rate, q.payment_split, q.deposit_pct]);
 
   const save = async () => {
     if (!q.customer_id) { alert('เลือกลูกค้าก่อน'); return; }
@@ -858,9 +906,20 @@ function QuotationModal({ quote, customers, client, settings, onClose, onSaved }
         customer_snapshot: customer,
         subtotal: totals.subtotal,
         total_discount: totals.lineDisc + totals.extraDisc,
-        net_total: totals.net,
+        net_total: totals.netForReport,
+        // VAT
+        vat_mode: q.vat_mode,
+        vat_rate: Number(q.vat_rate) || 7,
+        vat_amount: totals.vatAmount,
+        grand_total: totals.grandTotal,
+        // WHT
         wht_amount: totals.wht,
         amount_to_pay: totals.toPay,
+        // Payment terms
+        payment_split: !!q.payment_split,
+        deposit_pct: Number(q.deposit_pct) || 50,
+        deposit_amount: totals.depositAmount,
+        balance_amount: totals.balanceAmount,
         status: q.status || 'draft',
       };
       delete payload.created_at; delete payload.updated_at;
@@ -926,19 +985,128 @@ function QuotationModal({ quote, customers, client, settings, onClose, onSaved }
         ))}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-3 mt-4">
-        <div className="panel p-3">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={q.use_wht} onChange={e => setQ({...q, use_wht: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
-            หัก ณ ที่จ่าย <input type="number" className="inp w-16 inline-block text-center text-xs" value={q.wht_rate} onChange={e => setQ({...q, wht_rate: e.target.value})} disabled={!q.use_wht}/> %
-          </label>
+      {/* Extra Discounts (% or ฿) */}
+      <div className="panel p-3 mb-3 bg-white/[0.02]">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-xs uppercase tracking-widest font-semibold" style={{color:'#E6B84B'}}>ส่วนลดเพิ่มเติม</div>
+          <button
+            onClick={() => setQ({...q, discounts: [...(q.discounts||[]), { id: Date.now(), mode: 'pct', pct: 0, amount: 0, label: '' }]})}
+            className="btn btn-ghost text-xs">+ เพิ่มแถว</button>
         </div>
+        {(!q.discounts || q.discounts.length === 0) && (
+          <div className="text-[11px] text-slate-500">ส่วนลดรายแถว (per item) ตั้งใน column "%" ด้านบน · ส่วนลดเพิ่มที่นี่จะลดจากยอดรวมทั้งหมด</div>
+        )}
+        <div className="space-y-1.5">
+          {(q.discounts||[]).map(d => (
+            <div key={d.id} className="grid grid-cols-12 gap-1.5 items-center">
+              <input className="inp col-span-5 text-xs" placeholder="คำอธิบาย เช่น ส่วนลดสมาชิก, ลูกค้าเก่า" value={d.label||''}
+                onChange={e => setQ({...q, discounts: q.discounts.map(x => x.id === d.id ? {...x, label: e.target.value} : x)})}/>
+              <div className="col-span-3 flex p-0.5 rounded-md" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+                <button onClick={() => setQ({...q, discounts: q.discounts.map(x => x.id === d.id ? {...x, mode: 'pct'} : x)})}
+                  className={`flex-1 px-2 py-1 rounded text-[10px] font-semibold transition ${d.mode === 'pct' ? 'text-ink-950' : 'text-slate-400'}`}
+                  style={d.mode === 'pct' ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)'} : {}}>%</button>
+                <button onClick={() => setQ({...q, discounts: q.discounts.map(x => x.id === d.id ? {...x, mode: 'amount'} : x)})}
+                  className={`flex-1 px-2 py-1 rounded text-[10px] font-semibold transition ${d.mode === 'amount' ? 'text-ink-950' : 'text-slate-400'}`}
+                  style={d.mode === 'amount' ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)'} : {}}>฿</button>
+              </div>
+              {d.mode === 'pct'
+                ? <input type="number" className="inp col-span-2 text-xs text-right" value={d.pct||0}
+                    onChange={e => setQ({...q, discounts: q.discounts.map(x => x.id === d.id ? {...x, pct: e.target.value} : x)})}/>
+                : <input type="number" className="inp col-span-2 text-xs text-right" value={d.amount||0}
+                    onChange={e => setQ({...q, discounts: q.discounts.map(x => x.id === d.id ? {...x, amount: e.target.value} : x)})}/>}
+              <div className="col-span-1 text-right text-[11px] text-red-400 font-mono">
+                -฿{fmtTHB(d.mode === 'pct' ? (totals.subtotal - totals.lineDisc) * (Number(d.pct)||0)/100 : Number(d.amount)||0)}
+              </div>
+              <button onClick={() => setQ({...q, discounts: q.discounts.filter(x => x.id !== d.id)})} className="col-span-1 text-red-400 text-xs hover:text-red-500">✕</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* VAT mode picker — show only when active vendor is VAT-registered */}
+      {settings.vatRegistered && (
+        <div className="panel p-3 mb-3 bg-white/[0.02]">
+          <div className="text-xs uppercase tracking-widest font-semibold mb-2" style={{color:'#E6B84B'}}>ภาษีมูลค่าเพิ่ม (VAT)</div>
+          <div className="flex gap-1 p-0.5 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+            {[
+              { v: 'exclusive', label: 'ไม่รวม VAT', sub: 'บวกบนยอด' },
+              { v: 'inclusive', label: 'รวม VAT แล้ว', sub: 'ถอดจากยอด' },
+              { v: 'none',      label: 'ไม่ใส่ VAT', sub: 'ยกเว้น' },
+            ].map(opt => (
+              <button key={opt.v} onClick={() => setQ({...q, vat_mode: opt.v})}
+                className={`flex-1 px-3 py-2 rounded-md text-xs font-semibold transition ${q.vat_mode === opt.v ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
+                style={q.vat_mode === opt.v ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)'} : {}}>
+                <div>{opt.label}</div>
+                <div className="text-[9px] opacity-70 font-normal mt-0.5">{opt.sub}</div>
+              </button>
+            ))}
+          </div>
+          {q.vat_mode !== 'none' && (
+            <div className="mt-2 flex items-center gap-2 text-xs">
+              <span className="text-slate-400">VAT Rate</span>
+              <input type="number" className="inp w-16 text-center text-xs" value={q.vat_rate||7} onChange={e => setQ({...q, vat_rate: e.target.value})}/>
+              <span className="text-slate-400">%</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-3 mt-3">
+        {/* WHT + Payment terms */}
+        <div className="space-y-3">
+          <div className="panel p-3">
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={q.use_wht} onChange={e => setQ({...q, use_wht: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+              หัก ณ ที่จ่าย <input type="number" className="inp w-16 inline-block text-center text-xs" value={q.wht_rate} onChange={e => setQ({...q, wht_rate: e.target.value})} disabled={!q.use_wht}/> %
+            </label>
+          </div>
+          <div className="panel p-3">
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={!!q.payment_split} onChange={e => setQ({...q, payment_split: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+              แบ่งจ่าย Deposit + Balance
+            </label>
+            {q.payment_split && (
+              <div className="mt-2 space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-slate-400 w-24">Deposit</span>
+                  <input type="number" min="1" max="99" className="inp w-16 text-center text-xs" value={q.deposit_pct||50}
+                    onChange={e => setQ({...q, deposit_pct: e.target.value})}/>
+                  <span className="text-slate-400">%</span>
+                  <span className="flex-1 text-right font-mono text-gold-200" style={{color:'#F5D67A'}}>฿{fmtTHB(totals.depositAmount)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-slate-400 w-24">Balance</span>
+                  <span className="text-xs text-slate-400">{100 - (Number(q.deposit_pct)||50)} %</span>
+                  <span className="flex-1 text-right font-mono text-teal-200" style={{color:'#5EEAD4'}}>฿{fmtTHB(totals.balanceAmount)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Totals summary */}
         <div className="panel p-3 text-sm space-y-1 font-mono">
           <div className="flex justify-between"><span className="text-slate-400">Subtotal</span><span>฿{fmtTHB(totals.subtotal)}</span></div>
-          {totals.lineDisc > 0 && <div className="flex justify-between text-red-400"><span>Discount</span><span>-฿{fmtTHB(totals.lineDisc)}</span></div>}
-          <div className="flex justify-between font-bold text-white"><span>Net Total</span><span>฿{fmtTHB(totals.net)}</span></div>
-          {q.use_wht && <div className="flex justify-between text-red-400 text-xs"><span>WHT</span><span>-฿{fmtTHB(totals.wht)}</span></div>}
-          {q.use_wht && <div className="flex justify-between font-bold grad-gold"><span>To Pay</span><span>฿{fmtTHB(totals.toPay)}</span></div>}
+          {totals.lineDisc > 0 && <div className="flex justify-between text-red-400 text-xs"><span>Line discounts</span><span>-฿{fmtTHB(totals.lineDisc)}</span></div>}
+          {totals.extraDisc > 0 && <div className="flex justify-between text-red-400 text-xs"><span>Extra discounts</span><span>-฿{fmtTHB(totals.extraDisc)}</span></div>}
+          <div className="flex justify-between border-t border-white/10 pt-1"><span className="text-slate-300">Net (ก่อน VAT)</span><span>฿{fmtTHB(totals.netForReport)}</span></div>
+          {q.vat_mode === 'exclusive' && totals.vatAmount > 0 && (
+            <div className="flex justify-between text-blue-300 text-xs"><span>VAT {q.vat_rate}% (บวก)</span><span>+฿{fmtTHB(totals.vatAmount)}</span></div>
+          )}
+          {q.vat_mode === 'inclusive' && totals.vatAmount > 0 && (
+            <div className="flex justify-between text-blue-300 text-xs"><span>VAT {q.vat_rate}% (รวมในยอด)</span><span>฿{fmtTHB(totals.vatAmount)}</span></div>
+          )}
+          <div className="flex justify-between border-t border-white/10 pt-1 font-bold text-white">
+            <span>Grand Total</span><span className="grad-gold">฿{fmtTHB(totals.grandTotal)}</span>
+          </div>
+          {q.use_wht && <div className="flex justify-between text-red-400 text-xs"><span>WHT {q.wht_rate}%</span><span>-฿{fmtTHB(totals.wht)}</span></div>}
+          {q.use_wht && <div className="flex justify-between font-bold"><span>To Pay (ลูกค้าโอน)</span><span className="grad-gold">฿{fmtTHB(totals.toPay)}</span></div>}
+          {q.payment_split && (
+            <div className="border-t border-white/10 pt-1 mt-1 space-y-0.5 text-xs">
+              <div className="flex justify-between"><span className="text-gold-400" style={{color:'#F5D67A'}}>Deposit {q.deposit_pct}%</span><span style={{color:'#F5D67A'}}>฿{fmtTHB(totals.depositAmount)}</span></div>
+              <div className="flex justify-between"><span style={{color:'#5EEAD4'}}>Balance {100 - (Number(q.deposit_pct)||50)}%</span><span style={{color:'#5EEAD4'}}>฿{fmtTHB(totals.balanceAmount)}</span></div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1325,20 +1493,54 @@ function DocPreview({ doc, customer, settings, docType }) {
           <div className="flex justify-end mt-4">
             <div className="w-[55%] text-[11px] space-y-1">
               <div className="flex justify-between"><span className="text-gray-700">ราคารวม / Subtotal</span><span className="font-mono">฿{fmtTHB(doc.subtotal)}</span></div>
-              {doc.total_discount > 0 && <div className="flex justify-between text-red-700"><span>หักส่วนลด</span><span className="font-mono">-฿{fmtTHB(doc.total_discount)}</span></div>}
+              {doc.total_discount > 0 && <div className="flex justify-between text-red-700"><span>หักส่วนลด / Discount</span><span className="font-mono">-฿{fmtTHB(doc.total_discount)}</span></div>}
               <div className="flex justify-between border-t pt-1"><span className="font-bold text-gray-900">ยอดสุทธิ / Net</span><span className="font-mono font-bold text-gray-900">฿{fmtTHB(doc.net_total)}</span></div>
-              {doc.has_vat && <div className="flex justify-between text-blue-700"><span>ภาษีมูลค่าเพิ่ม / VAT ({doc.vat_rate}%)</span><span className="font-mono">+฿{fmtTHB(doc.vat_amount)}</span></div>}
-              {doc.has_vat && <div className="flex justify-between border-t pt-1"><span className="font-bold text-gray-900">รวมทั้งสิ้น / Grand Total</span><span className="font-mono font-bold text-base">฿{fmtTHB(doc.grand_total)}</span></div>}
-              {!doc.has_vat && <div className="flex justify-between font-bold text-base"><span className="grad-gold-light">Grand Total</span><span className="font-mono grad-gold-light">฿{fmtTHB(doc.grand_total)}</span></div>}
+
+              {/* VAT — render based on vat_mode (fallback: legacy has_vat) */}
+              {doc.vat_mode === 'exclusive' && doc.vat_amount > 0 && (
+                <div className="flex justify-between text-blue-700"><span>VAT {doc.vat_rate || 7}% (ไม่รวม)</span><span className="font-mono">+฿{fmtTHB(doc.vat_amount)}</span></div>
+              )}
+              {doc.vat_mode === 'inclusive' && doc.vat_amount > 0 && (
+                <div className="flex justify-between text-blue-700"><span>VAT {doc.vat_rate || 7}% (รวมในยอด)</span><span className="font-mono">฿{fmtTHB(doc.vat_amount)}</span></div>
+              )}
+              {/* Legacy fallback */}
+              {!doc.vat_mode && doc.has_vat && <div className="flex justify-between text-blue-700"><span>ภาษีมูลค่าเพิ่ม / VAT ({doc.vat_rate}%)</span><span className="font-mono">+฿{fmtTHB(doc.vat_amount)}</span></div>}
+
+              {/* Grand total — show when VAT applied OR plain (no VAT) */}
+              {(doc.vat_amount > 0 || doc.has_vat) ? (
+                <div className="flex justify-between border-t pt-1"><span className="font-bold text-gray-900">รวมทั้งสิ้น / Grand Total</span><span className="font-mono font-bold text-base">฿{fmtTHB(doc.grand_total)}</span></div>
+              ) : (
+                <div className="flex justify-between font-bold text-base border-t pt-1"><span className="grad-gold-light">รวมทั้งสิ้น / Grand Total</span><span className="font-mono grad-gold-light">฿{fmtTHB(doc.grand_total)}</span></div>
+              )}
+
               {doc.wht_amount > 0 && (
                 <>
                   <div className="flex justify-between text-red-700 text-[10px]"><span>หัก ณ ที่จ่าย ({doc.wht_rate}%)</span><span className="font-mono">-฿{fmtTHB(doc.wht_amount)}</span></div>
-                  <div className="flex justify-between border-t pt-1 font-bold"><span className="text-gray-900">ยอดโอน / Net Payable</span><span className="font-mono">฿{fmtTHB(doc.grand_total - doc.wht_amount)}</span></div>
+                  <div className="flex justify-between border-t pt-1 font-bold"><span className="text-gray-900">ยอดโอน / Net Payable</span><span className="font-mono">฿{fmtTHB(doc.amount_to_pay || (doc.grand_total - doc.wht_amount))}</span></div>
                 </>
               )}
-              <div className="mt-2 pt-2 border-t text-right text-[9px] text-gray-600 italic">({numToThaiBaht(doc.grand_total - (doc.wht_amount||0))})</div>
+              <div className="mt-2 pt-2 border-t text-right text-[9px] text-gray-600 italic">({numToThaiBaht(doc.amount_to_pay || (doc.grand_total - (doc.wht_amount||0)))})</div>
             </div>
           </div>
+
+          {/* PAYMENT SCHEDULE — show only when split */}
+          {doc.payment_split && (
+            <div className="mt-4 p-3 rounded border-l-4" style={{background:'linear-gradient(90deg,#FEF7E6,#fff)', borderColor:'#C8A84B'}}>
+              <div className="text-[9px] text-gray-500 tracking-widest font-bold uppercase mb-1.5">เงื่อนไขการชำระเงิน · Payment Schedule</div>
+              <div className="grid grid-cols-2 gap-3 text-[11px]">
+                <div className="border rounded p-2.5" style={{background:'#fff', borderColor:'#E5E7EB'}}>
+                  <div className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">งวดที่ 1 · Deposit ({doc.deposit_pct || 50}%)</div>
+                  <div className="font-mono font-bold text-[14px] text-gray-900 mt-0.5">฿{fmtTHB(doc.deposit_amount)}</div>
+                  <div className="text-[9px] text-gray-600 mt-0.5">ชำระเพื่อยืนยันการจอง</div>
+                </div>
+                <div className="border rounded p-2.5" style={{background:'#fff', borderColor:'#E5E7EB'}}>
+                  <div className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">งวดที่ 2 · Balance ({100 - (Number(doc.deposit_pct)||50)}%)</div>
+                  <div className="font-mono font-bold text-[14px] text-gray-900 mt-0.5">฿{fmtTHB(doc.balance_amount)}</div>
+                  <div className="text-[9px] text-gray-600 mt-0.5">ชำระหลังเรียนจบ / ส่งมอบ</div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* PAYMENT INFO */}
           {docType === 'invoice' && (
