@@ -474,8 +474,7 @@ function App() {
     pixelRatio: 2,
     backgroundColor: '#ffffff',
     cacheBust: true,
-    width: 794,
-    height: 1123,
+    // No fixed width/height — capture natural full size so multi-page PDF can split it
     style: { transform: 'none', margin: '0', boxShadow: 'none' },
     skipFonts: false,
   });
@@ -488,12 +487,33 @@ function App() {
     const prevTransform = el.style.transform;
     el.style.transform = 'none';
     try {
-      // 2 passes — first pass warms cache, second renders cleanly
+      // 2-pass capture (first warms font cache · second renders)
       await htmlToImage.toPng(el, imgOptions());
       const dataUrl = await htmlToImage.toPng(el, imgOptions());
+
+      // Get image dimensions to compute multi-page split
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise(r => { img.onload = r; });
+
+      const A4_W = 210, A4_H = 297; // mm
+      const imgW = A4_W;
+      const imgH = (img.height * A4_W) / img.width; // scale to fit A4 width
+
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
+
+      let heightLeft = imgH;
+      let position = 0;
+      pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH);
+      heightLeft -= A4_H;
+      while (heightLeft > 0.5) {
+        position -= A4_H;
+        pdf.addPage();
+        pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH);
+        heightLeft -= A4_H;
+      }
+
       pdf.save(`${quoteNo}-${customer.custName || 'quotation'}.pdf`);
       showToast('✓ Export PDF แล้ว');
     } catch (err) {

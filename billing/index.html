@@ -1061,12 +1061,45 @@ function DocPreview({ doc, customer, settings, docType }) {
 
   const exportPDF = async () => {
     const el = ref.current;
+    const prev = el.style.transform;
     el.style.transform = 'none';
-    const dataUrl = await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: '#fff', cacheBust: true, width: 794, height: 1123 });
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-    pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
-    pdf.save(`${doc.invoice_no || doc.receipt_no}.pdf`);
+    try {
+      // Warm font cache
+      await document.fonts.ready;
+      await new Promise(r => setTimeout(r, 200));
+
+      // Capture full element (no width/height = use natural size)
+      await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: '#fff', cacheBust: true });
+      const dataUrl = await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: '#fff', cacheBust: true });
+
+      // Load to get dimensions
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise(r => { img.onload = r; });
+
+      const A4_W = 210;  // mm
+      const A4_H = 297;  // mm
+      const imgW = A4_W;
+      const imgH = (img.height * A4_W) / img.width;  // scale to fit A4 width
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+      let heightLeft = imgH;
+      let position = 0;
+      pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH);
+      heightLeft -= A4_H;
+      while (heightLeft > 0.5) {
+        position -= A4_H;
+        pdf.addPage();
+        pdf.addImage(dataUrl, 'PNG', 0, position, imgW, imgH);
+        heightLeft -= A4_H;
+      }
+
+      pdf.save(`${doc.invoice_no || doc.receipt_no}.pdf`);
+    } catch (e) {
+      console.error(e); alert('Export failed: ' + e.message);
+    } finally { el.style.transform = prev; }
   };
 
   const items = doc.items || [];
