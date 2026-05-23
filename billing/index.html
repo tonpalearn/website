@@ -1142,8 +1142,8 @@ function DocPreview({ doc, customer, settings, docType }) {
         <button onClick={exportPDF} className="btn btn-gold text-xs">⬇ PDF</button>
       </div>
 
-      <div className="bg-slate-700 p-4 rounded-lg overflow-x-auto">
-        <div ref={ref} className="a4-paper mx-auto">
+      <div className="bg-slate-700 p-4 rounded-lg overflow-x-auto flex justify-center">
+        <div ref={ref} className="a4-paper" style={{ flexShrink: 0 }}>
           {/* HEADER */}
           <div className="flex items-start justify-between gap-4 pb-4 border-b-2 border-gray-900">
             <div>
