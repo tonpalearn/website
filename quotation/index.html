@@ -470,11 +470,19 @@ function App() {
   };
 
   // html-to-image options — SVG foreignObject render (handles Thai script properly)
+  // captureSize() returns scroll width/height which includes any overflow
+  const captureSize = () => {
+    const el = document.querySelector('.a4-paper');
+    return {
+      width:  el ? Math.max(el.scrollWidth, el.offsetWidth, 794) : 794,
+      height: el ? Math.max(el.scrollHeight, el.offsetHeight)    : 1123,
+    };
+  };
   const imgOptions = () => ({
     pixelRatio: 2,
     backgroundColor: '#ffffff',
     cacheBust: true,
-    // No width — capture natural size · PDF scales proportionally to A4 width
+    ...captureSize(),
     style: { transform: 'none', margin: '0', boxShadow: 'none' },
     skipFonts: false,
   });

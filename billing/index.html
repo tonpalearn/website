@@ -1062,17 +1062,22 @@ function DocPreview({ doc, customer, settings, docType }) {
   const exportPDF = async () => {
     const el = ref.current;
     const orig = { transform: el.style.transform };
-    el.style.transform = 'none';  // disable zoom · render at natural size
+    el.style.transform = 'none';
 
     try {
       await document.fonts.ready;
       await new Promise(r => setTimeout(r, 250));
 
-      // Capture at NATURAL size (no width constraint — get full content)
+      // Use scrollWidth/scrollHeight (includes any horizontal overflow children)
+      const captureW = Math.max(el.scrollWidth, el.offsetWidth, 794);
+      const captureH = Math.max(el.scrollHeight, el.offsetHeight);
+
       const opts = {
         pixelRatio: 2,
         backgroundColor: '#fff',
         cacheBust: true,
+        width:  captureW,
+        height: captureH,
         style: { boxShadow: 'none' },
       };
 
@@ -1083,10 +1088,10 @@ function DocPreview({ doc, customer, settings, docType }) {
       img.src = dataUrl;
       await new Promise(r => { img.onload = r; });
 
-      // Proportional scale: image width → A4 (210mm) · height scaled
+      // Scale captured (possibly wider than 794) into A4 width preserve aspect
       const A4_W = 210, A4_H = 297;
       const imgW = A4_W;
-      const imgH = (img.height * A4_W) / img.width;  // preserve aspect
+      const imgH = (img.height * A4_W) / img.width;
 
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
