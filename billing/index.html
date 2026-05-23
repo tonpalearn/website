@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · Billing + CRM</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    html, body { background: #08080F; }
+    body { font-family: 'IBM Plex Sans Thai', sans-serif; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
+    *::selection { background: rgba(230,184,75,0.25); color: #fff; }
+    .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
+    .font-sarabun { font-family: 'Sarabun', sans-serif; }
+    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+    .scrollable::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollable::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+    .scrollable::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 4px; }
+    .scrollable::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+    }
+    .grad-gold {
+      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .grad-teal {
+      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .inp {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 13px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .inp:hover { border-color: rgba(230,184,75,0.35); }
+    .inp:focus { outline: none; border-color: #E6B84B; background: rgba(255,255,255,0.06); }
+    .lbl { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 12px; border-radius: 8px;
+      font-weight: 600; font-size: 12px;
+      transition: all 0.15s; cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-gold  { background: linear-gradient(135deg, #F0CC72, #E6B84B); color: #08080F; }
+    .btn-gold:hover { box-shadow: 0 0 24px -8px rgba(230,184,75,0.4); }
+    .btn-teal  { background: rgba(45,212,191,0.15); color: #2DD4BF; border-color: rgba(45,212,191,0.30); }
+    .btn-teal:hover { background: rgba(45,212,191,0.22); }
+    .btn-vio   { background: rgba(167,139,250,0.15); color: #A78BFA; border-color: rgba(167,139,250,0.30); }
+    .btn-vio:hover { background: rgba(167,139,250,0.22); }
+    .btn-ghost { background: transparent; color: #94a3b8; border-color: rgba(255,255,255,0.10); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.04); color: #fff; }
+    .btn-danger { color: #f87171; }
+    .btn-danger:hover { background: rgba(248,113,113,0.08); }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 999px;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: 1px solid;
+    }
+    .st-draft     { background: rgba(255,255,255,0.04); color: #94a3b8; border-color: rgba(255,255,255,0.15); }
+    .st-sent      { background: rgba(45,212,191,0.10); color: #2DD4BF; border-color: rgba(45,212,191,0.35); }
+    .st-accepted  { background: rgba(45,212,191,0.15); color: #2DD4BF; border-color: rgba(45,212,191,0.45); }
+    .st-invoiced  { background: rgba(230,184,75,0.10); color: #E6B84B; border-color: rgba(230,184,75,0.35); }
+    .st-pending   { background: rgba(230,184,75,0.10); color: #F0CC72; border-color: rgba(230,184,75,0.35); }
+    .st-paid      { background: rgba(34,197,94,0.10);  color: #4ADE80; border-color: rgba(34,197,94,0.40); }
+    .st-overdue   { background: rgba(239,68,68,0.10);  color: #F87171; border-color: rgba(239,68,68,0.40); }
+    .st-cancelled { background: rgba(255,255,255,0.04); color: #94a3b8; border-color: rgba(255,255,255,0.15); }
+    .st-completed { background: rgba(34,197,94,0.15);  color: #4ADE80; border-color: rgba(34,197,94,0.40); }
+    .st-scheduled { background: rgba(124,92,252,0.10); color: #A78BFA; border-color: rgba(124,92,252,0.35); }
+
+    table { border-collapse: separate; border-spacing: 0; }
+    table th { background: rgba(255,255,255,0.04); }
+    table td, table th { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* A4 paper for invoice/receipt preview */
+    .a4-paper {
+      width: 794px;
+      min-height: 1123px;
+      background: #fff;
+      color: #1a1a2a;
+      padding: 56px 56px 48px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 22px 60px -16px rgba(0,0,0,0.55);
+      position: relative;
+      box-sizing: border-box;
+    }
+    .a4-paper * { box-sizing: border-box; }
+    .a4-paper .grad-gold-light {
+      background: linear-gradient(135deg, #C8A84B 0%, #9A7A2B 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .a4-paper .grad-teal-light {
+      background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #14B8A6, #0D9488); color: white;
+      padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 14px;
+      box-shadow: 0 10px 30px -10px rgba(20,184,166,0.5); z-index: 200;
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ───────────────────────────────────────────────────────────
+// COURSES catalog (synced from /AI Course/COURSES.md v7.1)
+// ───────────────────────────────────────────────────────────
+const COURSES = [
+  { num: '01', name: 'AI Basic',                    hrs: 2, prices: { vdo: 990,  group: 2000, private: 2500, onsite: 3000 } },
+  { num: '02', name: 'AI Agentic',                  hrs: 4, prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
+  { num: '03', name: 'MCP Connector',               hrs: 5, prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
+  { num: '04', name: 'LINE ChatBot',                hrs: 3, prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
+  { num: '05', name: 'AI for Kids',                 hrs: 3, prices: { vdo: 990,  group: 2000, private: 3000, onsite: 3000 } },
+  { num: '06', name: 'AI for Personal Assistant',   hrs: 3, prices: { vdo: 1500, group: 2000, private: 3000, onsite: 3000 } },
+  { num: '07', name: 'AI for ABOs',                 hrs: 3, prices: { vdo: 0,    group: 0,    private: 0,    onsite: 0    }, quote: true },
+  { num: '08', name: 'AI Agentic Web Builder',      hrs: 5, prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
+  { num: '09', name: 'AI Agentic App Builder',      hrs: 5, prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
+  { num: '10', name: 'AI Agentic Orchestra',        hrs: 4, prices: { vdo: 3500, group: 4500, private: 6000, onsite: 9000 } },
+  { num: '11', name: 'AI Content Creator System',   hrs: 4, prices: { vdo: 3500, group: 4500, private: 6000, onsite: 9000 } },
+  { num: '12', name: 'AI Agentic for IT Audit & Consult', hrs: 4, prices: { vdo: 0, group: 0, private: 0, onsite: 0 }, quote: true },
+];
+
+const FORMATS = [
+  { key: 'vdo',     label: 'VDO' },
+  { key: 'group',   label: 'Online Group' },
+  { key: 'private', label: 'Online 1:1' },
+  { key: 'onsite',  label: 'On-site' },
+  { key: 'corp',    label: 'Corporate' },
+];
+
+// ───────────────────────────────────────────────────────────
+// Defaults
+// ───────────────────────────────────────────────────────────
+const DEFAULT_SETTINGS = {
+  vendorName:      '',
+  vendorTaxId:     '',
+  vendorPhone:     '',
+  vendorEmail:     '',
+  vendorAddress:   '',
+  bankName:        '',
+  bankAccount:     '',
+  bankAccountName: '',
+  signatureName:   '',
+  vatRegistered:   false,
+  vatRate:         7,
+  defaultWHT:      3,
+  supabaseUrl:     '',
+  supabaseServiceKey: '',
+};
+
+// ───────────────────────────────────────────────────────────
+// Helpers
+// ───────────────────────────────────────────────────────────
+const fmtTHB = (n) => {
+  if (n === null || n === undefined || isNaN(n)) return '-';
+  return Number(n).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+const fmtInt = (n) => Number(n || 0).toLocaleString('th-TH');
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const plusDays = (iso, days) => {
+  const d = new Date(iso); d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+};
+const formatThaiDate = (iso) => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const m = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
+};
+const formatThaiDateFull = (iso) => {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  const m = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
+};
+const genDocNo = (prefix, existing = 0) => {
+  const now = new Date();
+  const yymm = String(now.getFullYear()).slice(2) + String(now.getMonth()+1).padStart(2,'0');
+  return `${prefix}-${yymm}-${String(existing+1).padStart(3,'0')}`;
+};
+
+// Thai baht in text (recycled from quotation app)
+const numToThaiBaht = (num) => {
+  if (num === 0 || num === null || isNaN(num)) return 'ศูนย์บาทถ้วน';
+  const txt = ['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ'];
+  const places = ['','สิบ','ร้อย','พัน','หมื่น','แสน','ล้าน'];
+  const readNum = (n) => {
+    n = Math.floor(n); if (n === 0) return '';
+    if (n > 1000000) return readNum(Math.floor(n/1000000)) + 'ล้าน' + readNum(n % 1000000);
+    let s = ''; const str = String(n);
+    for (let i = 0; i < str.length; i++) {
+      const d = parseInt(str[i]); const pos = str.length - i - 1;
+      if (d === 0) continue;
+      if (pos === 0 && d === 1 && str.length > 1) s += 'เอ็ด';
+      else if (pos === 1 && d === 2) s += 'ยี่';
+      else if (pos === 1 && d === 1) s += '';
+      else s += txt[d];
+      if (pos > 0) s += places[pos];
+    }
+    return s;
+  };
+  const baht = Math.floor(num);
+  const satang = Math.round((num - baht) * 100);
+  let result = readNum(baht) + 'บาท';
+  if (satang > 0) result += readNum(satang) + 'สตางค์';
+  else result += 'ถ้วน';
+  return result;
+};
+
+// Storage
+const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } };
+const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const KEY_SETTINGS = 'tpl_billing_settings_v1';
+
+// Supabase client
+let sbClient = null;
+const getClient = (settings) => {
+  if (!settings.supabaseUrl || !settings.supabaseServiceKey) return null;
+  if (!sbClient) {
+    sbClient = window.supabase.createClient(settings.supabaseUrl, settings.supabaseServiceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+  return sbClient;
+};
+
+// ───────────────────────────────────────────────────────────
+// MAIN APP
+// ───────────────────────────────────────────────────────────
+const TABS = [
+  { key: 'dashboard',   icon: '📊', label: 'Dashboard' },
+  { key: 'customers',   icon: '👥', label: 'Customers' },
+  { key: 'quotations',  icon: '📝', label: 'Quotations' },
+  { key: 'invoices',    icon: '🧾', label: 'Invoices · วางบิล' },
+  { key: 'receipts',    icon: '✅', label: 'Receipts · ใบรับเงิน' },
+];
+
+function App() {
+  const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS, ...loadJSON(KEY_SETTINGS, {}) }));
+  const [tab, setTab] = useState('dashboard');
+  const [showSettings, setShowSettings] = useState(false);
+  const [toast, setToast] = useState('');
+
+  useEffect(() => { saveJSON(KEY_SETTINGS, settings); }, [settings]);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+
+  const configured = settings.supabaseUrl && settings.supabaseServiceKey;
+  const client = configured ? getClient(settings) : null;
+
+  return (
+    <div className="min-h-screen flex">
+      {/* SIDEBAR */}
+      <aside className="w-56 flex-shrink-0 border-r border-white/10 bg-ink-950/60 backdrop-blur-xl sticky top-0 h-screen overflow-y-auto scrollable">
+        <div className="p-4 border-b border-white/10">
+          <div className="font-display font-bold text-base">
+            <span className="text-white">TON</span>
+            <span className="grad-gold">PA</span>
+            <span className="grad-teal">LEARN</span>
+          </div>
+          <div className="text-[10px] text-slate-500 mt-0.5 font-mono uppercase tracking-widest">Billing + CRM</div>
+        </div>
+        <nav className="p-2 space-y-1">
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition ${
+                tab === t.key ? 'bg-white/10 text-white font-semibold' : 'text-slate-400 hover:bg-white/5 hover:text-white'
+              }`}>
+              <span>{t.icon}</span>
+              <span className="flex-1">{t.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="p-2 border-t border-white/10 mt-2">
+          <button onClick={() => setShowSettings(true)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-400 hover:bg-white/5 hover:text-white transition">
+            ⚙ Settings
+          </button>
+          <a href="/" className="block px-3 py-2 text-xs text-slate-500 hover:text-white transition">← Home</a>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <main className="flex-1 min-w-0 p-6">
+        {!configured && (
+          <div className="panel p-5 mb-5 border-yellow-500/40">
+            <div className="font-semibold text-yellow-300">⚙️ ตั้งค่า Supabase ก่อนใช้งาน</div>
+            <p className="text-sm text-slate-400 mt-1">
+              คลิก <button onClick={() => setShowSettings(true)} className="text-gold-400 underline">⚙ Settings</button> ทางซ้าย → ใส่ Supabase URL + Service Role Key + vendor info<br/>
+              และ run <code className="text-xs bg-white/5 px-2 py-0.5 rounded">supabase-schema-billing.sql</code> ใน Supabase SQL Editor
+            </p>
+          </div>
+        )}
+
+        {tab === 'dashboard'  && <Dashboard  client={client} settings={settings} showToast={showToast}/>}
+        {tab === 'customers'  && <Customers  client={client} settings={settings} showToast={showToast}/>}
+        {tab === 'quotations' && <Quotations client={client} settings={settings} showToast={showToast}/>}
+        {tab === 'invoices'   && <Invoices   client={client} settings={settings} showToast={showToast}/>}
+        {tab === 'receipts'   && <Receipts   client={client} settings={settings} showToast={showToast}/>}
+      </main>
+
+      {showSettings && <SettingsPanel settings={settings} setSettings={setSettings} onClose={() => setShowSettings(false)}/>}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// DASHBOARD
+// ───────────────────────────────────────────────────────────
+function Dashboard({ client, settings, showToast }) {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!client) { setLoading(false); return; }
+    (async () => {
+      try {
+        const [c, q, i, r] = await Promise.all([
+          client.from('customers').select('id', { count: 'exact', head: true }),
+          client.from('quotations').select('id, status, net_total', { count: 'exact' }),
+          client.from('invoices').select('id, status, grand_total, paid_at', { count: 'exact' }),
+          client.from('receipts').select('id, grand_total', { count: 'exact' }),
+        ]);
+        const invoices = i.data || [];
+        const quotations = q.data || [];
+        setStats({
+          customers: c.count || 0,
+          quotations: q.count || 0,
+          quoteRevenue: quotations.reduce((s, x) => s + Number(x.net_total||0), 0),
+          invoices: i.count || 0,
+          invoicePending: invoices.filter(x => x.status === 'pending').length,
+          invoicePaid:    invoices.filter(x => x.status === 'paid').length,
+          invoiceOverdue: invoices.filter(x => x.status === 'overdue').length,
+          revenuePaid: invoices.filter(x => x.status === 'paid').reduce((s, x) => s + Number(x.grand_total||0), 0),
+          revenuePending: invoices.filter(x => x.status === 'pending').reduce((s, x) => s + Number(x.grand_total||0), 0),
+          receipts: r.count || 0,
+        });
+      } catch (e) {
+        console.error(e); showToast('Failed to load stats');
+      } finally { setLoading(false); }
+    })();
+  }, [client]);
+
+  if (loading) return <div className="text-slate-400">กำลังโหลด...</div>;
+  if (!stats) return <div className="text-slate-400">ตั้งค่า Supabase + run schema ก่อน</div>;
+
+  return (
+    <div>
+      <h1 className="font-display font-bold text-2xl mb-1">Dashboard</h1>
+      <p className="text-sm text-slate-400 mb-6">ภาพรวม billing + CRM</p>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <StatCard label="Customers"  value={fmtInt(stats.customers)}  icon="👥" color="#A78BFA"/>
+        <StatCard label="Quotations" value={fmtInt(stats.quotations)} icon="📝" color="#67E8F9"/>
+        <StatCard label="Invoices"   value={fmtInt(stats.invoices)}   icon="🧾" color="#E6B84B"/>
+        <StatCard label="Receipts"   value={fmtInt(stats.receipts)}   icon="✅" color="#4ADE80"/>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-3 mb-6">
+        <StatCard label="Revenue (Paid)"    value={'฿' + fmtTHB(stats.revenuePaid)}    icon="💰" color="#4ADE80"/>
+        <StatCard label="Pending (Awaiting)" value={'฿' + fmtTHB(stats.revenuePending)} icon="⏳" color="#F0CC72"/>
+        <StatCard label="Overdue Invoices"   value={fmtInt(stats.invoiceOverdue)}      icon="⚠️" color="#F87171"/>
+      </div>
+
+      <div className="panel p-5">
+        <div className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">Workflow</div>
+        <div className="grid sm:grid-cols-5 gap-3 text-center text-xs">
+          {[
+            { l: 'Quotation', n: stats.quotations, c: '#67E8F9' },
+            { l: 'Invoiced',  n: stats.invoices,   c: '#E6B84B' },
+            { l: 'Pending',   n: stats.invoicePending, c: '#F0CC72' },
+            { l: 'Paid',      n: stats.invoicePaid,    c: '#4ADE80' },
+            { l: 'Receipt',   n: stats.receipts,       c: '#A78BFA' },
+          ].map((s, i, arr) => (
+            <React.Fragment key={i}>
+              <div className="panel p-3" style={{ borderColor: s.c + '40' }}>
+                <div className="text-3xl font-display font-bold" style={{ color: s.c }}>{s.n}</div>
+                <div className="text-[10px] text-slate-400 mt-1">{s.l}</div>
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, icon, color }) {
+  return (
+    <div className="panel p-4">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-2xl">{icon}</span>
+        <span className="text-[10px] font-mono uppercase tracking-widest" style={{ color }}>{label}</span>
+      </div>
+      <div className="font-display font-bold text-2xl text-white">{value}</div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// CUSTOMERS · CRM
+// ───────────────────────────────────────────────────────────
+function Customers({ client, settings, showToast }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState(null);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await client.from('customers').select('*').order('created_at', { ascending: false }).limit(200);
+    if (error) { console.error(error); showToast('Load failed'); }
+    setItems(data || []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  const filtered = useMemo(() => {
+    if (!search) return items;
+    const q = search.toLowerCase();
+    return items.filter(c => (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q) || (c.tax_id||'').includes(q) || (c.email||'').toLowerCase().includes(q));
+  }, [items, search]);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">Customers</h1>
+          <p className="text-sm text-slate-400">CRM database · {fmtInt(items.length)} รายการ</p>
+        </div>
+        <button onClick={() => setEditing({})} className="btn btn-gold">+ เพิ่มลูกค้า</button>
+      </div>
+
+      <div className="panel p-3 mb-4 flex gap-2">
+        <input className="inp flex-1" placeholder="ค้นหา ชื่อ / เบอร์ / เลขภาษี / email..." value={search} onChange={e => setSearch(e.target.value)}/>
+      </div>
+
+      {loading && <div className="text-slate-400">Loading...</div>}
+
+      <div className="panel overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="text-xs uppercase tracking-widest text-slate-400">
+            <tr>
+              <th className="text-left">Customer</th>
+              <th className="text-left">Type</th>
+              <th className="text-left">Contact</th>
+              <th className="text-left">Industry</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(c => (
+              <tr key={c.id}>
+                <td>
+                  <div className="font-semibold text-white">{c.name}</div>
+                  {c.tax_id && <div className="font-mono text-[10px] text-slate-500">{c.tax_id}</div>}
+                </td>
+                <td>
+                  <span className="text-xs px-2 py-0.5 rounded border border-white/10 text-slate-300">
+                    {c.type === 'company' ? '🏢 นิติบุคคล' : '👤 บุคคล'}
+                  </span>
+                </td>
+                <td>
+                  <div className="text-xs text-slate-300">{c.phone || '-'}</div>
+                  <div className="text-[10px] text-slate-500">{c.email || ''}</div>
+                </td>
+                <td className="text-xs text-slate-400">{c.industry || '-'}</td>
+                <td className="text-right">
+                  <button onClick={() => setEditing(c)} className="btn btn-ghost">Edit</button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && !loading && (
+              <tr><td colSpan="5" className="text-center text-slate-500 py-12">ยังไม่มีลูกค้า · กด <b className="text-gold-400">+ เพิ่มลูกค้า</b></td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && <CustomerModal customer={editing} client={client} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); showToast('✓ Saved'); }}/>}
+    </div>
+  );
+}
+
+function CustomerModal({ customer, client, onClose, onSaved }) {
+  const [c, setC] = useState({ type: 'individual', ...customer });
+  const [saving, setSaving] = useState(false);
+  const upd = (k) => (e) => setC({ ...c, [k]: e.target.value });
+  const isNew = !c.id;
+
+  const save = async () => {
+    if (!c.name) { alert('ใส่ชื่อก่อน'); return; }
+    setSaving(true);
+    try {
+      const payload = { ...c };
+      delete payload.created_at; delete payload.updated_at;
+      if (isNew) {
+        // Generate customer_no
+        const { count } = await client.from('customers').select('id', { count: 'exact', head: true })
+          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+        payload.customer_no = genDocNo('CUST', count || 0);
+        const { error } = await client.from('customers').insert(payload);
+        if (error) throw error;
+      } else {
+        const { error } = await client.from('customers').update(payload).eq('id', c.id);
+        if (error) throw error;
+      }
+      onSaved();
+    } catch (e) {
+      console.error(e); alert('Failed: ' + e.message);
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <Modal title={isNew ? 'เพิ่มลูกค้าใหม่' : 'แก้ไขลูกค้า'} onClose={onClose}>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <label className="lbl">ประเภท</label>
+          <div className="flex gap-2">
+            {[{k:'individual', l:'👤 บุคคลธรรมดา'}, {k:'company', l:'🏢 นิติบุคคล'}].map(o => (
+              <button key={o.k} onClick={() => setC({...c, type: o.k})}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition ${c.type === o.k ? 'bg-gradient-to-br from-yellow-300 to-yellow-500 text-slate-900' : 'border border-white/10 text-slate-400'}`}
+                style={c.type === o.k ? {background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F'} : {}}>
+                {o.l}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="col-span-2"><label className="lbl">ชื่อ *</label><input className="inp" value={c.name||''} onChange={upd('name')}/></div>
+        <div><label className="lbl">เลขผู้เสียภาษี</label><input className="inp" value={c.tax_id||''} onChange={upd('tax_id')}/></div>
+        <div><label className="lbl">โทรศัพท์</label><input className="inp" value={c.phone||''} onChange={upd('phone')}/></div>
+        <div><label className="lbl">Email</label><input className="inp" value={c.email||''} onChange={upd('email')}/></div>
+        <div><label className="lbl">บริษัท/หน่วยงาน</label><input className="inp" value={c.company||''} onChange={upd('company')}/></div>
+        <div><label className="lbl">ผู้ติดต่อ</label><input className="inp" value={c.contact_person||''} onChange={upd('contact_person')}/></div>
+        <div><label className="lbl">Industry</label><input className="inp" value={c.industry||''} onChange={upd('industry')} placeholder="Hotel / Retail / Manufacturer..."/></div>
+        <div><label className="lbl">Source</label><input className="inp" value={c.source||''} onChange={upd('source')} placeholder="LINE / Referral / Direct..."/></div>
+        <div></div>
+        <div className="col-span-2"><label className="lbl">ที่อยู่</label><textarea rows="2" className="inp" value={c.address||''} onChange={upd('address')}/></div>
+        <div className="col-span-2"><label className="lbl">Notes</label><textarea rows="2" className="inp" value={c.notes||''} onChange={upd('notes')}/></div>
+      </div>
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold disabled:opacity-40">{saving ? 'Saving...' : '✓ Save'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// QUOTATIONS
+// ───────────────────────────────────────────────────────────
+function Quotations({ client, settings, showToast }) {
+  const [items, setItems] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(null);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    setLoading(true);
+    const [q, c] = await Promise.all([
+      client.from('quotations').select('*').order('created_at', { ascending: false }).limit(200),
+      client.from('customers').select('*').order('name'),
+    ]);
+    setItems(q.data || []); setCustomers(c.data || []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  const customerName = (id) => customers.find(c => c.id === id)?.name || '—';
+
+  const convertToInvoice = async (q) => {
+    if (!confirm(`สร้างใบวางบิลจาก ${q.quote_no}?`)) return;
+    try {
+      const { count } = await client.from('invoices').select('id', { count: 'exact', head: true })
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+      const invoiceNo = genDocNo('INV', count || 0);
+      const today = todayISO();
+      const dueDate = plusDays(today, 14);
+
+      const hasVat = settings.vatRegistered;
+      const subtotal = q.subtotal;
+      const totalDiscount = q.total_discount;
+      const netBeforeVat = q.net_total;
+      const vatAmount = hasVat ? netBeforeVat * (settings.vatRate / 100) : 0;
+      const grandTotal = netBeforeVat + vatAmount;
+      const whtAmount = q.use_wht ? netBeforeVat * (q.wht_rate / 100) : 0;
+      const amountToPay = grandTotal - whtAmount;
+
+      const inv = {
+        invoice_no: invoiceNo,
+        quotation_id: q.id,
+        customer_id: q.customer_id,
+        status: 'pending',
+        issue_date: today,
+        due_date: dueDate,
+        customer_snapshot: q.customer_snapshot,
+        items: q.items,
+        discounts: q.discounts,
+        has_vat: hasVat,
+        vat_rate: settings.vatRate,
+        vat_amount: vatAmount,
+        use_wht: q.use_wht,
+        wht_rate: q.wht_rate,
+        wht_amount: whtAmount,
+        subtotal, total_discount: totalDiscount, net_total: netBeforeVat,
+        grand_total: grandTotal, amount_to_pay: amountToPay,
+      };
+      await client.from('invoices').insert(inv);
+      await client.from('quotations').update({ status: 'invoiced' }).eq('id', q.id);
+      showToast(`✓ สร้าง ${invoiceNo} แล้ว`);
+      load();
+    } catch (e) { console.error(e); alert('Failed: ' + e.message); }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">Quotations</h1>
+          <p className="text-sm text-slate-400">ใบเสนอราคา · {fmtInt(items.length)} รายการ</p>
+        </div>
+        <button onClick={() => setEditing({})} className="btn btn-gold">+ ใบเสนอราคาใหม่</button>
+      </div>
+
+      <div className="panel overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="text-xs uppercase tracking-widest text-slate-400">
+            <tr>
+              <th className="text-left">No.</th>
+              <th className="text-left">Customer</th>
+              <th className="text-center">Status</th>
+              <th className="text-right">Net Total</th>
+              <th className="text-center">Date</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(q => (
+              <tr key={q.id}>
+                <td className="font-mono font-bold text-sm grad-gold">{q.quote_no}</td>
+                <td className="text-white">{customerName(q.customer_id)}</td>
+                <td className="text-center"><span className={`status-badge st-${q.status}`}>{q.status}</span></td>
+                <td className="text-right font-mono">฿{fmtTHB(q.net_total)}</td>
+                <td className="text-center text-xs text-slate-400">{formatThaiDate(q.issue_date)}</td>
+                <td className="text-right">
+                  <button onClick={() => setEditing(q)} className="btn btn-ghost text-xs">View</button>
+                  {q.status !== 'invoiced' && (
+                    <button onClick={() => convertToInvoice(q)} className="btn btn-gold text-xs ml-1">→ Invoice</button>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && !loading && (
+              <tr><td colSpan="6" className="text-center text-slate-500 py-12">ยังไม่มี · กด <b className="text-gold-400">+ ใบเสนอราคาใหม่</b></td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && <QuotationModal quote={editing} customers={customers} client={client} settings={settings} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); showToast('✓ Saved'); }}/>}
+    </div>
+  );
+}
+
+function QuotationModal({ quote, customers, client, settings, onClose, onSaved }) {
+  const [q, setQ] = useState({
+    issue_date: todayISO(),
+    valid_days: 30,
+    items: [],
+    discounts: [],
+    use_wht: false,
+    wht_rate: 3,
+    terms: 'ชำระ 50% เพื่อยืนยันการจอง · ชำระ 50% หลังเรียนจบ',
+    ...quote,
+  });
+  const [saving, setSaving] = useState(false);
+  const [pickCourse, setPickCourse] = useState('02');
+  const [pickFormat, setPickFormat] = useState('group');
+
+  const addCourseItem = () => {
+    const c = COURSES.find(x => x.num === pickCourse);
+    const fmt = FORMATS.find(f => f.key === pickFormat);
+    setQ({ ...q, items: [...q.items, {
+      id: Date.now(), type: 'course',
+      name: `Course ${c.num} · ${c.name} (${fmt.label})`,
+      desc: `${c.hrs} ชม.`,
+      qty: 1, unit: 'คน',
+      price: c.prices[pickFormat] || 0,
+      discountPct: 0,
+    }]});
+  };
+  const updateItem = (id, patch) => setQ({...q, items: q.items.map(it => it.id === id ? {...it, ...patch} : it)});
+  const removeItem = (id) => setQ({...q, items: q.items.filter(it => it.id !== id)});
+
+  const totals = useMemo(() => {
+    const lineTotals = q.items.map(it => {
+      const sub = (Number(it.qty)||0) * (Number(it.price)||0);
+      const disc = sub * ((Number(it.discountPct)||0)/100);
+      return { sub, disc, net: sub - disc };
+    });
+    const subtotal = lineTotals.reduce((s, l) => s + l.sub, 0);
+    const lineDisc = lineTotals.reduce((s, l) => s + l.disc, 0);
+    const afterLine = subtotal - lineDisc;
+    let extraDisc = 0;
+    (q.discounts||[]).forEach(d => {
+      if (d.mode === 'pct') extraDisc += afterLine * ((Number(d.pct)||0)/100);
+      else extraDisc += Number(d.amount)||0;
+    });
+    const net = afterLine - extraDisc;
+    const wht = q.use_wht ? (net * (Number(q.wht_rate)||0)/100) : 0;
+    return { subtotal, lineDisc, extraDisc, net, wht, toPay: net - wht };
+  }, [q.items, q.discounts, q.use_wht, q.wht_rate]);
+
+  const save = async () => {
+    if (!q.customer_id) { alert('เลือกลูกค้าก่อน'); return; }
+    if (q.items.length === 0) { alert('เพิ่ม item อย่างน้อย 1'); return; }
+    setSaving(true);
+    try {
+      const customer = customers.find(c => c.id === q.customer_id);
+      const isNew = !q.id;
+      let quote_no = q.quote_no;
+      if (isNew) {
+        const { count } = await client.from('quotations').select('id', { count: 'exact', head: true })
+          .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+        quote_no = genDocNo('TPL', count || 0);
+      }
+      const payload = {
+        ...q,
+        quote_no,
+        valid_until: plusDays(q.issue_date, parseInt(q.valid_days)||30),
+        customer_snapshot: customer,
+        subtotal: totals.subtotal,
+        total_discount: totals.lineDisc + totals.extraDisc,
+        net_total: totals.net,
+        wht_amount: totals.wht,
+        amount_to_pay: totals.toPay,
+        status: q.status || 'draft',
+      };
+      delete payload.created_at; delete payload.updated_at;
+      if (isNew) {
+        const { error } = await client.from('quotations').insert(payload);
+        if (error) throw error;
+      } else {
+        const { error } = await client.from('quotations').update(payload).eq('id', q.id);
+        if (error) throw error;
+      }
+      onSaved();
+    } catch (e) { console.error(e); alert('Failed: ' + e.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <Modal title={q.id ? `Quotation ${q.quote_no}` : 'Quotation ใหม่'} onClose={onClose} size="xl">
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label className="lbl">ลูกค้า *</label>
+          <select className="inp" value={q.customer_id||''} onChange={e => setQ({...q, customer_id: e.target.value})}>
+            <option value="" className="bg-ink-900">- เลือกลูกค้า -</option>
+            {customers.map(c => <option key={c.id} value={c.id} className="bg-ink-900">{c.name} {c.tax_id && `(${c.tax_id})`}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="lbl">วันที่ออก</label>
+          <input className="inp" type="date" value={q.issue_date||todayISO()} onChange={e => setQ({...q, issue_date: e.target.value})}/>
+        </div>
+      </div>
+
+      <div className="panel p-3 mb-3 bg-white/[0.02]">
+        <div className="text-xs uppercase tracking-widest text-gold-400 mb-2 font-semibold" style={{color: '#E6B84B'}}>เพิ่มจาก Course Catalog</div>
+        <div className="flex gap-2">
+          <select className="inp flex-1" value={pickCourse} onChange={e => setPickCourse(e.target.value)}>
+            {COURSES.map(c => <option key={c.num} value={c.num} className="bg-ink-900">{c.num} · {c.name}</option>)}
+          </select>
+          <select className="inp" style={{maxWidth: 130}} value={pickFormat} onChange={e => setPickFormat(e.target.value)}>
+            {FORMATS.map(f => <option key={f.key} value={f.key} className="bg-ink-900">{f.label}</option>)}
+          </select>
+          <button onClick={addCourseItem} className="btn btn-gold">+ Add</button>
+        </div>
+      </div>
+
+      {q.items.length === 0 && <div className="text-center text-slate-500 py-6 text-sm">ยังไม่มี items</div>}
+
+      <div className="space-y-2 mb-4">
+        {q.items.map((it, idx) => (
+          <div key={it.id} className="panel p-2 bg-white/[0.02]">
+            <div className="flex items-start gap-2">
+              <span className="font-mono text-xs text-slate-500 w-6 text-center pt-2">{idx+1}</span>
+              <div className="flex-1 grid grid-cols-12 gap-1.5">
+                <input className="inp col-span-5 text-xs" value={it.name} onChange={e => updateItem(it.id, {name: e.target.value})}/>
+                <input className="inp col-span-1 text-xs text-center" type="number" value={it.qty} onChange={e => updateItem(it.id, {qty: e.target.value})}/>
+                <input className="inp col-span-1 text-xs" value={it.unit} onChange={e => updateItem(it.id, {unit: e.target.value})}/>
+                <input className="inp col-span-2 text-xs text-right font-mono" type="number" value={it.price} onChange={e => updateItem(it.id, {price: e.target.value})}/>
+                <input className="inp col-span-1 text-xs text-right" type="number" value={it.discountPct} onChange={e => updateItem(it.id, {discountPct: e.target.value})}/>
+                <div className="col-span-1 text-right text-xs font-mono pt-2 text-white">฿{fmtTHB((it.qty*it.price)*(1-it.discountPct/100))}</div>
+                <button onClick={() => removeItem(it.id)} className="col-span-1 text-red-400 text-xs hover:text-red-500">✕</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-3 mt-4">
+        <div className="panel p-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={q.use_wht} onChange={e => setQ({...q, use_wht: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+            หัก ณ ที่จ่าย <input type="number" className="inp w-16 inline-block text-center text-xs" value={q.wht_rate} onChange={e => setQ({...q, wht_rate: e.target.value})} disabled={!q.use_wht}/> %
+          </label>
+        </div>
+        <div className="panel p-3 text-sm space-y-1 font-mono">
+          <div className="flex justify-between"><span className="text-slate-400">Subtotal</span><span>฿{fmtTHB(totals.subtotal)}</span></div>
+          {totals.lineDisc > 0 && <div className="flex justify-between text-red-400"><span>Discount</span><span>-฿{fmtTHB(totals.lineDisc)}</span></div>}
+          <div className="flex justify-between font-bold text-white"><span>Net Total</span><span>฿{fmtTHB(totals.net)}</span></div>
+          {q.use_wht && <div className="flex justify-between text-red-400 text-xs"><span>WHT</span><span>-฿{fmtTHB(totals.wht)}</span></div>}
+          {q.use_wht && <div className="flex justify-between font-bold grad-gold"><span>To Pay</span><span>฿{fmtTHB(totals.toPay)}</span></div>}
+        </div>
+      </div>
+
+      <div className="mt-3">
+        <label className="lbl">Terms</label>
+        <textarea rows="2" className="inp text-xs" value={q.terms||''} onChange={e => setQ({...q, terms: e.target.value})}/>
+      </div>
+
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold disabled:opacity-40">{saving ? 'Saving...' : '✓ Save'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// INVOICES (วางบิล)
+// ───────────────────────────────────────────────────────────
+function Invoices({ client, settings, showToast }) {
+  const [items, setItems] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [viewing, setViewing] = useState(null);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    setLoading(true);
+    const [i, c] = await Promise.all([
+      client.from('invoices').select('*').order('created_at', { ascending: false }).limit(200),
+      client.from('customers').select('*'),
+    ]);
+    setItems(i.data || []); setCustomers(c.data || []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  const customerName = (id) => customers.find(c => c.id === id)?.name || '—';
+
+  const markPaid = async (inv) => {
+    if (!confirm(`Mark ${inv.invoice_no} เป็น Paid?`)) return;
+    await client.from('invoices').update({ status: 'paid', paid_at: new Date().toISOString(), payment_method: 'transfer' }).eq('id', inv.id);
+    showToast('✓ Marked paid'); load();
+  };
+
+  const issueReceipt = async (inv) => {
+    if (!confirm(`ออกใบรับเงิน/ใบกำกับ จาก ${inv.invoice_no}?`)) return;
+    try {
+      const { count } = await client.from('receipts').select('id', { count: 'exact', head: true })
+        .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+      const receiptNo = genDocNo('RCP', count || 0);
+      const docType = inv.has_vat ? 'tax_invoice' : 'receipt';
+      const rcp = {
+        receipt_no: receiptNo,
+        doc_type: docType,
+        invoice_id: inv.id,
+        customer_id: inv.customer_id,
+        issue_date: todayISO(),
+        customer_snapshot: inv.customer_snapshot,
+        items: inv.items,
+        has_vat: inv.has_vat,
+        vat_amount: inv.vat_amount,
+        wht_amount: inv.wht_amount,
+        subtotal: inv.subtotal,
+        net_total: inv.net_total,
+        grand_total: inv.grand_total,
+        payment_method: inv.payment_method || 'transfer',
+        payment_ref: inv.payment_ref,
+      };
+      await client.from('receipts').insert(rcp);
+      showToast(`✓ สร้าง ${receiptNo}`);
+      load();
+    } catch (e) { console.error(e); alert('Failed: ' + e.message); }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">Invoices · ใบวางบิล</h1>
+          <p className="text-sm text-slate-400">{fmtInt(items.length)} ใบ</p>
+        </div>
+      </div>
+
+      <div className="panel overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="text-xs uppercase tracking-widest text-slate-400">
+            <tr>
+              <th className="text-left">No.</th>
+              <th className="text-left">Customer</th>
+              <th className="text-center">Status</th>
+              <th className="text-right">Grand Total</th>
+              <th className="text-center">Issue / Due</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(inv => (
+              <tr key={inv.id}>
+                <td className="font-mono font-bold grad-gold">{inv.invoice_no}</td>
+                <td className="text-white">{customerName(inv.customer_id)}</td>
+                <td className="text-center"><span className={`status-badge st-${inv.status}`}>{inv.status}</span></td>
+                <td className="text-right font-mono">฿{fmtTHB(inv.grand_total)}</td>
+                <td className="text-center text-xs text-slate-400">
+                  {formatThaiDate(inv.issue_date)}<br/>
+                  <span className="text-slate-500">due {formatThaiDate(inv.due_date)}</span>
+                </td>
+                <td className="text-right whitespace-nowrap">
+                  <button onClick={() => setViewing(inv)} className="btn btn-ghost text-xs">View</button>
+                  {inv.status === 'pending' && <button onClick={() => markPaid(inv)} className="btn btn-teal text-xs ml-1">Mark Paid</button>}
+                  {inv.status === 'paid' && <button onClick={() => issueReceipt(inv)} className="btn btn-gold text-xs ml-1">→ Receipt</button>}
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && !loading && (
+              <tr><td colSpan="6" className="text-center text-slate-500 py-12">ไม่มี invoice · convert จาก Quotation</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {viewing && <InvoiceModal invoice={viewing} customer={customers.find(c => c.id === viewing.customer_id)} settings={settings} client={client} onClose={() => setViewing(null)} onSaved={() => { setViewing(null); load(); }}/>}
+    </div>
+  );
+}
+
+function InvoiceModal({ invoice, customer, settings, client, onClose, onSaved }) {
+  return (
+    <Modal title={`Invoice ${invoice.invoice_no}`} onClose={onClose} size="xl">
+      <DocPreview doc={invoice} customer={customer} settings={settings} docType="invoice"/>
+    </Modal>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// RECEIPTS
+// ───────────────────────────────────────────────────────────
+function Receipts({ client, settings, showToast }) {
+  const [items, setItems] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [viewing, setViewing] = useState(null);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    setLoading(true);
+    const [r, c] = await Promise.all([
+      client.from('receipts').select('*').order('created_at', { ascending: false }).limit(200),
+      client.from('customers').select('*'),
+    ]);
+    setItems(r.data || []); setCustomers(c.data || []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  return (
+    <div>
+      <div className="mb-5">
+        <h1 className="font-display font-bold text-2xl">Receipts · ใบรับเงิน / ใบกำกับ</h1>
+        <p className="text-sm text-slate-400">{fmtInt(items.length)} ใบ</p>
+      </div>
+
+      <div className="panel overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="text-xs uppercase tracking-widest text-slate-400">
+            <tr>
+              <th className="text-left">No.</th>
+              <th className="text-left">Type</th>
+              <th className="text-left">Customer</th>
+              <th className="text-right">Grand Total</th>
+              <th className="text-center">Date</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(r => (
+              <tr key={r.id}>
+                <td className="font-mono font-bold grad-gold">{r.receipt_no}</td>
+                <td className="text-xs">{r.doc_type === 'tax_invoice' ? '🧾 ใบกำกับภาษี' : '✅ ใบรับเงิน'}</td>
+                <td className="text-white">{customers.find(c => c.id === r.customer_id)?.name || '—'}</td>
+                <td className="text-right font-mono">฿{fmtTHB(r.grand_total)}</td>
+                <td className="text-center text-xs text-slate-400">{formatThaiDate(r.issue_date)}</td>
+                <td className="text-right"><button onClick={() => setViewing(r)} className="btn btn-ghost text-xs">View</button></td>
+              </tr>
+            ))}
+            {items.length === 0 && !loading && (
+              <tr><td colSpan="6" className="text-center text-slate-500 py-12">ไม่มี · ออกจาก Invoice ที่ Paid</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {viewing && <Modal title={`${viewing.doc_type === 'tax_invoice' ? 'ใบกำกับภาษี/ใบเสร็จ' : 'ใบรับเงิน'} ${viewing.receipt_no}`} onClose={() => setViewing(null)} size="xl">
+        <DocPreview doc={viewing} customer={customers.find(c => c.id === viewing.customer_id)} settings={settings} docType="receipt"/>
+      </Modal>}
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// DOC PREVIEW · A4 paper for invoice/receipt
+// ───────────────────────────────────────────────────────────
+function DocPreview({ doc, customer, settings, docType }) {
+  const ref = useRef(null);
+
+  const title = docType === 'invoice' ? 'ใบวางบิล / INVOICE' :
+                doc.doc_type === 'tax_invoice' ? 'ใบกำกับภาษี / ใบเสร็จรับเงิน' :
+                'ใบรับเงิน / RECEIPT';
+
+  const exportPDF = async () => {
+    const el = ref.current;
+    el.style.transform = 'none';
+    const dataUrl = await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: '#fff', cacheBust: true, width: 794, height: 1123 });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    pdf.addImage(dataUrl, 'PNG', 0, 0, 210, 297);
+    pdf.save(`${doc.invoice_no || doc.receipt_no}.pdf`);
+  };
+
+  const items = doc.items || [];
+
+  return (
+    <div>
+      <div className="flex justify-end gap-2 mb-3">
+        <button onClick={() => window.print()} className="btn btn-ghost text-xs">🖨 Print</button>
+        <button onClick={exportPDF} className="btn btn-gold text-xs">⬇ PDF</button>
+      </div>
+
+      <div className="bg-slate-700 p-4 rounded-lg overflow-x-auto">
+        <div ref={ref} className="a4-paper mx-auto">
+          {/* HEADER */}
+          <div className="flex items-start justify-between gap-4 pb-4 border-b-2 border-gray-900">
+            <div>
+              <div className="font-bold text-3xl tracking-tight whitespace-nowrap" style={{fontFamily: 'Space Grotesk, sans-serif'}}>
+                <span className="text-gray-900">TON</span><span className="grad-gold-light">PA</span><span className="grad-teal-light">LEARN</span>
+              </div>
+              <div className="text-[10px] text-gray-500 mt-0.5">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <div className="font-bold text-xl text-gray-900 whitespace-nowrap">{title}</div>
+              {doc.doc_type === 'tax_invoice' && <div className="text-[9px] text-gray-500 tracking-widest mt-0.5">(ฉบับลูกค้า / ORIGINAL)</div>}
+            </div>
+          </div>
+
+          {/* META */}
+          <div className="grid grid-cols-3 gap-4 mt-4 text-[10px]">
+            <div>
+              <div className="text-gray-500">เลขที่ / No.</div>
+              <div className="font-bold font-mono text-[12px]">{doc.invoice_no || doc.receipt_no}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">วันที่ / Date</div>
+              <div className="font-semibold text-[11px]">{formatThaiDateFull(doc.issue_date)}</div>
+            </div>
+            {docType === 'invoice' && (
+              <div>
+                <div className="text-gray-500">กำหนดชำระ / Due</div>
+                <div className="font-semibold text-[11px]">{formatThaiDateFull(doc.due_date)}</div>
+              </div>
+            )}
+          </div>
+
+          {/* FROM/TO */}
+          <div className="grid grid-cols-2 gap-3 mt-5">
+            <div className="border p-3 rounded" style={{background:'#FAFAF7'}}>
+              <div className="text-[9px] text-gray-500 tracking-widest font-bold uppercase mb-1.5">จาก · From</div>
+              <div className="font-bold text-[12px] text-gray-900">{settings.vendorName}</div>
+              <div className="text-[10px] text-gray-700 whitespace-pre-line">{settings.vendorAddress}</div>
+              <div className="text-[10px] text-gray-700 mt-1.5">
+                <div>เลขผู้เสียภาษี: <span className="font-mono">{settings.vendorTaxId}</span></div>
+                <div>โทร: <span className="font-mono">{settings.vendorPhone}</span></div>
+              </div>
+            </div>
+            <div className="border p-3 rounded" style={{background:'#FAFAF7'}}>
+              <div className="text-[9px] text-gray-500 tracking-widest font-bold uppercase mb-1.5">ถึง · To</div>
+              <div className="font-bold text-[12px] text-gray-900">{customer?.name || doc.customer_snapshot?.name}</div>
+              <div className="text-[10px] text-gray-700 whitespace-pre-line">{customer?.address || doc.customer_snapshot?.address}</div>
+              <div className="text-[10px] text-gray-700 mt-1.5">
+                {(customer?.tax_id || doc.customer_snapshot?.tax_id) && <div>เลขผู้เสียภาษี: <span className="font-mono">{customer?.tax_id || doc.customer_snapshot?.tax_id}</span></div>}
+                {(customer?.phone || doc.customer_snapshot?.phone) && <div>โทร: <span className="font-mono">{customer?.phone || doc.customer_snapshot?.phone}</span></div>}
+              </div>
+            </div>
+          </div>
+
+          {/* ITEMS */}
+          <table className="w-full text-[10px] border-collapse mt-5">
+            <thead>
+              <tr style={{background:'linear-gradient(135deg, #1a1a2a, #0D0D14)', color:'#F5D67A'}}>
+                <th className="py-2 px-2 text-center w-8">#</th>
+                <th className="py-2 px-2 text-left">รายการ / Description</th>
+                <th className="py-2 px-2 text-center w-14">จำนวน</th>
+                <th className="py-2 px-2 text-right w-20">ราคา/หน่วย</th>
+                <th className="py-2 px-2 text-right w-24">รวม (THB)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((it, i) => {
+                const sub = (it.qty||0) * (it.price||0);
+                const disc = sub * ((it.discountPct||0)/100);
+                return (
+                  <tr key={i} className="border-b align-top">
+                    <td className="py-2 px-2 text-center font-mono">{i+1}</td>
+                    <td className="py-2 px-2"><div className="font-semibold">{it.name}</div>{it.desc && <div className="text-[9px] text-gray-600">{it.desc}</div>}</td>
+                    <td className="py-2 px-2 text-center">{it.qty} {it.unit}</td>
+                    <td className="py-2 px-2 text-right font-mono">{fmtTHB(it.price)}</td>
+                    <td className="py-2 px-2 text-right font-mono font-bold">{fmtTHB(sub - disc)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {/* TOTALS */}
+          <div className="flex justify-end mt-4">
+            <div className="w-[55%] text-[11px] space-y-1">
+              <div className="flex justify-between"><span className="text-gray-700">ราคารวม / Subtotal</span><span className="font-mono">฿{fmtTHB(doc.subtotal)}</span></div>
+              {doc.total_discount > 0 && <div className="flex justify-between text-red-700"><span>หักส่วนลด</span><span className="font-mono">-฿{fmtTHB(doc.total_discount)}</span></div>}
+              <div className="flex justify-between border-t pt-1"><span className="font-bold text-gray-900">ยอดสุทธิ / Net</span><span className="font-mono font-bold text-gray-900">฿{fmtTHB(doc.net_total)}</span></div>
+              {doc.has_vat && <div className="flex justify-between text-blue-700"><span>ภาษีมูลค่าเพิ่ม / VAT ({doc.vat_rate}%)</span><span className="font-mono">+฿{fmtTHB(doc.vat_amount)}</span></div>}
+              {doc.has_vat && <div className="flex justify-between border-t pt-1"><span className="font-bold text-gray-900">รวมทั้งสิ้น / Grand Total</span><span className="font-mono font-bold text-base">฿{fmtTHB(doc.grand_total)}</span></div>}
+              {!doc.has_vat && <div className="flex justify-between font-bold text-base"><span className="grad-gold-light">Grand Total</span><span className="font-mono grad-gold-light">฿{fmtTHB(doc.grand_total)}</span></div>}
+              {doc.wht_amount > 0 && (
+                <>
+                  <div className="flex justify-between text-red-700 text-[10px]"><span>หัก ณ ที่จ่าย ({doc.wht_rate}%)</span><span className="font-mono">-฿{fmtTHB(doc.wht_amount)}</span></div>
+                  <div className="flex justify-between border-t pt-1 font-bold"><span className="text-gray-900">ยอดโอน / Net Payable</span><span className="font-mono">฿{fmtTHB(doc.grand_total - doc.wht_amount)}</span></div>
+                </>
+              )}
+              <div className="mt-2 pt-2 border-t text-right text-[9px] text-gray-600 italic">({numToThaiBaht(doc.grand_total - (doc.wht_amount||0))})</div>
+            </div>
+          </div>
+
+          {/* PAYMENT INFO */}
+          {docType === 'invoice' && (
+            <div className="mt-5 p-3 rounded border-l-4" style={{background:'linear-gradient(90deg,#FEF7E6,#fff)', borderColor:'#C8A84B'}}>
+              <div className="text-[9px] text-gray-500 tracking-widest font-bold uppercase mb-1">บัญชีรับเงิน · Bank Transfer</div>
+              <div className="text-[10px] text-gray-800">
+                <div className="font-semibold">{settings.bankName}</div>
+                <div className="font-mono font-bold text-[12px]">{settings.bankAccount}</div>
+                <div>{settings.bankAccountName}</div>
+              </div>
+            </div>
+          )}
+
+          {docType === 'receipt' && (
+            <div className="mt-5 p-3 rounded border-l-4" style={{background:'linear-gradient(90deg,#E6FAF7,#fff)', borderColor:'#14B8A6'}}>
+              <div className="text-[9px] text-gray-500 tracking-widest font-bold uppercase mb-1">ชำระเงิน · Payment Received</div>
+              <div className="text-[10px] text-gray-800">
+                <div>วิธี: <span className="font-semibold capitalize">{doc.payment_method}</span></div>
+                {doc.payment_ref && <div>Ref: <span className="font-mono">{doc.payment_ref}</span></div>}
+              </div>
+            </div>
+          )}
+
+          {/* SIGNATURE */}
+          <div className="mt-8 grid grid-cols-2 gap-6 text-[10px]">
+            <div className="text-center">
+              <div className="border-b border-gray-700 pb-1 mb-1 h-10"></div>
+              <div className="text-gray-600">ผู้ออก</div>
+              <div className="font-semibold">({settings.signatureName})</div>
+            </div>
+            <div className="text-center">
+              <div className="border-b border-gray-700 pb-1 mb-1 h-10"></div>
+              <div className="text-gray-600">ผู้รับ</div>
+              <div className="font-semibold">({customer?.name || '...........'})</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// MODAL helper
+// ───────────────────────────────────────────────────────────
+function Modal({ title, children, onClose, size = 'md' }) {
+  const sizeClass = size === 'xl' ? 'max-w-5xl' : size === 'lg' ? 'max-w-3xl' : 'max-w-2xl';
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-12 px-4 overflow-y-auto" onClick={onClose}>
+      <div className={`panel w-full ${sizeClass} my-12`} onClick={e => e.stopPropagation()}>
+        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between sticky top-0 bg-ink-950/95 backdrop-blur-xl rounded-t-xl">
+          <h2 className="font-display font-bold text-lg grad-gold">{title}</h2>
+          <button onClick={onClose} className="btn btn-ghost">✕</button>
+        </div>
+        <div className="p-5 max-h-[75vh] overflow-y-auto scrollable">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// ───────────────────────────────────────────────────────────
+// SETTINGS
+// ───────────────────────────────────────────────────────────
+function SettingsPanel({ settings, setSettings, onClose }) {
+  const upd = (k) => (e) => setSettings({ ...settings, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+  return (
+    <Modal title="⚙ Settings · ผู้ออกเอกสาร + Supabase" onClose={onClose} size="lg">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2"><label className="lbl">ชื่อ-นามสกุล / บริษัท</label><input className="inp" value={settings.vendorName} onChange={upd('vendorName')}/></div>
+        <div><label className="lbl">เลขประจำตัวผู้เสียภาษี</label><input className="inp" value={settings.vendorTaxId} onChange={upd('vendorTaxId')}/></div>
+        <div><label className="lbl">โทรศัพท์</label><input className="inp" value={settings.vendorPhone} onChange={upd('vendorPhone')}/></div>
+        <div><label className="lbl">Email</label><input className="inp" value={settings.vendorEmail} onChange={upd('vendorEmail')}/></div>
+        <div><label className="lbl">ชื่อสำหรับเซ็น</label><input className="inp" value={settings.signatureName} onChange={upd('signatureName')}/></div>
+        <div className="col-span-2"><label className="lbl">ที่อยู่</label><textarea rows="2" className="inp" value={settings.vendorAddress} onChange={upd('vendorAddress')}/></div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-2">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>ข้อมูลบัญชี</div>
+        </div>
+        <div><label className="lbl">ธนาคาร</label><input className="inp" value={settings.bankName} onChange={upd('bankName')}/></div>
+        <div><label className="lbl">เลขที่บัญชี</label><input className="inp" value={settings.bankAccount} onChange={upd('bankAccount')}/></div>
+        <div className="col-span-2"><label className="lbl">ชื่อบัญชี</label><input className="inp" value={settings.bankAccountName} onChange={upd('bankAccountName')}/></div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-2">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>VAT (ภาษีมูลค่าเพิ่ม)</div>
+        </div>
+        <div className="col-span-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={settings.vatRegistered} onChange={upd('vatRegistered')} className="w-4 h-4 accent-yellow-500"/>
+            จด VAT แล้ว (ออกใบกำกับภาษี · คิด VAT {settings.vatRate}%)
+          </label>
+          <div className="text-xs text-slate-500 mt-1">ถ้าไม่จด — ออก "ใบรับเงิน" แทน "ใบกำกับภาษี"</div>
+        </div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-2">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>Supabase</div>
+        </div>
+        <div className="col-span-2"><label className="lbl">Supabase URL</label><input className="inp font-mono text-xs" value={settings.supabaseUrl} onChange={upd('supabaseUrl')} placeholder="https://YOUR-PROJECT.supabase.co"/></div>
+        <div className="col-span-2"><label className="lbl">Service Role Key <span className="text-red-400 normal-case">⚠️ Private</span></label><input className="inp font-mono text-xs" type="password" value={settings.supabaseServiceKey} onChange={upd('supabaseServiceKey')}/></div>
+      </div>
+      <div className="mt-4 text-xs text-slate-500">บันทึกอัตโนมัติใน browser · run <code className="bg-white/5 px-1 rounded">supabase-schema-billing.sql</code> ครั้งแรก</div>
+      <div className="flex justify-end mt-4"><button onClick={onClose} className="btn btn-gold">Done</button></div>
+    </Modal>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
