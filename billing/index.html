@@ -1061,8 +1061,21 @@ function DocPreview({ doc, customer, settings, docType }) {
 
   const exportPDF = async () => {
     const el = ref.current;
-    const orig = { transform: el.style.transform };
+    const orig = {
+      transform: el.style.transform,
+      marginLeft: el.style.marginLeft,
+      marginRight: el.style.marginRight,
+      marginTop: el.style.marginTop,
+      marginBottom: el.style.marginBottom,
+    };
+    // html-to-image clones the element but does NOT collapse margins — auto/
+    // explicit margins shift the rendered content inside the captured canvas
+    // and clip the far edge. Zero them out during capture, restore in finally.
     el.style.transform = 'none';
+    el.style.marginLeft = '0';
+    el.style.marginRight = '0';
+    el.style.marginTop = '0';
+    el.style.marginBottom = '0';
 
     try {
       await document.fonts.ready;
@@ -1078,7 +1091,7 @@ function DocPreview({ doc, customer, settings, docType }) {
         cacheBust: true,
         width:  captureW,
         height: captureH,
-        style: { boxShadow: 'none' },
+        style: { boxShadow: 'none', margin: '0' },
       };
 
       await htmlToImage.toPng(el, opts);
@@ -1113,6 +1126,10 @@ function DocPreview({ doc, customer, settings, docType }) {
       console.error(e); alert('Export failed: ' + e.message);
     } finally {
       el.style.transform = orig.transform;
+      el.style.marginLeft = orig.marginLeft;
+      el.style.marginRight = orig.marginRight;
+      el.style.marginTop = orig.marginTop;
+      el.style.marginBottom = orig.marginBottom;
     }
   };
 
