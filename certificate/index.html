@@ -16,7 +16,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -1030,20 +1030,37 @@ function Certificate({ settings, certNo, studentName, studentNameTH, nameStyle, 
 }
 
 function CertVerifyQR({ certNo, verifyBase }) {
-  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const url = `${verifyBase || 'https://tonpalearn.com/verify'}?id=${certNo}`;
 
   useEffect(() => {
-    if (!canvasRef.current || !window.QRCode || !certNo) return;
-    window.QRCode.toCanvas(canvasRef.current, url, {
-      width: 78,
+    if (!containerRef.current || typeof window.qrcode !== 'function' || !certNo) return;
+    // kazuhikoarase/qrcode-generator API
+    const qr = window.qrcode(0, 'M');  // typeNumber 0 = auto, errorCorrection M
+    qr.addData(url);
+    qr.make();
+    // Render as inline SVG — looks crisp at any size
+    containerRef.current.innerHTML = qr.createSvgTag({
+      cellSize: 3,
       margin: 1,
-      color: {
-        dark: '#1a1a2a',
-        light: '#FFFFFF',
-      },
-      errorCorrectionLevel: 'M',
-    }, (err) => { if (err) console.error('QR error:', err); });
+      scalable: true,
+    });
+    // Ensure SVG fills the container
+    const svg = containerRef.current.querySelector('svg');
+    if (svg) {
+      svg.style.width = '78px';
+      svg.style.height = '78px';
+      svg.style.display = 'block';
+      svg.style.background = '#fff';
+      svg.style.borderRadius = '4px';
+      // Recolor dark squares from black to ink
+      svg.querySelectorAll('path, rect').forEach(el => {
+        const fill = el.getAttribute('fill');
+        if (fill && fill.toLowerCase() === '#000000' || fill === 'black') {
+          el.setAttribute('fill', '#1a1a2a');
+        }
+      });
+    }
   }, [certNo, url]);
 
   return (
@@ -1053,7 +1070,7 @@ function CertVerifyQR({ certNo, verifyBase }) {
         border: '1.5px solid #C8A84B',
         boxShadow: '0 2px 8px -2px rgba(200,168,75,0.3)',
       }}>
-        <canvas ref={canvasRef} width={78} height={78} style={{display: 'block', background: '#fff', borderRadius: 4}}/>
+        <div ref={containerRef} style={{width: 78, height: 78}}/>
       </div>
       <div className="text-[9px] font-bold text-gray-700 tracking-widest uppercase mt-1">Scan · ตรวจสอบ</div>
       <div className="font-mono text-[8px] text-gray-500 mt-0.5">{certNo}</div>
