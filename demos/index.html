@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TONPALEARN · Demos · AI Agentic ที่เล่นได้จริง</title>
+<meta name="description" content="ลองเล่น AI Agentic ที่ TONPALEARN สร้าง — chatbot, recommender, artifact gallery 20+ ผลงาน">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/assets/liquid.css">
+
+<style>
+  /* Page-specific */
+  .hero-glow {
+    position: absolute;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 1000px; height: 600px;
+    background: radial-gradient(ellipse, rgba(230,184,75,0.20) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .terminal-bg {
+    background: linear-gradient(135deg, rgba(0,0,0,0.55), rgba(20,20,36,0.45));
+    backdrop-filter: blur(24px);
+  }
+  .typing::after {
+    content: '▊';
+    color: var(--gold-200);
+    animation: blink 0.9s infinite;
+  }
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+  /* Artifact card */
+  .artifact-card { aspect-ratio: 4/3; }
+  .artifact-card .cover {
+    background-size: cover; background-position: center;
+    transition: transform var(--dur-slow) var(--ease-natural);
+  }
+  .artifact-card:hover .cover { transform: scale(1.06); }
+
+  /* Section header eyebrow */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-400);
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 32px;
+  }
+
+  /* Chat bubbles */
+  .bubble-user {
+    background: linear-gradient(135deg, rgba(245,214,122,0.18), rgba(230,184,75,0.06));
+    border: 1px solid rgba(245,214,122,0.25);
+    color: var(--gold-50);
+  }
+  .bubble-ai {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+</style>
+</head>
+<body class="mesh-bg min-h-screen">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ──────────────────────────────────────────────────────────
+// ARTIFACT DATA
+// ──────────────────────────────────────────────────────────
+const ARTIFACTS = [
+  { id: 'c01', title: 'AI Basic · เริ่มต้นแบบไม่ติดศัพท์',     cover: '/assets/covers/course-01.png', category: 'Course Cover', tools: ['Claude', 'Midjourney'], industry: 'Education' },
+  { id: 'c02', title: 'AI Agentic · Workflow Automation',     cover: '/assets/covers/course-02.png', category: 'Course Cover', tools: ['Claude', 'n8n'],       industry: 'Education' },
+  { id: 'c03', title: 'MCP Connector · เชื่อม AI กับเครื่องมือ', cover: '/assets/covers/course-03.png', category: 'Course Cover', tools: ['Claude', 'MCP'],       industry: 'Education' },
+  { id: 'c04', title: 'LINE ChatBot ที่ฉลาดเหมือนเพื่อน',     cover: '/assets/covers/course-04.png', category: 'Course Cover', tools: ['Claude', 'LINE API'],  industry: 'SMB' },
+  { id: 'c08', title: 'AI Agentic Web Builder',               cover: '/assets/covers/course-08.png', category: 'Course Cover', tools: ['Claude', 'Next.js'],   industry: 'Tech' },
+  { id: 'c09', title: 'AI Agentic App Builder',               cover: '/assets/covers/course-09.png', category: 'Course Cover', tools: ['Claude', 'Expo'],      industry: 'Tech' },
+  { id: 'c10', title: 'AI Agentic Orchestra · Multi-agent',   cover: '/assets/covers/course-10.png', category: 'Course Cover', tools: ['Claude', 'Orchestrator'], industry: 'Tech' },
+  { id: 'c11', title: 'AI Content Creator System',            cover: '/assets/covers/course-11.png', category: 'Course Cover', tools: ['Claude', 'Adobe'],     industry: 'Marketing' },
+  { id: 'c12', title: 'AI for IT Audit & Consult',            cover: '/assets/covers/course-12.png', category: 'Course Cover', tools: ['Claude', 'Compliance'],industry: 'Finance' },
+  // Pipeline + brandboost + others
+  { id: 'pipe', title: 'TPL08-09 Web App Pipeline (Infographic)', cover: '/assets/covers/course-08.png', category: 'Infographic', tools: ['Claude', 'Figma'], industry: 'Tech', link: '/pipeline/' },
+  { id: 'bb',   title: 'AI × Brand Boost — Proposal Hero',    cover: '/assets/covers/course-11.png', category: 'Slide',        tools: ['Claude', 'Tailwind'], industry: 'Marketing', link: '/brandboost/' },
+  { id: 'cert', title: 'Certificate Generator (Issued + Verified)', cover: '/assets/covers/course-01.png', category: 'App', tools: ['Claude', 'Supabase'], industry: 'Education', link: '/certificate/' },
+  { id: 'quot', title: 'Quotation Generator (A4 PDF)',        cover: '/assets/covers/course-02.png', category: 'App', tools: ['Claude', 'jsPDF'], industry: 'Education', link: '/quotation/' },
+  { id: 'bill', title: 'Billing + CRM Dashboard',             cover: '/assets/covers/course-03.png', category: 'Dashboard', tools: ['Claude', 'Supabase'], industry: 'Education', link: '/billing/' },
+  { id: 'srv',  title: 'Corporate Services Landing',          cover: '/assets/covers/course-12.png', category: 'Landing', tools: ['Claude', 'Tailwind'], industry: 'Corporate', link: '/services/' },
+  { id: 'land', title: 'TONPALEARN Landing v2',               cover: '/assets/covers/course-10.png', category: 'Landing', tools: ['Claude', 'React'], industry: 'Education', link: '/' },
+];
+
+const CATEGORIES = ['All', 'App', 'Dashboard', 'Landing', 'Slide', 'Infographic', 'Course Cover'];
+
+// FAQ / KB for chatbot
+const KB = [
+  { q: ['คอร์ส', 'course', 'มีอะไร', 'เรียนอะไร'], a: 'TONPALEARN มี 12 คอร์สครับ — 01 AI Basic, 02 Agentic, 03 MCP Connector, 04 LINE ChatBot, 05 AI for Kids, 06 Personal Assistant, 07 ABOs, 08 Web Builder, 09 App Builder, 10 Orchestra, 11 Content Creator, 12 IT Audit & Consult — แต่ละคอร์ส 2-5 ชั่วโมง 🎓' },
+  { q: ['ราคา', 'price', 'เท่าไหร่', 'cost'], a: 'ราคาเริ่ม 990 บาท (VDO) ไปจนถึง 9,000 บาท (Onsite) — ขึ้นอยู่กับคอร์สและรูปแบบ ดูเทียบใน landing ได้เลย หรือทักไลน์ @tonpalearn 💛' },
+  { q: ['format', 'รูปแบบ', 'เรียนยังไง', 'how to learn'], a: 'เรียนได้ 4 แบบครับ — VDO (เรียนตามเวลาคุณ), Online Group (5+ คน), Online 1:1 (เน้นโจทย์เฉพาะ), On-site (ไปสอนถึงที่ บริษัท)' },
+  { q: ['ที่ไหน', 'where', 'location', 'สาขา'], a: 'เรียน online ผ่าน Zoom ได้เลย ไม่จำกัดสถานที่ ส่วน on-site ไปสอนถึงบริษัทคุณ ทั่วประเทศไทย 🗺️' },
+  { q: ['ต้น', 'instructor', 'อาจารย์', 'ใครสอน', 'who'], a: 'ต้น (ชัยวัฒน์ ภูวนนท์จิรกวิน) — Founder, CEO UP Wellness, PM 15 ปี, Computer Engineering ดูประวัติเต็มได้ที่ /chaiwat 🎤' },
+  { q: ['certificate', 'ใบรับรอง', 'cert'], a: 'จบคอร์สได้ใบรับรองทุกคนครับ + verify online ได้จริง ที่ tonpalearn.com/verify ⭐' },
+  { q: ['corporate', 'องค์กร', 'บริษัท', 'company'], a: 'รับงาน corporate ทั้ง Training, Consulting, Development ดูแพ็คเกจที่ /services หรือทักไลน์เพื่อคุยรายละเอียดครับ 🏢' },
+  { q: ['ai agent', 'agentic', 'มัน คือ อะไร', 'what is'], a: 'AI Agent = AI ที่ตัดสินใจ + ทำงานเองได้ ไม่ใช่แค่ตอบคำถาม สามารถใช้ tools, เรียก API, จัดการ workflow หลายขั้น ลองดูที่ live demo ด้านล่างได้เลย 🤖' },
+];
+
+const findKbAnswer = (text) => {
+  const t = text.toLowerCase();
+  for (const item of KB) {
+    if (item.q.some(kw => t.includes(kw.toLowerCase()))) return item.a;
+  }
+  return null;
+};
+
+// ──────────────────────────────────────────────────────────
+// REVEAL hook
+// ──────────────────────────────────────────────────────────
+function useReveal() {
+  useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
+
+function useScrollProgress() {
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement;
+      const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+      document.documentElement.style.setProperty('--scroll-pct', pct + '%');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+}
+
+// ──────────────────────────────────────────────────────────
+// NAV
+// ──────────────────────────────────────────────────────────
+function Nav() {
+  return (
+    <nav className="fixed top-0 inset-x-0 z-50 glass-strong" style={{borderRadius: 0, borderTop: 'none', borderLeft: 'none', borderRight: 'none'}}>
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <a href="/" className="font-display font-bold text-lg flex items-baseline gap-1">
+          <span className="text-white">TON</span>
+          <span className="grad-gold">PA</span>
+          <span className="grad-teal">LEARN</span>
+        </a>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <a href="/" className="text-xs sm:text-sm text-slate-300 hover:text-white transition">Home</a>
+          <a href="/services/" className="text-xs sm:text-sm text-slate-300 hover:text-white transition">Services</a>
+          <a href="/chaiwat/" className="text-xs sm:text-sm text-slate-300 hover:text-white transition">About</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs sm:text-sm">
+            LINE @tonpalearn
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// HERO
+// ──────────────────────────────────────────────────────────
+function Hero() {
+  const lines = [
+    '> initiating AI agent...',
+    '> loading knowledge base ✓',
+    '> connecting to tools (Claude, Supabase, MCP) ✓',
+    '> ready for instructions',
+    '> "Generate a course recommendation for me"',
+  ];
+  const [shown, setShown] = useState(['']);
+  const [active, setActive] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+
+  useEffect(() => {
+    if (active >= lines.length) return;
+    const cur = lines[active];
+    if (charIdx < cur.length) {
+      const t = setTimeout(() => {
+        setShown(s => { const c = [...s]; c[active] = cur.slice(0, charIdx + 1); return c; });
+        setCharIdx(i => i + 1);
+      }, 28);
+      return () => clearTimeout(t);
+    } else {
+      const t = setTimeout(() => { setActive(a => a + 1); setCharIdx(0); setShown(s => [...s, '']); }, 380);
+      return () => clearTimeout(t);
+    }
+  }, [active, charIdx]);
+
+  return (
+    <section className="relative pt-32 pb-20 overflow-hidden">
+      <div className="hero-glow"></div>
+      <div className="blob-field">
+        <div className="blob blob-gold blob-drift-1"   style={{ width: 420, height: 420, top: '10%', left: '8%' }} />
+        <div className="blob blob-teal blob-drift-2"   style={{ width: 520, height: 520, top: '30%', right: '6%' }} />
+        <div className="blob blob-violet blob-drift-3" style={{ width: 360, height: 360, bottom: '5%', left: '40%' }} />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-10 items-center">
+        <div className="reveal">
+          <div className="eyebrow mb-4">— Live AI · No install</div>
+          <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-white">
+            ดู AI Agentic <br/>
+            <span className="grad-aurora">ที่เล่นได้จริง</span>
+          </h1>
+          <p className="text-slate-300 mt-5 max-w-lg leading-relaxed">
+            ไม่ใช่แค่ slide ที่พูด — ที่นี่คุณจะ <span className="text-white font-semibold">เล่นได้จริง</span> ทดสอบ chatbot ของ TONPALEARN, ลองให้ AI แนะนำคอร์สให้คุณ, และดู artifact ทั้งหมดที่ AI Agentic สร้าง
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <a href="#live-demos" className="btn btn-gold">
+              ▶ ลองเล่นเลย
+            </a>
+            <a href="#gallery" className="btn btn-ghost">
+              🎨 ดูผลงาน
+            </a>
+          </div>
+          <div className="mt-8 flex items-center gap-4 text-xs text-slate-400">
+            <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-full bg-emerald-400 pulse-glow"></span> Live · ตอนนี้</span>
+            <span>·</span>
+            <span>{ARTIFACTS.length}+ artifacts</span>
+            <span>·</span>
+            <span>2 live mini-apps</span>
+          </div>
+        </div>
+
+        {/* Terminal mock */}
+        <div className="reveal">
+          <div className="terminal-bg rounded-2xl border border-white/10 p-5 font-mono text-[12px] sm:text-[13px]">
+            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-white/10">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+              <span className="text-slate-500 ml-2">~/agent</span>
+            </div>
+            <div className="space-y-1.5 min-h-[180px]">
+              {shown.map((line, i) => (
+                <div key={i} className={`${i === active ? 'typing' : ''} ${i === lines.length - 1 ? 'text-gold-200' : 'text-slate-300'}`} style={{color: i === lines.length - 1 ? 'var(--gold-200)' : ''}}>
+                  {line}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// LIVE DEMOS SECTION
+// ──────────────────────────────────────────────────────────
+function LiveDemos() {
+  return (
+    <section id="live-demos" className="relative py-20">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center mb-12 reveal">
+          <div className="eyebrow mb-3">— Live Mini-Apps · เล่นได้จริง</div>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">
+            ลอง <span className="grad-gold">AI Agentic</span> ที่เราสร้าง
+          </h2>
+          <p className="text-slate-400 mt-3 max-w-2xl mx-auto text-sm">
+            ทั้งสองเป็น demo จริง ไม่ใช่ screenshot — สังเกตว่ามันคิดและตอบให้คุณตามบริบทจริงๆ
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <ChatbotDemo />
+          <CourseRecommender />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────── Demo #1: Chatbot ───────────
+function ChatbotDemo() {
+  const [messages, setMessages] = useState([
+    { from: 'ai', text: 'สวัสดีครับ! ผมเป็น AI ของ TONPALEARN ถามอะไรเกี่ยวกับคอร์ส, ราคา, หรือ AI Agentic ได้เลย 🤖' }
+  ]);
+  const [input, setInput] = useState('');
+  const [thinking, setThinking] = useState(false);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, thinking]);
+
+  const send = (text) => {
+    if (!text.trim()) return;
+    setMessages(m => [...m, { from: 'user', text }]);
+    setInput('');
+    setThinking(true);
+    setTimeout(() => {
+      const a = findKbAnswer(text) || 'ขอบคุณที่ถามครับ! เรื่องนี้แนะนำให้ทักไลน์ @tonpalearn เพื่อคุยรายละเอียดดีกว่าครับ 🙏';
+      setMessages(m => [...m, { from: 'ai', text: a }]);
+      setThinking(false);
+    }, 700 + Math.random() * 600);
+  };
+
+  const suggestions = ['คอร์สมีอะไรบ้าง?', 'ราคาเท่าไหร่?', 'AI Agent คืออะไร?', 'รับงาน corporate ไหม?'];
+
+  return (
+    <div className="glass-strong p-5 reveal flex flex-col" style={{ minHeight: 480 }}>
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <div className="font-display font-bold text-lg text-white">💬 Mini Chatbot</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">FAQ บอท · rule-based · ใช้กับ Claude API ได้ (P1)</div>
+        </div>
+        <span className="pill-status st-paid">● Online</span>
+      </div>
+
+      <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto scrollable pr-1" style={{ maxHeight: 320 }}>
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[80%] px-3.5 py-2 rounded-2xl text-sm ${m.from === 'user' ? 'bubble-user' : 'bubble-ai'}`}>
+              {m.text}
+            </div>
+          </div>
+        ))}
+        {thinking && (
+          <div className="flex justify-start">
+            <div className="bubble-ai px-3.5 py-2 rounded-2xl text-sm flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold-200 animate-pulse" style={{background:'var(--gold-200)'}}></span>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold-200 animate-pulse" style={{background:'var(--gold-200)', animationDelay: '0.15s'}}></span>
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold-200 animate-pulse" style={{background:'var(--gold-200)', animationDelay: '0.30s'}}></span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        {suggestions.map(s => (
+          <button key={s} onClick={() => send(s)} className="pill text-[11px]">{s}</button>
+        ))}
+      </div>
+
+      <form onSubmit={e => { e.preventDefault(); send(input); }} className="mt-3 flex gap-2">
+        <input value={input} onChange={e => setInput(e.target.value)} placeholder="พิมพ์คำถาม..."
+          className="inp flex-1" />
+        <button type="submit" className="btn btn-gold text-sm" disabled={!input.trim()}>ส่ง</button>
+      </form>
+    </div>
+  );
+}
+
+// ─────────── Demo #2: Course Recommender ───────────
+function CourseRecommender() {
+  const QUESTIONS = [
+    {
+      key: 'level',
+      label: 'ระดับความรู้ปัจจุบันของคุณกับ AI',
+      options: [
+        { v: 'beginner', label: 'มือใหม่ · ยังไม่เคยใช้' },
+        { v: 'intermediate', label: 'ใช้ ChatGPT/Claude บ้างแล้ว' },
+        { v: 'advanced', label: 'อยากต่อยอด · เขียน code, ทำ workflow ได้' },
+      ],
+    },
+    {
+      key: 'goal',
+      label: 'เป้าหมายหลักของคุณ',
+      options: [
+        { v: 'personal', label: 'ใช้ส่วนตัว · ลดงาน ทำคอนเทนต์' },
+        { v: 'business', label: 'ใช้ในธุรกิจ · automation, sales' },
+        { v: 'build', label: 'อยากสร้าง app/agent ของตัวเอง' },
+        { v: 'consult', label: 'อยากเป็น consultant/instructor' },
+      ],
+    },
+    {
+      key: 'time',
+      label: 'มีเวลาเรียนเท่าไหร่',
+      options: [
+        { v: 'short', label: 'สั้นๆ 2-3 ชม.' },
+        { v: 'medium', label: 'จัดเต็ม 4-5 ชม.' },
+        { v: 'series', label: 'เรียนต่อเนื่องหลายคอร์ส' },
+      ],
+    },
+  ];
+
+  const REC_MATRIX = {
+    'beginner-personal-short':    ['01', '06'],
+    'beginner-personal-medium':   ['01', '06', '11'],
+    'beginner-personal-series':   ['01', '02', '06', '11'],
+    'beginner-business-short':    ['01', '04'],
+    'beginner-business-medium':   ['01', '02', '04'],
+    'beginner-business-series':   ['01', '02', '04', '11'],
+    'beginner-build-short':       ['01', '02'],
+    'beginner-build-medium':      ['01', '02', '08'],
+    'beginner-build-series':      ['01', '02', '08', '09'],
+    'beginner-consult-short':     ['01', '07'],
+    'beginner-consult-medium':    ['01', '02', '07'],
+    'beginner-consult-series':    ['01', '02', '07', '12'],
+
+    'intermediate-personal-short':  ['06', '11'],
+    'intermediate-personal-medium': ['02', '06', '11'],
+    'intermediate-personal-series': ['02', '06', '11', '10'],
+    'intermediate-business-short':  ['04', '07'],
+    'intermediate-business-medium': ['02', '03', '04'],
+    'intermediate-business-series': ['02', '03', '04', '10'],
+    'intermediate-build-short':     ['08'],
+    'intermediate-build-medium':    ['08', '09'],
+    'intermediate-build-series':    ['02', '03', '08', '09'],
+    'intermediate-consult-short':   ['07'],
+    'intermediate-consult-medium':  ['07', '12'],
+    'intermediate-consult-series':  ['02', '07', '10', '12'],
+
+    'advanced-personal-short':   ['10'],
+    'advanced-personal-medium':  ['10', '11'],
+    'advanced-personal-series':  ['03', '10', '11'],
+    'advanced-business-short':   ['03'],
+    'advanced-business-medium':  ['03', '10'],
+    'advanced-business-series':  ['03', '04', '10', '11'],
+    'advanced-build-short':      ['08'],
+    'advanced-build-medium':     ['08', '09'],
+    'advanced-build-series':     ['03', '08', '09', '10'],
+    'advanced-consult-short':    ['12'],
+    'advanced-consult-medium':   ['10', '12'],
+    'advanced-consult-series':   ['03', '07', '10', '12'],
+  };
+
+  const COURSE_DETAILS = {
+    '01': { name: 'AI Basic', hrs: 2, why: 'ปูพื้นแน่น · ใช้ AI เป็นจริงๆ ใน 2 ชม.' },
+    '02': { name: 'AI Agentic', hrs: 4, why: 'เข้าใจ Agent · ออกแบบ workflow ที่ AI ทำเอง' },
+    '03': { name: 'MCP Connector', hrs: 5, why: 'เชื่อม AI กับเครื่องมือ · ทำ tool use แบบ pro' },
+    '04': { name: 'LINE ChatBot', hrs: 3, why: 'เปลี่ยน LINE OA เป็น sales agent อัตโนมัติ' },
+    '06': { name: 'AI for Personal Assistant', hrs: 3, why: 'AI ช่วยจัด life ส่วนตัว — task, email, content' },
+    '07': { name: 'AI for ABOs', hrs: 3, why: 'สำหรับธุรกิจเครือข่าย · scale ทีมด้วย AI' },
+    '08': { name: 'AI Agentic Web Builder', hrs: 5, why: 'สร้างเว็บ + landing ด้วย AI ใน 1 วัน' },
+    '09': { name: 'AI Agentic App Builder', hrs: 5, why: 'สร้าง mobile app ผ่าน AI · prototype-to-prod' },
+    '10': { name: 'AI Agentic Orchestra', hrs: 4, why: 'Multi-agent · AI ทีมเดียวกันแต่ทำหลายบทบาท' },
+    '11': { name: 'AI Content Creator System', hrs: 4, why: 'Content pipeline · idea → post → analytics' },
+    '12': { name: 'AI for IT Audit & Consult', hrs: 4, why: 'ใช้ AI ในงานตรวจสอบ · compliance · advisory' },
+  };
+
+  const [answers, setAnswers] = useState({});
+  const [step, setStep] = useState(0);
+
+  const setAnswer = (key, val) => {
+    setAnswers(a => ({ ...a, [key]: val }));
+    setTimeout(() => setStep(s => s + 1), 240);
+  };
+
+  const reset = () => { setAnswers({}); setStep(0); };
+
+  const done = step >= QUESTIONS.length;
+  const recKey = done ? `${answers.level}-${answers.goal}-${answers.time}` : null;
+  const recommended = done ? (REC_MATRIX[recKey] || ['01', '02']) : [];
+
+  return (
+    <div className="glass-strong p-5 reveal flex flex-col" style={{ minHeight: 480 }}>
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="font-display font-bold text-lg text-white">🎯 Course Recommender</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">ตอบ 3 ข้อ · ได้คอร์สที่เหมาะกับคุณ</div>
+        </div>
+        {!done && <span className="pill-status st-pending">Step {step + 1}/{QUESTIONS.length}</span>}
+        {done && <button onClick={reset} className="text-[11px] text-slate-400 hover:text-white underline">ตอบใหม่</button>}
+      </div>
+
+      {!done ? (
+        <div className="flex-1 flex flex-col">
+          <div className="mb-1 text-[11px] eyebrow text-gold-400">— Question {step + 1}</div>
+          <div className="font-semibold text-white mb-4">{QUESTIONS[step].label}</div>
+          <div className="space-y-2 flex-1">
+            {QUESTIONS[step].options.map(o => (
+              <button key={o.v} onClick={() => setAnswer(QUESTIONS[step].key, o.v)}
+                className="w-full text-left px-4 py-3 rounded-xl bg-white/[0.03] border border-white/10 hover:border-gold-400 hover:bg-white/[0.06] transition-all duration-200 text-sm">
+                <span className="text-slate-200">{o.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="mt-4 flex items-center gap-2">
+            {QUESTIONS.map((_, i) => (
+              <span key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= step ? 'bg-gradient-to-r' : 'bg-white/10'}`}
+                style={i <= step ? { background: 'var(--grad-gold)' } : {}} />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto scrollable">
+          <div className="text-[11px] eyebrow mb-2">— Recommended for you</div>
+          <div className="font-display font-bold text-2xl grad-gold mb-3">{recommended.length} คอร์สที่ใช่</div>
+          <div className="space-y-2">
+            {recommended.map((num, i) => {
+              const c = COURSE_DETAILS[num];
+              return (
+                <div key={num} className="glass p-3 flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg glass-gold flex items-center justify-center font-mono text-xs grad-gold font-bold">{num}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-white text-sm">{c.name}</span>
+                      <span className="text-[10px] text-slate-400">{c.hrs} ชม.</span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">{c.why}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener"
+             className="btn btn-gold w-full justify-center mt-4 text-sm">
+            สมัครเลย · LINE @tonpalearn →
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// ARTIFACT GALLERY
+// ──────────────────────────────────────────────────────────
+function Gallery() {
+  const [category, setCategory] = useState('All');
+  const [lightbox, setLightbox] = useState(null);
+
+  const filtered = useMemo(() => {
+    if (category === 'All') return ARTIFACTS;
+    return ARTIFACTS.filter(a => a.category === category);
+  }, [category]);
+
+  return (
+    <section id="gallery" className="relative py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-10 reveal">
+          <div className="eyebrow mb-3">— Artifact Gallery</div>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">
+            ดูผลงานที่ <span className="grad-aurora">AI Agentic</span> สร้าง
+          </h2>
+          <p className="text-slate-400 mt-3 max-w-2xl mx-auto text-sm">
+            ตั้งแต่ landing, dashboard, infographic, slide deck — สร้างใน 1 ช่วงบ่าย ด้วย Claude + tooling
+          </p>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-2 mb-8 reveal">
+          {CATEGORIES.map(c => (
+            <button key={c} onClick={() => setCategory(c)} className={`pill ${category === c ? 'active' : ''}`}>{c}</button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filtered.map((a, i) => (
+            <div key={a.id} className="reveal glass-hover glass overflow-hidden cursor-pointer artifact-card" style={{ transitionDelay: `${(i % 8) * 30}ms` }}
+                 onClick={() => setLightbox(a)}>
+              <div className="cover w-full h-full" style={{ backgroundImage: `url(${a.cover})` }}>
+                <div className="w-full h-full bg-gradient-to-t from-black/85 via-black/30 to-transparent p-3 flex flex-col justify-end">
+                  <div className="text-[9px] eyebrow mb-1 text-gold-200">{a.category}</div>
+                  <div className="font-semibold text-white text-sm leading-snug">{a.title}</div>
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {a.tools.slice(0,2).map(t => <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">{t}</span>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {lightbox && (
+          <div className="lightbox" onClick={() => setLightbox(null)}>
+            <div className="max-w-4xl w-full glass-strong p-6" onClick={e => e.stopPropagation()}>
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="eyebrow mb-1 text-gold-200">{lightbox.category} · {lightbox.industry}</div>
+                  <div className="font-display font-bold text-2xl text-white">{lightbox.title}</div>
+                </div>
+                <button onClick={() => setLightbox(null)} className="text-slate-400 hover:text-white text-xl px-2">✕</button>
+              </div>
+              <img src={lightbox.cover} alt={lightbox.title} className="w-full rounded-xl border border-white/10" />
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {lightbox.tools.map(t => <span key={t} className="pill text-[11px]">{t}</span>)}
+                </div>
+                {lightbox.link && (
+                  <a href={lightbox.link} target="_blank" rel="noopener" className="btn btn-gold text-sm">
+                    เปิดผลงานจริง →
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// PROCESS TIMELINE
+// ──────────────────────────────────────────────────────────
+function Process() {
+  const steps = [
+    { n: '01', t: 'Idea + Spec', d: 'คุยกับลูกค้า · เก็บ requirement · เขียน spec มาตรฐาน (P0/P1/P2)' },
+    { n: '02', t: 'Design + Token', d: 'TONPALEARN CI palette + glassmorphism + tokens · liquid motion language' },
+    { n: '03', t: 'Build with AI', d: 'Claude เขียน code · ผมทบทวน · iterate ครั้งละ 5-15 นาที' },
+    { n: '04', t: 'Ship & Verify', d: 'Push GitHub → Vercel deploy auto → ทดสอบ live ทุก viewport' },
+  ];
+  return (
+    <section className="relative py-20">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="text-center mb-12 reveal">
+          <div className="eyebrow mb-3">— Process</div>
+          <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">
+            จาก idea → artifact <span className="grad-teal">ใน 1 วัน</span>
+          </h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {steps.map((s, i) => (
+            <div key={s.n} className="glass glass-hover p-5 reveal" style={{ transitionDelay: `${i * 80}ms` }}>
+              <div className="font-mono text-xs text-gold-400 mb-2">{s.n}</div>
+              <div className="font-display font-bold text-white text-lg mb-1.5">{s.t}</div>
+              <div className="text-xs text-slate-400 leading-relaxed">{s.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// CTA
+// ──────────────────────────────────────────────────────────
+function CTA() {
+  return (
+    <section className="relative py-24">
+      <div className="max-w-4xl mx-auto px-6 text-center reveal">
+        <div className="glass-strong p-10 sm:p-14 relative overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full blob blob-gold opacity-40"></div>
+          <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full blob blob-teal opacity-30"></div>
+          <div className="relative">
+            <div className="eyebrow mb-3">— อยากให้สร้างของแบบนี้บ้าง?</div>
+            <h2 className="font-display font-bold text-3xl sm:text-4xl text-white">
+              คุยกับ <span className="grad-gold">ต้น</span> เรื่องงานของคุณ
+            </h2>
+            <p className="text-slate-300 mt-4 max-w-xl mx-auto text-sm">
+              ทั้ง Training, Consulting, Development — เลือกที่ใช่กับ scope ของคุณ
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <a href="/services/" className="btn btn-gold">ดู Services + Proposal</a>
+              <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-ghost">LINE @tonpalearn</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// FOOTER
+// ──────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="border-t border-white/5 py-10 mt-20">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div className="font-display font-bold text-base flex items-baseline gap-1">
+            <span className="text-white">TON</span>
+            <span className="grad-gold">PA</span>
+            <span className="grad-teal">LEARN</span>
+          </div>
+          <div className="text-xs text-slate-500 mt-1">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-slate-400">
+          <a href="/" className="hover:text-white transition">Home</a>
+          <a href="/services/" className="hover:text-white transition">Services</a>
+          <a href="/chaiwat/" className="hover:text-white transition">About</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="hover:text-gold-200 transition">LINE</a>
+        </div>
+      </div>
+      <div className="max-w-6xl mx-auto px-6 mt-6 text-[10px] text-slate-600 font-mono uppercase tracking-widest">
+        © 2026 TONPALEARN · Built with Claude + Liquid Design System
+      </div>
+    </footer>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// APP
+// ──────────────────────────────────────────────────────────
+function App() {
+  useReveal();
+  useScrollProgress();
+  return (
+    <>
+      <div className="scroll-progress"></div>
+      <Nav/>
+      <Hero/>
+      <LiveDemos/>
+      <Gallery/>
+      <Process/>
+      <CTA/>
+      <Footer/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

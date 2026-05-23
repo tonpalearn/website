@@ -17,6 +17,8 @@
   <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <link rel="stylesheet" href="/assets/liquid.css">
+
   <style>
     html, body { background: #08080F; }
     body { font-family: 'IBM Plex Sans Thai', sans-serif; color: #FAFAFA; -webkit-font-smoothing: antialiased; }
@@ -167,7 +169,27 @@ const FORMATS = [
 // ───────────────────────────────────────────────────────────
 // Defaults
 // ───────────────────────────────────────────────────────────
+const EMPTY_VENDOR = {
+  name: '', taxId: '', phone: '', email: '', address: '',
+  bankName: '', bankAccount: '', bankAccountName: '',
+  signatureName: '',
+  vatRegistered: false,
+  vatRate: 7,
+  docPrefixQuotation: 'TPL',
+  docPrefixInvoice:   'INV',
+  docPrefixReceipt:   'RCP',
+  docPrefixTaxInvoice: 'TIV',
+};
+
 const DEFAULT_SETTINGS = {
+  // Entity selector — which vendor profile is currently active
+  activeEntity: 'individual',     // 'individual' | 'company'
+
+  // Two vendor profiles (admin fills both — switches between them)
+  vendorPersonal: { ...EMPTY_VENDOR, vatRegistered: false },
+  vendorCompany:  { ...EMPTY_VENDOR, vatRegistered: true },
+
+  // Legacy flat fields (kept for backward compat — mirrors active vendor)
   vendorName:      '',
   vendorTaxId:     '',
   vendorPhone:     '',
@@ -182,6 +204,44 @@ const DEFAULT_SETTINGS = {
   defaultWHT:      3,
   supabaseUrl:     '',
   supabaseServiceKey: '',
+};
+
+// Get active vendor profile (with fallback to legacy flat fields)
+const getActiveVendor = (settings) => {
+  const v = settings.activeEntity === 'company' ? settings.vendorCompany : settings.vendorPersonal;
+  if (!v) return null;
+  return {
+    name: v.name || settings.vendorName || '',
+    taxId: v.taxId || settings.vendorTaxId || '',
+    phone: v.phone || settings.vendorPhone || '',
+    email: v.email || settings.vendorEmail || '',
+    address: v.address || settings.vendorAddress || '',
+    bankName: v.bankName || settings.bankName || '',
+    bankAccount: v.bankAccount || settings.bankAccount || '',
+    bankAccountName: v.bankAccountName || settings.bankAccountName || '',
+    signatureName: v.signatureName || settings.signatureName || '',
+    vatRegistered: v.vatRegistered ?? settings.vatRegistered,
+    vatRate: v.vatRate || settings.vatRate || 7,
+  };
+};
+
+// Sync active vendor to flat fields (call after settings change or entity switch)
+const syncActiveVendor = (settings) => {
+  const v = getActiveVendor(settings);
+  return {
+    ...settings,
+    vendorName: v.name,
+    vendorTaxId: v.taxId,
+    vendorPhone: v.phone,
+    vendorEmail: v.email,
+    vendorAddress: v.address,
+    bankName: v.bankName,
+    bankAccount: v.bankAccount,
+    bankAccountName: v.bankAccountName,
+    signatureName: v.signatureName,
+    vatRegistered: v.vatRegistered,
+    vatRate: v.vatRate,
+  };
 };
 
 // ───────────────────────────────────────────────────────────
@@ -272,12 +332,20 @@ const TABS = [
 ];
 
 function App() {
-  const [settings, setSettings] = useState(() => ({ ...DEFAULT_SETTINGS, ...loadJSON(KEY_SETTINGS, {}) }));
+  const [settings, setSettings] = useState(() => {
+    const stored = { ...DEFAULT_SETTINGS, ...loadJSON(KEY_SETTINGS, {}) };
+    return syncActiveVendor(stored);
+  });
   const [tab, setTab] = useState('dashboard');
   const [showSettings, setShowSettings] = useState(false);
   const [toast, setToast] = useState('');
 
   useEffect(() => { saveJSON(KEY_SETTINGS, settings); }, [settings]);
+
+  const switchEntity = (entity) => {
+    setSettings(s => syncActiveVendor({ ...s, activeEntity: entity }));
+    showToast(`สลับเป็น ${entity === 'company' ? 'นิติบุคคล' : 'บุคคลธรรมดา'} แล้ว`);
+  };
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
 
@@ -296,6 +364,27 @@ function App() {
           </div>
           <div className="text-[10px] text-slate-500 mt-0.5 font-mono uppercase tracking-widest">Billing + CRM</div>
         </div>
+
+        {/* Entity switcher */}
+        <div className="p-3 border-b border-white/10">
+          <div className="text-[9px] text-slate-500 font-mono uppercase tracking-widest mb-1.5">— ออกในนาม</div>
+          <div className="grid grid-cols-2 gap-1 p-0.5 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+            <button onClick={() => switchEntity('individual')}
+              className={`px-2 py-1.5 rounded-md text-[11px] font-semibold transition-all ${settings.activeEntity === 'individual' ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
+              style={settings.activeEntity === 'individual' ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)'} : {}}>
+              👤 บุคคล
+            </button>
+            <button onClick={() => switchEntity('company')}
+              className={`px-2 py-1.5 rounded-md text-[11px] font-semibold transition-all ${settings.activeEntity === 'company' ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
+              style={settings.activeEntity === 'company' ? {background:'linear-gradient(135deg,#67E8F9,#14B8A6)'} : {}}>
+              🏢 บริษัท
+            </button>
+          </div>
+          {settings.activeEntity === 'company' && !settings.vatRegistered && (
+            <div className="text-[9px] text-yellow-400 mt-1.5">⚠️ ยังไม่จด VAT ใน Settings</div>
+          )}
+        </div>
+
         <nav className="p-2 space-y-1">
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
@@ -1055,9 +1144,15 @@ function Receipts({ client, settings, showToast }) {
 function DocPreview({ doc, customer, settings, docType }) {
   const ref = useRef(null);
 
-  const title = docType === 'invoice' ? 'ใบวางบิล / INVOICE' :
-                doc.doc_type === 'tax_invoice' ? 'ใบกำกับภาษี / ใบเสร็จรับเงิน' :
-                'ใบรับเงิน / RECEIPT';
+  // Title resolves based on docType, vendor entity, and VAT registration
+  const isCompanyVat = settings.activeEntity === 'company' && settings.vatRegistered;
+  const title = docType === 'invoice'
+    ? (isCompanyVat ? 'ใบแจ้งหนี้ / ใบกำกับภาษี · INVOICE / TAX INVOICE' : 'ใบวางบิล / INVOICE')
+    : doc.doc_type === 'tax_invoice'
+    ? 'ใบกำกับภาษี / ใบเสร็จรับเงิน · TAX INVOICE / RECEIPT'
+    : 'ใบรับเงิน / RECEIPT';
+
+  const showOriginalMark = isCompanyVat && (docType === 'invoice' || doc.doc_type === 'tax_invoice');
 
   const exportPDF = async () => {
     const el = ref.current;
@@ -1153,8 +1248,8 @@ function DocPreview({ doc, customer, settings, docType }) {
               <div className="text-[10px] text-gray-500 mt-0.5">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
             </div>
             <div className="text-right flex-shrink-0">
-              <div className="font-bold text-xl text-gray-900 whitespace-nowrap">{title}</div>
-              {doc.doc_type === 'tax_invoice' && <div className="text-[9px] text-gray-500 tracking-widest mt-0.5">(ฉบับลูกค้า / ORIGINAL)</div>}
+              <div className="font-bold text-[15px] text-gray-900">{title}</div>
+              {showOriginalMark && <div className="text-[9px] text-gray-500 tracking-widest mt-0.5">(ฉบับลูกค้า · ต้นฉบับ / ORIGINAL)</div>}
             </div>
           </div>
 
@@ -1316,43 +1411,135 @@ function Modal({ title, children, onClose, size = 'md' }) {
 // ───────────────────────────────────────────────────────────
 // SETTINGS
 // ───────────────────────────────────────────────────────────
-function SettingsPanel({ settings, setSettings, onClose }) {
-  const upd = (k) => (e) => setSettings({ ...settings, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+function VendorForm({ vendor, onChange, entityType }) {
+  const upd = (k) => (e) => onChange({ ...vendor, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+  const isCompany = entityType === 'company';
   return (
-    <Modal title="⚙ Settings · ผู้ออกเอกสาร + Supabase" onClose={onClose} size="lg">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="col-span-2"><label className="lbl">ชื่อ-นามสกุล / บริษัท</label><input className="inp" value={settings.vendorName} onChange={upd('vendorName')}/></div>
-        <div><label className="lbl">เลขประจำตัวผู้เสียภาษี</label><input className="inp" value={settings.vendorTaxId} onChange={upd('vendorTaxId')}/></div>
-        <div><label className="lbl">โทรศัพท์</label><input className="inp" value={settings.vendorPhone} onChange={upd('vendorPhone')}/></div>
-        <div><label className="lbl">Email</label><input className="inp" value={settings.vendorEmail} onChange={upd('vendorEmail')}/></div>
-        <div><label className="lbl">ชื่อสำหรับเซ็น</label><input className="inp" value={settings.signatureName} onChange={upd('signatureName')}/></div>
-        <div className="col-span-2"><label className="lbl">ที่อยู่</label><textarea rows="2" className="inp" value={settings.vendorAddress} onChange={upd('vendorAddress')}/></div>
-
-        <div className="col-span-2 border-t border-white/10 pt-3 mt-2">
-          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>ข้อมูลบัญชี</div>
-        </div>
-        <div><label className="lbl">ธนาคาร</label><input className="inp" value={settings.bankName} onChange={upd('bankName')}/></div>
-        <div><label className="lbl">เลขที่บัญชี</label><input className="inp" value={settings.bankAccount} onChange={upd('bankAccount')}/></div>
-        <div className="col-span-2"><label className="lbl">ชื่อบัญชี</label><input className="inp" value={settings.bankAccountName} onChange={upd('bankAccountName')}/></div>
-
-        <div className="col-span-2 border-t border-white/10 pt-3 mt-2">
-          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>VAT (ภาษีมูลค่าเพิ่ม)</div>
-        </div>
-        <div className="col-span-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={settings.vatRegistered} onChange={upd('vatRegistered')} className="w-4 h-4 accent-yellow-500"/>
-            จด VAT แล้ว (ออกใบกำกับภาษี · คิด VAT {settings.vatRate}%)
-          </label>
-          <div className="text-xs text-slate-500 mt-1">ถ้าไม่จด — ออก "ใบรับเงิน" แทน "ใบกำกับภาษี"</div>
-        </div>
-
-        <div className="col-span-2 border-t border-white/10 pt-3 mt-2">
-          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>Supabase</div>
-        </div>
-        <div className="col-span-2"><label className="lbl">Supabase URL</label><input className="inp font-mono text-xs" value={settings.supabaseUrl} onChange={upd('supabaseUrl')} placeholder="https://YOUR-PROJECT.supabase.co"/></div>
-        <div className="col-span-2"><label className="lbl">Service Role Key <span className="text-red-400 normal-case">⚠️ Private</span></label><input className="inp font-mono text-xs" type="password" value={settings.supabaseServiceKey} onChange={upd('supabaseServiceKey')}/></div>
+    <div className="grid grid-cols-2 gap-3">
+      <div className="col-span-2">
+        <label className="lbl">{isCompany ? 'ชื่อนิติบุคคล' : 'ชื่อ-นามสกุล'}</label>
+        <input className="inp" value={vendor.name || ''} onChange={upd('name')} placeholder={isCompany ? 'บริษัท ตัวอย่าง จำกัด' : 'ชัยวัฒน์ ภูวนนท์จิรกวิน'}/>
       </div>
-      <div className="mt-4 text-xs text-slate-500">บันทึกอัตโนมัติใน browser · run <code className="bg-white/5 px-1 rounded">supabase-schema-billing.sql</code> ครั้งแรก</div>
+      <div>
+        <label className="lbl">{isCompany ? 'เลขทะเบียนนิติบุคคล (13 หลัก)' : 'เลขบัตรประชาชน (13 หลัก)'}</label>
+        <input className="inp font-mono" value={vendor.taxId || ''} onChange={upd('taxId')} placeholder="0-0000-00000-00-0"/>
+      </div>
+      <div><label className="lbl">โทรศัพท์</label><input className="inp" value={vendor.phone || ''} onChange={upd('phone')}/></div>
+      <div className="col-span-2"><label className="lbl">Email</label><input className="inp" value={vendor.email || ''} onChange={upd('email')} type="email"/></div>
+      <div className="col-span-2"><label className="lbl">ที่อยู่ผู้ออก (จะปรากฏบนเอกสาร)</label><textarea rows="2" className="inp" value={vendor.address || ''} onChange={upd('address')}/></div>
+      <div className="col-span-2"><label className="lbl">ชื่อสำหรับเซ็น</label><input className="inp" value={vendor.signatureName || ''} onChange={upd('signatureName')}/></div>
+
+      <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+        <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>ข้อมูลบัญชีรับเงิน</div>
+      </div>
+      <div><label className="lbl">ธนาคาร</label><input className="inp" value={vendor.bankName || ''} onChange={upd('bankName')} placeholder="กสิกรไทย"/></div>
+      <div><label className="lbl">เลขที่บัญชี</label><input className="inp font-mono" value={vendor.bankAccount || ''} onChange={upd('bankAccount')} placeholder="745-2-61376-4"/></div>
+      <div className="col-span-2"><label className="lbl">ชื่อบัญชี</label><input className="inp" value={vendor.bankAccountName || ''} onChange={upd('bankAccountName')}/></div>
+
+      <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+        <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>VAT (ภาษีมูลค่าเพิ่ม)</div>
+      </div>
+      <div className="col-span-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={!!vendor.vatRegistered} onChange={upd('vatRegistered')} className="w-4 h-4 accent-yellow-500"/>
+          จด VAT แล้ว · คิด VAT {vendor.vatRate || 7}% · ออกใบกำกับภาษี
+        </label>
+        <div className="text-xs text-slate-500 mt-1">
+          {isCompany
+            ? 'นิติบุคคล: บังคับจด VAT เมื่อรายได้ > 1.8 ล้านบาท/ปี'
+            : 'บุคคลธรรมดา: ปกติไม่จด VAT (ออกใบรับเงิน)'}
+        </div>
+      </div>
+
+      <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+        <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>เลขรันเอกสาร (Prefix)</div>
+        <div className="text-[10px] text-slate-500 mt-0.5">แยกตาม entity เพื่อไม่ปนกัน · format: PREFIX-YYMM-NNN</div>
+      </div>
+      <div><label className="lbl">Quotation</label><input className="inp font-mono" value={vendor.docPrefixQuotation || ''} onChange={upd('docPrefixQuotation')} placeholder={isCompany ? 'QTC' : 'QT'}/></div>
+      <div><label className="lbl">Invoice</label><input className="inp font-mono" value={vendor.docPrefixInvoice || ''} onChange={upd('docPrefixInvoice')} placeholder={isCompany ? 'INVC' : 'INV'}/></div>
+      <div><label className="lbl">Receipt</label><input className="inp font-mono" value={vendor.docPrefixReceipt || ''} onChange={upd('docPrefixReceipt')} placeholder={isCompany ? 'RCPC' : 'RCP'}/></div>
+      <div><label className="lbl">Tax Invoice</label><input className="inp font-mono" value={vendor.docPrefixTaxInvoice || ''} onChange={upd('docPrefixTaxInvoice')} placeholder="TIV"/></div>
+    </div>
+  );
+}
+
+function SettingsPanel({ settings, setSettings, onClose }) {
+  const [section, setSection] = useState('vendor');
+  const [vendorTab, setVendorTab] = useState(settings.activeEntity || 'individual');
+  const upd = (k) => (e) => setSettings(s => syncActiveVendor({ ...s, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+
+  const setVendorPersonal = (v) => setSettings(s => syncActiveVendor({ ...s, vendorPersonal: v }));
+  const setVendorCompany  = (v) => setSettings(s => syncActiveVendor({ ...s, vendorCompany:  v }));
+
+  return (
+    <Modal title="⚙ Settings · TONPALEARN Billing" onClose={onClose} size="lg">
+      {/* Section tabs */}
+      <div className="flex gap-1 mb-5 p-1 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+        {[
+          { k: 'vendor',    label: '🪪 Vendor (ผู้ออก)' },
+          { k: 'supabase',  label: '🗄  Supabase' },
+          { k: 'docs',      label: '📋 Defaults' },
+        ].map(s => (
+          <button key={s.k} onClick={() => setSection(s.k)}
+            className={`flex-1 px-3 py-2 rounded-md text-xs font-semibold transition-all ${section === s.k ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
+            style={section === s.k ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)'} : {}}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {section === 'vendor' && (
+        <div>
+          <div className="text-xs text-slate-400 mb-3">
+            ตั้งค่าได้ทั้ง 2 entity ล่วงหน้า · สลับใช้ได้จาก sidebar
+          </div>
+          <div className="flex gap-1 mb-4 p-0.5 rounded-lg w-fit" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+            <button onClick={() => setVendorTab('individual')}
+              className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${vendorTab === 'individual' ? 'text-ink-950' : 'text-slate-400'}`}
+              style={vendorTab === 'individual' ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)'} : {}}>
+              👤 บุคคลธรรมดา
+            </button>
+            <button onClick={() => setVendorTab('company')}
+              className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${vendorTab === 'company' ? 'text-ink-950' : 'text-slate-400'}`}
+              style={vendorTab === 'company' ? {background:'linear-gradient(135deg,#67E8F9,#14B8A6)'} : {}}>
+              🏢 นิติบุคคล
+            </button>
+          </div>
+          {vendorTab === 'individual'
+            ? <VendorForm vendor={settings.vendorPersonal} onChange={setVendorPersonal} entityType="individual"/>
+            : <VendorForm vendor={settings.vendorCompany}  onChange={setVendorCompany}  entityType="company"/>}
+        </div>
+      )}
+
+      {section === 'supabase' && (
+        <div className="grid grid-cols-1 gap-3">
+          <div className="text-xs text-slate-400 mb-1">เก็บข้อมูลในระบบ cloud · ใช้ร่วมกันทั้ง 2 entity</div>
+          <div><label className="lbl">Supabase URL</label><input className="inp font-mono text-xs" value={settings.supabaseUrl} onChange={upd('supabaseUrl')} placeholder="https://YOUR-PROJECT.supabase.co"/></div>
+          <div>
+            <label className="lbl">Service Role Key <span className="text-red-400 normal-case">⚠️ Private — ห้ามแชร์</span></label>
+            <input className="inp font-mono text-xs" type="password" value={settings.supabaseServiceKey} onChange={upd('supabaseServiceKey')}/>
+          </div>
+          <div className="text-xs text-slate-500 mt-1">
+            ครั้งแรกต้อง run <code className="bg-white/5 px-1.5 py-0.5 rounded text-xs">supabase-schema-billing.sql</code> ใน Supabase SQL Editor
+          </div>
+        </div>
+      )}
+
+      {section === 'docs' && (
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="lbl">WHT % default (สำหรับลูกค้านิติบุคคล)</label><input className="inp" type="number" value={settings.defaultWHT || 3} onChange={upd('defaultWHT')}/></div>
+          <div><label className="lbl">VAT % default</label><input className="inp" type="number" value={settings.vatRate || 7} onChange={upd('vatRate')}/></div>
+          <div className="col-span-2 text-[11px] text-slate-500 mt-2 border-t border-white/5 pt-3">
+            <div className="font-semibold text-slate-300 mb-1">📋 Document title preview (ตาม entity ที่เลือกใน sidebar):</div>
+            <ul className="space-y-0.5">
+              <li>• บุคคล (ไม่จด VAT): <span className="text-slate-300">ใบรับเงิน · RECEIPT</span></li>
+              <li>• นิติบุคคล (จด VAT): <span className="text-slate-300">ใบกำกับภาษี / ใบเสร็จรับเงิน · TAX INVOICE / RECEIPT</span></li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5 text-xs text-slate-500">💾 บันทึกอัตโนมัติใน browser localStorage</div>
       <div className="flex justify-end mt-4"><button onClick={onClose} className="btn btn-gold">Done</button></div>
     </Modal>
   );

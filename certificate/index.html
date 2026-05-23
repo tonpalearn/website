@@ -16,6 +16,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -1016,15 +1017,7 @@ function Certificate({ settings, certNo, studentName, studentNameTH, nameStyle, 
             <div className="text-[10px] text-gray-500">{settings.signerNameTH} · {settings.signerTitleTH}</div>
           </div>
 
-          <div className="text-center">
-            <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg mb-1.5"
-                 style={{ background: 'linear-gradient(135deg, #C8A84B, #9A7A2B)', boxShadow: '0 4px 12px -2px rgba(200,168,75,0.4)' }}>
-              T
-            </div>
-            <div className="text-[9px] font-bold text-gray-700 tracking-widest uppercase">Verify · ตรวจสอบ</div>
-            <div className="font-mono text-[10px] text-gray-800 mt-0.5">{settings.verifyBase?.replace(/^https?:\/\//, '')}</div>
-            <div className="font-mono text-[9px] text-gray-500">?id={certNo}</div>
-          </div>
+          <CertVerifyQR certNo={certNo} verifyBase={settings.verifyBase}/>
         </div>
 
         {/* FOOTER */}
@@ -1032,6 +1025,38 @@ function Certificate({ settings, certNo, studentName, studentNameTH, nameStyle, 
           {settings.organizationURL} · Issued under TONPALEARN authority
         </div>
       </div>
+    </div>
+  );
+}
+
+function CertVerifyQR({ certNo, verifyBase }) {
+  const canvasRef = useRef(null);
+  const url = `${verifyBase || 'https://tonpalearn.com/verify'}?id=${certNo}`;
+
+  useEffect(() => {
+    if (!canvasRef.current || !window.QRCode || !certNo) return;
+    window.QRCode.toCanvas(canvasRef.current, url, {
+      width: 78,
+      margin: 1,
+      color: {
+        dark: '#1a1a2a',
+        light: '#FFFFFF',
+      },
+      errorCorrectionLevel: 'M',
+    }, (err) => { if (err) console.error('QR error:', err); });
+  }, [certNo, url]);
+
+  return (
+    <div className="text-center">
+      <div className="inline-block p-1.5 rounded-md" style={{
+        background: 'linear-gradient(135deg, rgba(230,184,75,0.18), rgba(200,168,75,0.08))',
+        border: '1.5px solid #C8A84B',
+        boxShadow: '0 2px 8px -2px rgba(200,168,75,0.3)',
+      }}>
+        <canvas ref={canvasRef} width={78} height={78} style={{display: 'block', background: '#fff', borderRadius: 4}}/>
+      </div>
+      <div className="text-[9px] font-bold text-gray-700 tracking-widest uppercase mt-1">Scan · ตรวจสอบ</div>
+      <div className="font-mono text-[8px] text-gray-500 mt-0.5">{certNo}</div>
     </div>
   );
 }
