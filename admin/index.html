@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TONPALEARN · Admin · VDO + Arsenal</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/assets/liquid.css">
+
+<style>
+  table th, table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
+  table th { background: rgba(255,255,255,0.04); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.5); font-weight: 600; }
+  table tr:hover td { background: rgba(255,255,255,0.02); }
+  .tab-active { background: linear-gradient(135deg, #F5D67A, #E6B84B); color: #08080F; }
+</style>
+</head>
+<body class="mesh-bg min-h-screen">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ──────────────────────────────────────────────────────────
+// Config
+// ──────────────────────────────────────────────────────────
+const KEY = 'tpl_admin_v1';
+const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } };
+const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtInt = (n) => Number(n||0).toLocaleString('th-TH');
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('th-TH', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+
+// Generate readable ticket code: TPL-XXXX-XXXX
+const genTicketCode = () => {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O/1/I/L confusion
+  const pick = () => chars[Math.floor(Math.random() * chars.length)];
+  return `TPL-${pick()}${pick()}${pick()}${pick()}-${pick()}${pick()}${pick()}${pick()}`;
+};
+const genOrderNo = (existing = 0) => {
+  const now = new Date();
+  const yymm = String(now.getFullYear()).slice(2) + String(now.getMonth()+1).padStart(2,'0');
+  return `VDO-${yymm}-${String(existing+1).padStart(3,'0')}`;
+};
+
+// Supabase client
+let sb = null;
+const getClient = (url, key) => {
+  if (!url || !key) return null;
+  if (!sb) sb = window.supabase.createClient(url, key, { auth: { persistSession: false }});
+  return sb;
+};
+
+// ──────────────────────────────────────────────────────────
+// MAIN
+// ──────────────────────────────────────────────────────────
+const TABS = [
+  { k:'dashboard', icon:'📊', label:'Dashboard' },
+  { k:'tickets',   icon:'🎟', label:'Tickets' },
+  { k:'courses',   icon:'🎓', label:'Courses' },
+  { k:'episodes',  icon:'📺', label:'Episodes' },
+  { k:'arsenal',   icon:'⚡', label:'Arsenal' },
+  { k:'orders',    icon:'🧾', label:'Orders' },
+  { k:'settings',  icon:'⚙', label:'Settings' },
+];
+
+function App() {
+  const [cfg, setCfg] = useState(() => loadJSON(KEY, { sbUrl: 'https://lhrzjkizxjigqeuyposw.supabase.co', sbKey: '' }));
+  const [tab, setTab] = useState('dashboard');
+  const [toast, setToast] = useState('');
+  useEffect(() => saveJSON(KEY, cfg), [cfg]);
+
+  const client = getClient(cfg.sbUrl, cfg.sbKey);
+  const configured = !!client;
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+
+  return (
+    <div className="min-h-screen flex">
+      <aside className="w-56 flex-shrink-0 glass-strong h-screen sticky top-0 overflow-y-auto scrollable" style={{borderRadius: 0, borderTop:'none', borderLeft:'none', borderBottom:'none'}}>
+        <div className="p-4 border-b border-white/10">
+          <div className="font-display font-bold text-base">
+            <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+          </div>
+          <div className="text-[10px] text-slate-500 mt-0.5 font-mono uppercase tracking-widest">Admin · VDO</div>
+        </div>
+        <nav className="p-2 space-y-1">
+          {TABS.map(t => (
+            <button key={t.k} onClick={() => setTab(t.k)}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition ${tab === t.k ? 'bg-white/10 text-white font-semibold' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
+              <span>{t.icon}</span><span>{t.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="p-2 mt-2 border-t border-white/10">
+          <a href="/" className="block px-3 py-2 text-xs text-slate-500 hover:text-white transition">← Home</a>
+          <a href="/vdo/" className="block px-3 py-2 text-xs text-slate-500 hover:text-white transition" target="_blank">▶ Open /vdo</a>
+        </div>
+      </aside>
+
+      <main className="flex-1 min-w-0 p-6 max-w-full">
+        {!configured && tab !== 'settings' && (
+          <div className="glass p-5 mb-5" style={{borderColor:'rgba(245,214,122,0.40)'}}>
+            <div className="font-semibold text-gold-200" style={{color:'#F5D67A'}}>⚙️ ตั้งค่า Supabase ก่อนใช้งาน</div>
+            <p className="text-sm text-slate-400 mt-1">
+              ไปที่ <button onClick={() => setTab('settings')} className="underline text-gold-200" style={{color:'#F5D67A'}}>⚙ Settings</button> → ใส่ Supabase URL + Service Role Key<br/>
+              และ run <code className="bg-white/5 px-2 py-0.5 rounded text-xs">supabase-schema-vdo.sql</code> ครั้งแรก
+            </p>
+          </div>
+        )}
+
+        {tab === 'dashboard' && <Dashboard client={client}/>}
+        {tab === 'tickets'   && <Tickets client={client} showToast={showToast}/>}
+        {tab === 'courses'   && <Courses client={client} showToast={showToast}/>}
+        {tab === 'episodes'  && <Episodes client={client} showToast={showToast}/>}
+        {tab === 'arsenal'   && <Arsenal client={client} showToast={showToast}/>}
+        {tab === 'orders'    && <Orders client={client} showToast={showToast}/>}
+        {tab === 'settings'  && <Settings cfg={cfg} setCfg={setCfg}/>}
+      </main>
+
+      {toast && <div className="toast" style={{position:'fixed', bottom: 24, left: '50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#14B8A6,#0D9488)', color:'#fff', padding:'12px 20px', borderRadius:10, fontWeight:600, zIndex:200}}>{toast}</div>}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// DASHBOARD
+// ──────────────────────────────────────────────────────────
+function Dashboard({ client }) {
+  const [stats, setStats] = useState({ tickets: 0, active: 0, courses: 0, episodes: 0, packs: 0, orders: 0, revenue: 0, playsToday: 0 });
+
+  useEffect(() => {
+    if (!client) return;
+    (async () => {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const [tk, ac, cs, ep, ar, or, rv, pl] = await Promise.all([
+        client.from('tickets').select('id', { count:'exact', head: true }),
+        client.from('tickets').select('id', { count:'exact', head: true }).eq('status', 'active'),
+        client.from('vdo_courses').select('id', { count:'exact', head: true }),
+        client.from('vdo_episodes').select('id', { count:'exact', head: true }),
+        client.from('arsenal_packs').select('id', { count:'exact', head: true }),
+        client.from('vdo_orders').select('id', { count:'exact', head: true }),
+        client.from('vdo_orders').select('amount_thb').eq('status', 'paid'),
+        client.from('view_logs').select('id', { count:'exact', head: true }).gte('watched_at', today.toISOString()).eq('counted_as_play', true),
+      ]);
+      setStats({
+        tickets: tk.count || 0,
+        active: ac.count || 0,
+        courses: cs.count || 0,
+        episodes: ep.count || 0,
+        packs: ar.count || 0,
+        orders: or.count || 0,
+        revenue: (rv.data || []).reduce((s, r) => s + Number(r.amount_thb||0), 0),
+        playsToday: pl.count || 0,
+      });
+    })();
+  }, [client]);
+
+  const tiles = [
+    { icon:'🎟', label:'TICKETS · TOTAL',  value: stats.tickets },
+    { icon:'✅', label:'ACTIVE',          value: stats.active, color: '#4ADE80' },
+    { icon:'🎓', label:'COURSES',         value: stats.courses },
+    { icon:'📺', label:'EPISODES',        value: stats.episodes },
+    { icon:'⚡', label:'ARSENAL PACKS',   value: stats.packs },
+    { icon:'🧾', label:'ORDERS',          value: stats.orders },
+    { icon:'💰', label:'REVENUE (PAID)',  value: '฿'+fmtTHB(stats.revenue), wide:true },
+    { icon:'▶',  label:'PLAYS TODAY',     value: stats.playsToday, color:'#F5D67A' },
+  ];
+
+  return (
+    <div>
+      <div className="mb-5">
+        <h1 className="font-display font-bold text-2xl">Dashboard</h1>
+        <p className="text-sm text-slate-400">VDO + Arsenal · ภาพรวม</p>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {tiles.map(t => (
+          <div key={t.label} className={`glass p-4 ${t.wide?'col-span-2':''}`}>
+            <div className="text-[10px] text-slate-400 font-mono uppercase tracking-widest mb-1">{t.icon} {t.label}</div>
+            <div className="font-display font-bold text-2xl text-white" style={t.color?{color:t.color}:{}}>{t.value}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// TICKETS
+// ──────────────────────────────────────────────────────────
+function Tickets({ client, showToast }) {
+  const [items, setItems] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [showNew, setShowNew] = useState(false);
+  const [issuedTicket, setIssuedTicket] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    setLoading(true);
+    const [t, c] = await Promise.all([
+      client.from('tickets').select('*, ticket_courses(course_id)').order('created_at', { ascending: false }),
+      client.from('vdo_courses').select('id, slug, title').order('sort_order'),
+    ]);
+    setItems(t.data || []); setCourses(c.data || []);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  const filtered = useMemo(() => {
+    let f = items;
+    if (filter !== 'all') f = f.filter(t => t.status === filter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      f = f.filter(t => (t.code||'').toLowerCase().includes(q) ||
+                        (t.customer_name||'').toLowerCase().includes(q) ||
+                        (t.customer_phone||'').toLowerCase().includes(q) ||
+                        (t.customer_line_id||'').toLowerCase().includes(q));
+    }
+    return f;
+  }, [items, filter, search]);
+
+  const revoke = async (id) => {
+    if (!confirm('Revoke ticket นี้?')) return;
+    await client.from('tickets').update({ status: 'revoked' }).eq('id', id);
+    showToast('✓ Revoked');
+    load();
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">🎟 Tickets</h1>
+          <p className="text-sm text-slate-400">{fmtInt(items.length)} ทั้งหมด · {fmtInt(items.filter(t => t.status === 'active').length)} active</p>
+        </div>
+        <button onClick={() => setShowNew(true)} disabled={!client} className="btn btn-gold">+ Generate Ticket</button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="ค้น code / ชื่อ / phone / LINE..." className="inp max-w-sm"/>
+        <div className="flex gap-1 p-0.5 rounded-lg" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)'}}>
+          {['all','active','consumed','expired','revoked'].map(s => (
+            <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-md text-[11px] font-semibold transition ${filter === s ? 'tab-active' : 'text-slate-400 hover:text-white'}`}>{s}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Customer</th>
+              <th>Type</th>
+              <th>Used / Limit</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th className="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(t => (
+              <tr key={t.id}>
+                <td className="font-mono font-bold grad-gold">{t.code}</td>
+                <td><div className="text-white text-sm">{t.customer_name || '—'}</div>{t.customer_phone && <div className="text-[10px] text-slate-500">{t.customer_phone}</div>}</td>
+                <td className="text-xs">{t.ticket_type}</td>
+                <td className="font-mono text-xs">
+                  {t.ticket_type === 'count' && `${t.plays_used}/${t.max_plays}`}
+                  {t.ticket_type === 'days' && (t.expires_at ? fmtDate(t.expires_at) : '—')}
+                  {t.ticket_type === 'unlimited' && '∞'}
+                </td>
+                <td><span className={`pill-status st-${t.status === 'active' ? 'paid' : t.status === 'expired' ? 'expired' : t.status === 'revoked' ? 'declined' : 'pending'}`}>{t.status}</span></td>
+                <td className="text-xs text-slate-400">{fmtDate(t.created_at)}</td>
+                <td className="text-right">
+                  {t.status === 'active' && <button onClick={() => revoke(t.id)} className="btn btn-ghost text-xs" style={{borderColor:'rgba(248,113,113,0.30)', color:'#FCA5A5'}}>Revoke</button>}
+                  <button onClick={() => { navigator.clipboard.writeText(t.code); showToast('Copied ' + t.code); }} className="btn btn-ghost text-xs ml-1">📋</button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && !loading && <tr><td colSpan="7" className="text-center text-slate-500 py-10">ยังไม่มี ticket</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      {showNew && <TicketCreateModal client={client} courses={courses}
+        onClose={() => setShowNew(false)}
+        onCreated={(t) => { setShowNew(false); setIssuedTicket(t); load(); }}/>}
+
+      {issuedTicket && <TicketIssuedModal ticket={issuedTicket} courses={courses} onClose={() => setIssuedTicket(null)}/>}
+    </div>
+  );
+}
+
+function TicketCreateModal({ client, courses, onClose, onCreated }) {
+  const [f, setF] = useState({
+    customer_name: '', customer_phone: '', customer_line_id: '', customer_email: '',
+    ticket_type: 'count', max_plays: 10, days: 30,
+    course_ids: [],
+    notes: '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  const toggleCourse = (id) => setF({ ...f, course_ids: f.course_ids.includes(id) ? f.course_ids.filter(x => x !== id) : [...f.course_ids, id] });
+
+  const save = async () => {
+    if (f.course_ids.length === 0) { alert('เลือกอย่างน้อย 1 คอร์ส'); return; }
+    setSaving(true);
+    try {
+      const code = genTicketCode();
+      const payload = {
+        code,
+        ticket_type: f.ticket_type,
+        max_plays: f.ticket_type === 'count' ? Number(f.max_plays) : null,
+        expires_at: f.ticket_type === 'days' ? new Date(Date.now() + Number(f.days)*86400000).toISOString() : null,
+        customer_name: f.customer_name, customer_phone: f.customer_phone,
+        customer_line_id: f.customer_line_id, customer_email: f.customer_email,
+        notes: f.notes,
+      };
+      const { data, error } = await client.from('tickets').insert(payload).select().single();
+      if (error) throw error;
+      const rows = f.course_ids.map(course_id => ({ ticket_id: data.id, course_id }));
+      await client.from('ticket_courses').insert(rows);
+      onCreated({ ...data, course_ids: f.course_ids });
+    } catch (e) {
+      alert('Failed: ' + e.message);
+    } finally { setSaving(false); }
+  };
+
+  return (
+    <Modal title="🎟 Generate Ticket" onClose={onClose} size="lg">
+      <div className="grid grid-cols-2 gap-3">
+        <div><label className="lbl">ลูกค้า · ชื่อ</label><input className="inp" value={f.customer_name} onChange={e => setF({...f, customer_name: e.target.value})}/></div>
+        <div><label className="lbl">เบอร์โทร</label><input className="inp" value={f.customer_phone} onChange={e => setF({...f, customer_phone: e.target.value})}/></div>
+        <div><label className="lbl">LINE ID</label><input className="inp" value={f.customer_line_id} onChange={e => setF({...f, customer_line_id: e.target.value})}/></div>
+        <div><label className="lbl">Email</label><input className="inp" value={f.customer_email} onChange={e => setF({...f, customer_email: e.target.value})}/></div>
+
+        <div className="col-span-2 mt-2">
+          <label className="lbl">Ticket Type</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { k:'count', label:'Count', sub:'จำกัดจำนวนครั้ง' },
+              { k:'days', label:'Days', sub:'หมดอายุตามวัน' },
+              { k:'unlimited', label:'Unlimited', sub:'ไม่จำกัด' },
+            ].map(t => (
+              <button key={t.k} onClick={() => setF({...f, ticket_type: t.k})}
+                className={`p-3 rounded-lg border transition ${f.ticket_type === t.k ? 'bg-white/[0.08] border-gold-400' : 'bg-white/[0.02] border-white/10 hover:border-white/20'}`}
+                style={f.ticket_type === t.k ? {borderColor:'#E6B84B'} : {}}>
+                <div className="font-semibold text-white text-sm">{t.label}</div>
+                <div className="text-[10px] text-slate-400 mt-0.5">{t.sub}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {f.ticket_type === 'count' && <div className="col-span-2"><label className="lbl">จำนวนครั้งที่ดูได้</label><input className="inp" type="number" value={f.max_plays} onChange={e => setF({...f, max_plays: e.target.value})}/></div>}
+        {f.ticket_type === 'days' && <div className="col-span-2"><label className="lbl">มีอายุกี่วัน (นับจาก redeem ครั้งแรก)</label><input className="inp" type="number" value={f.days} onChange={e => setF({...f, days: e.target.value})}/></div>}
+
+        <div className="col-span-2 mt-2">
+          <label className="lbl">คอร์สที่ entitle * (เลือกได้หลาย)</label>
+          <div className="flex flex-wrap gap-1.5">
+            {courses.map(c => (
+              <button key={c.id} onClick={() => toggleCourse(c.id)}
+                className={`pill text-[11px] ${f.course_ids.includes(c.id) ? 'active' : ''}`}>{c.title}</button>
+            ))}
+            {courses.length === 0 && <div className="text-xs text-slate-500">ยังไม่มี course — สร้างใน Courses tab ก่อน</div>}
+          </div>
+        </div>
+
+        <div className="col-span-2"><label className="lbl">Notes</label><textarea rows="2" className="inp text-xs" value={f.notes} onChange={e => setF({...f, notes: e.target.value})}/></div>
+      </div>
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold">{saving ? '...' : 'Generate'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+function TicketIssuedModal({ ticket, courses, onClose }) {
+  const courseNames = (ticket.course_ids || []).map(id => courses.find(c => c.id === id)?.title).filter(Boolean);
+  const lineMsg = `🎟 Ticket ของคุณพร้อมแล้ว!\n\nCode: ${ticket.code}\n\nเข้าได้ ${courseNames.length} คอร์ส:\n${courseNames.map(n => `• ${n}`).join('\n')}\n\n${ticket.ticket_type === 'count' ? `ดูได้ ${ticket.max_plays} ครั้ง` : ticket.ticket_type === 'days' ? `อายุ ${Math.ceil((new Date(ticket.expires_at) - Date.now())/86400000)} วัน` : 'ไม่จำกัด'}\n\nคลิก: https://tonpalearn.com/vdo/?t=${ticket.code}`;
+
+  return (
+    <Modal title="✓ Ticket Issued" onClose={onClose} size="md">
+      <div className="text-center mb-5">
+        <div className="text-4xl mb-2">🎉</div>
+        <div className="font-mono font-bold text-2xl grad-gold tracking-widest">{ticket.code}</div>
+        <button onClick={() => { navigator.clipboard.writeText(ticket.code); }} className="btn btn-ghost text-xs mt-2">📋 Copy code</button>
+      </div>
+      <div className="glass-soft p-3 text-xs whitespace-pre-line text-slate-300 font-mono mb-3">{lineMsg}</div>
+      <button onClick={() => { navigator.clipboard.writeText(lineMsg); }} className="btn btn-gold w-full justify-center">📋 Copy ข้อความ LINE</button>
+      <div className="text-[10px] text-slate-500 text-center mt-3">วาง paste ใน LINE chat กับลูกค้าได้เลย</div>
+    </Modal>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// COURSES
+// ──────────────────────────────────────────────────────────
+function Courses({ client, showToast }) {
+  const [items, setItems] = useState([]);
+  const [editing, setEditing] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    const { data } = await client.from('vdo_courses').select('*').order('sort_order');
+    setItems(data || []); setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">🎓 Courses</h1>
+          <p className="text-sm text-slate-400">{items.length} คอร์ส</p>
+        </div>
+        <button onClick={() => setEditing({})} disabled={!client} className="btn btn-gold">+ คอร์สใหม่</button>
+      </div>
+
+      <div className="glass overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr>
+            <th>Slug</th><th>Title</th><th>Episodes</th><th>Price</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody>
+            {items.map(c => (
+              <tr key={c.id}>
+                <td className="font-mono text-xs">{c.slug}</td>
+                <td><div className="text-white">{c.title}</div>{c.title_en && <div className="text-[10px] text-slate-500">{c.title_en}</div>}</td>
+                <td className="font-mono">{c.episode_count}</td>
+                <td className="font-mono">฿{fmtTHB(c.price_thb)}</td>
+                <td><span className={`pill-status st-${c.is_published ? 'paid' : 'draft'}`}>{c.is_published ? 'PUBLISHED' : 'DRAFT'}</span></td>
+                <td className="text-right"><button onClick={() => setEditing(c)} className="btn btn-ghost text-xs">Edit</button></td>
+              </tr>
+            ))}
+            {items.length === 0 && !loading && <tr><td colSpan="6" className="text-center text-slate-500 py-10">ยังไม่มีคอร์ส</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && <CourseEditModal course={editing} client={client}
+        onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); showToast('✓ Saved'); }}/>}
+    </div>
+  );
+}
+
+function CourseEditModal({ course, client, onClose, onSaved }) {
+  const [f, setF] = useState({
+    slug:'', title:'', title_en:'', description:'', cover_url:'',
+    level:'beginner', category:'', hours_total:0, price_thb:0,
+    is_published: false, sort_order: 0,
+    ...course,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!f.slug || !f.title) { alert('slug + title required'); return; }
+    setSaving(true);
+    try {
+      const payload = { ...f };
+      delete payload.episode_count; delete payload.created_at; delete payload.updated_at;
+      if (course.id) {
+        await client.from('vdo_courses').update(payload).eq('id', course.id);
+      } else {
+        await client.from('vdo_courses').insert(payload);
+      }
+      onSaved();
+    } catch (e) { alert('Failed: ' + e.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <Modal title={course.id ? 'แก้ไขคอร์ส' : 'คอร์สใหม่'} onClose={onClose} size="lg">
+      <div className="grid grid-cols-2 gap-3">
+        <div><label className="lbl">Slug *</label><input className="inp font-mono text-xs" value={f.slug} onChange={e => setF({...f, slug: e.target.value})} placeholder="01-ai-basic"/></div>
+        <div><label className="lbl">Sort order</label><input className="inp" type="number" value={f.sort_order} onChange={e => setF({...f, sort_order: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Title TH *</label><input className="inp" value={f.title} onChange={e => setF({...f, title: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Title EN</label><input className="inp" value={f.title_en||''} onChange={e => setF({...f, title_en: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Description</label><textarea rows="3" className="inp text-xs" value={f.description||''} onChange={e => setF({...f, description: e.target.value})}/></div>
+        <div><label className="lbl">Cover URL</label><input className="inp text-xs" value={f.cover_url||''} onChange={e => setF({...f, cover_url: e.target.value})} placeholder="/assets/covers/course-01.png"/></div>
+        <div><label className="lbl">Category</label><input className="inp" value={f.category||''} onChange={e => setF({...f, category: e.target.value})}/></div>
+        <div>
+          <label className="lbl">Level</label>
+          <select className="inp" value={f.level||'beginner'} onChange={e => setF({...f, level: e.target.value})}>
+            <option className="bg-ink-900" value="beginner">Beginner</option>
+            <option className="bg-ink-900" value="intermediate">Intermediate</option>
+            <option className="bg-ink-900" value="advanced">Advanced</option>
+          </select>
+        </div>
+        <div><label className="lbl">Price (THB)</label><input className="inp" type="number" value={f.price_thb||0} onChange={e => setF({...f, price_thb: e.target.value})}/></div>
+        <div className="col-span-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!f.is_published} onChange={e => setF({...f, is_published: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+            Published (แสดงที่ /vdo)
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold">{saving ? '...' : 'Save'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// EPISODES
+// ──────────────────────────────────────────────────────────
+function Episodes({ client, showToast }) {
+  const [courses, setCourses] = useState([]);
+  const [pickedCourse, setPickedCourse] = useState('');
+  const [items, setItems] = useState([]);
+  const [editing, setEditing] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    const cr = await client.from('vdo_courses').select('id, slug, title').order('sort_order');
+    setCourses(cr.data || []);
+    if (pickedCourse) {
+      const ep = await client.from('vdo_episodes').select('*').eq('course_id', pickedCourse).order('episode_no');
+      setItems(ep.data || []);
+    } else setItems([]);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [client, pickedCourse]);
+
+  const remove = async (id) => {
+    if (!confirm('ลบ episode นี้?')) return;
+    await client.from('vdo_episodes').delete().eq('id', id);
+    showToast('✓ Deleted'); load();
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">📺 Episodes</h1>
+          <p className="text-sm text-slate-400">เลือกคอร์ส แล้วจัดการ episode</p>
+        </div>
+        <button onClick={() => setEditing({ course_id: pickedCourse })} disabled={!client || !pickedCourse} className="btn btn-gold">+ Episode ใหม่</button>
+      </div>
+
+      <select className="inp max-w-md mb-4" value={pickedCourse} onChange={e => setPickedCourse(e.target.value)}>
+        <option value="" className="bg-ink-900">— เลือกคอร์ส —</option>
+        {courses.map(c => <option key={c.id} value={c.id} className="bg-ink-900">{c.title}</option>)}
+      </select>
+
+      <div className="glass overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr>
+            <th>EP</th><th>Title</th><th>YouTube ID</th><th>Duration</th><th>Preview</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody>
+            {items.map(ep => (
+              <tr key={ep.id}>
+                <td className="font-mono font-bold grad-gold">{String(ep.episode_no).padStart(2,'0')}</td>
+                <td>{ep.title}</td>
+                <td className="font-mono text-xs">{ep.youtube_video_id}</td>
+                <td className="font-mono text-xs">{ep.duration_seconds ? `${Math.floor(ep.duration_seconds/60)}:${String(ep.duration_seconds%60).padStart(2,'0')}` : '—'}</td>
+                <td>{ep.is_preview ? <span className="pill-status st-accepted text-[9px]">FREE</span> : ''}</td>
+                <td><span className={`pill-status st-${ep.is_published ? 'paid' : 'draft'} text-[9px]`}>{ep.is_published ? 'LIVE' : 'DRAFT'}</span></td>
+                <td className="text-right">
+                  <button onClick={() => setEditing(ep)} className="btn btn-ghost text-xs">Edit</button>
+                  <button onClick={() => remove(ep.id)} className="btn btn-ghost text-xs ml-1" style={{color:'#FCA5A5'}}>✕</button>
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && pickedCourse && <tr><td colSpan="7" className="text-center text-slate-500 py-10">ยังไม่มี episode ในคอร์สนี้</td></tr>}
+            {!pickedCourse && <tr><td colSpan="7" className="text-center text-slate-500 py-10">เลือกคอร์สก่อน</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && <EpisodeEditModal episode={editing} courses={courses} client={client} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); showToast('✓ Saved'); }}/>}
+    </div>
+  );
+}
+
+function EpisodeEditModal({ episode, courses, client, onClose, onSaved }) {
+  const [f, setF] = useState({
+    course_id:'', episode_no:1, title:'', description:'',
+    youtube_video_id:'', duration_seconds: 0,
+    resources: [], is_preview: false, is_published: true, sort_order: 0,
+    ...episode,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!f.course_id || !f.title || !f.youtube_video_id) { alert('course + title + youtube_video_id required'); return; }
+    setSaving(true);
+    try {
+      const payload = { ...f };
+      payload.episode_no = Number(payload.episode_no);
+      payload.duration_seconds = Number(payload.duration_seconds);
+      payload.sort_order = Number(payload.sort_order);
+      delete payload.created_at; delete payload.updated_at;
+      if (episode.id) {
+        await client.from('vdo_episodes').update(payload).eq('id', episode.id);
+      } else {
+        await client.from('vdo_episodes').insert(payload);
+      }
+      onSaved();
+    } catch (e) { alert('Failed: ' + e.message); }
+    finally { setSaving(false); }
+  };
+
+  const addResource = () => setF({...f, resources: [...(f.resources||[]), { title:'', url:'', type:'pdf' }]});
+  const updR = (i, patch) => setF({...f, resources: f.resources.map((r, ix) => ix === i ? {...r, ...patch} : r)});
+  const delR = (i) => setF({...f, resources: f.resources.filter((_, ix) => ix !== i)});
+
+  return (
+    <Modal title={episode.id ? 'แก้ไข Episode' : 'Episode ใหม่'} onClose={onClose} size="lg">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="col-span-2">
+          <label className="lbl">Course *</label>
+          <select className="inp" value={f.course_id} onChange={e => setF({...f, course_id: e.target.value})}>
+            <option value="" className="bg-ink-900">—</option>
+            {courses.map(c => <option key={c.id} value={c.id} className="bg-ink-900">{c.title}</option>)}
+          </select>
+        </div>
+        <div><label className="lbl">Episode No *</label><input className="inp" type="number" value={f.episode_no} onChange={e => setF({...f, episode_no: e.target.value})}/></div>
+        <div><label className="lbl">Sort order</label><input className="inp" type="number" value={f.sort_order} onChange={e => setF({...f, sort_order: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Title *</label><input className="inp" value={f.title} onChange={e => setF({...f, title: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Description</label><textarea rows="2" className="inp text-xs" value={f.description||''} onChange={e => setF({...f, description: e.target.value})}/></div>
+        <div className="col-span-2">
+          <label className="lbl">YouTube Video ID * (เฉพาะ ID ไม่ใส่ URL)</label>
+          <input className="inp font-mono" value={f.youtube_video_id||''} onChange={e => setF({...f, youtube_video_id: e.target.value})} placeholder="dQw4w9WgXcQ"/>
+          <div className="text-[10px] text-slate-500 mt-1">⚠️ ใช้ video unlisted แล้วเอา ID มาวาง · จะถูก embed ผ่าน youtube-nocookie + obfuscation</div>
+        </div>
+        <div><label className="lbl">Duration (วินาที)</label><input className="inp" type="number" value={f.duration_seconds||0} onChange={e => setF({...f, duration_seconds: e.target.value})}/></div>
+        <div className="flex items-end gap-3">
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" checked={!!f.is_preview} onChange={e => setF({...f, is_preview: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+            Preview (ดูฟรี)
+          </label>
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" checked={!!f.is_published} onChange={e => setF({...f, is_published: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+            Published
+          </label>
+        </div>
+
+        <div className="col-span-2 mt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs uppercase tracking-widest font-semibold" style={{color:'#E6B84B'}}>Resources</div>
+            <button onClick={addResource} className="btn btn-ghost text-xs">+ เพิ่ม</button>
+          </div>
+          <div className="space-y-1.5">
+            {(f.resources||[]).map((r, i) => (
+              <div key={i} className="grid grid-cols-12 gap-1.5">
+                <input className="inp col-span-4 text-xs" placeholder="Title" value={r.title||''} onChange={e => updR(i, { title: e.target.value })}/>
+                <input className="inp col-span-5 text-xs font-mono" placeholder="URL" value={r.url||''} onChange={e => updR(i, { url: e.target.value })}/>
+                <select className="inp col-span-2 text-xs" value={r.type||'pdf'} onChange={e => updR(i, { type: e.target.value })}>
+                  <option value="pdf" className="bg-ink-900">📄 PDF</option>
+                  <option value="code" className="bg-ink-900">💻 Code</option>
+                  <option value="prompt" className="bg-ink-900">✨ Prompt</option>
+                  <option value="link" className="bg-ink-900">🔗 Link</option>
+                </select>
+                <button onClick={() => delR(i)} className="col-span-1 text-red-400 text-xs">✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold">{saving ? '...' : 'Save'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// ARSENAL
+// ──────────────────────────────────────────────────────────
+function Arsenal({ client, showToast }) {
+  const [items, setItems] = useState([]);
+  const [editing, setEditing] = useState(null);
+
+  const load = async () => {
+    if (!client) return;
+    const { data } = await client.from('arsenal_packs').select('*').order('sort_order');
+    setItems(data || []);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">⚡ Arsenal Packs</h1>
+          <p className="text-sm text-slate-400">{items.length} prompt packs</p>
+        </div>
+        <button onClick={() => setEditing({ sample_prompts: [], is_published: false })} disabled={!client} className="btn btn-gold">+ Pack ใหม่</button>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {items.map(p => (
+          <div key={p.id} className="glass p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div className="text-xs eyebrow">{p.category}</div>
+              <span className={`pill-status st-${p.is_published ? 'paid' : 'draft'} text-[9px]`}>{p.is_published ? 'LIVE' : 'DRAFT'}</span>
+            </div>
+            <div className="font-display font-bold text-white mb-1">{p.title}</div>
+            <div className="text-xs text-slate-400 mb-3 line-clamp-2">{p.description}</div>
+            <div className="flex items-center justify-between">
+              <div><span className="font-mono text-xs">{p.prompt_count} prompts</span> <span className="text-slate-500 text-xs">· ฿{fmtTHB(p.price_thb)}</span></div>
+              <button onClick={() => setEditing(p)} className="btn btn-ghost text-xs">Edit</button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && <div className="col-span-full text-center text-slate-500 py-10">ยังไม่มี pack</div>}
+      </div>
+
+      {editing && <ArsenalEditModal pack={editing} client={client} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); showToast('✓ Saved'); }}/>}
+    </div>
+  );
+}
+
+function ArsenalEditModal({ pack, client, onClose, onSaved }) {
+  const [f, setF] = useState({
+    slug:'', title:'', description:'', category:'Marketing',
+    cover_url:'', prompt_count:0, price_thb:0, download_url:'',
+    sample_prompts: [], is_published: false, sort_order: 0,
+    ...pack,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!f.slug || !f.title) { alert('slug + title required'); return; }
+    setSaving(true);
+    try {
+      const payload = { ...f };
+      delete payload.created_at; delete payload.updated_at;
+      if (pack.id) await client.from('arsenal_packs').update(payload).eq('id', pack.id);
+      else await client.from('arsenal_packs').insert(payload);
+      onSaved();
+    } catch (e) { alert('Failed: ' + e.message); }
+    finally { setSaving(false); }
+  };
+
+  const addPrompt = () => setF({...f, sample_prompts: [...(f.sample_prompts||[]), { title:'', body:'' }]});
+  const upd = (i, patch) => setF({...f, sample_prompts: f.sample_prompts.map((p, ix) => ix === i ? {...p, ...patch} : p)});
+  const del = (i) => setF({...f, sample_prompts: f.sample_prompts.filter((_, ix) => ix !== i)});
+
+  return (
+    <Modal title={pack.id ? 'แก้ไข Pack' : 'Pack ใหม่'} onClose={onClose} size="lg">
+      <div className="grid grid-cols-2 gap-3">
+        <div><label className="lbl">Slug *</label><input className="inp font-mono text-xs" value={f.slug} onChange={e => setF({...f, slug: e.target.value})} placeholder="marketing-power-30"/></div>
+        <div>
+          <label className="lbl">Category</label>
+          <select className="inp" value={f.category} onChange={e => setF({...f, category: e.target.value})}>
+            <option className="bg-ink-900">Marketing</option>
+            <option className="bg-ink-900">Sales</option>
+            <option className="bg-ink-900">Coach</option>
+            <option className="bg-ink-900">IT Audit</option>
+            <option className="bg-ink-900">Personal Assistant</option>
+            <option className="bg-ink-900">Content</option>
+            <option className="bg-ink-900">Other</option>
+          </select>
+        </div>
+        <div className="col-span-2"><label className="lbl">Title *</label><input className="inp" value={f.title} onChange={e => setF({...f, title: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Description</label><textarea rows="3" className="inp text-xs" value={f.description||''} onChange={e => setF({...f, description: e.target.value})}/></div>
+        <div><label className="lbl">Cover URL</label><input className="inp text-xs" value={f.cover_url||''} onChange={e => setF({...f, cover_url: e.target.value})}/></div>
+        <div><label className="lbl">Prompt Count</label><input className="inp" type="number" value={f.prompt_count||0} onChange={e => setF({...f, prompt_count: e.target.value})}/></div>
+        <div><label className="lbl">Price (THB)</label><input className="inp" type="number" value={f.price_thb||0} onChange={e => setF({...f, price_thb: e.target.value})}/></div>
+        <div><label className="lbl">Sort order</label><input className="inp" type="number" value={f.sort_order||0} onChange={e => setF({...f, sort_order: e.target.value})}/></div>
+        <div className="col-span-2"><label className="lbl">Download URL (gated · ส่งให้ลูกค้าหลังจ่ายเงิน)</label><input className="inp text-xs" value={f.download_url||''} onChange={e => setF({...f, download_url: e.target.value})}/></div>
+
+        <div className="col-span-2 mt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs uppercase tracking-widest font-semibold" style={{color:'#E6B84B'}}>Sample Prompts (3 ตัวอย่างที่ public เห็นได้)</div>
+            <button onClick={addPrompt} className="btn btn-ghost text-xs">+ เพิ่ม</button>
+          </div>
+          <div className="space-y-2">
+            {(f.sample_prompts||[]).map((p, i) => (
+              <div key={i} className="glass-soft p-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <input className="inp text-xs flex-1" placeholder="Prompt title" value={p.title||''} onChange={e => upd(i, { title: e.target.value })}/>
+                  <button onClick={() => del(i)} className="text-red-400 text-xs">✕</button>
+                </div>
+                <textarea rows="3" className="inp text-xs" placeholder="Prompt body" value={p.body||''} onChange={e => upd(i, { body: e.target.value })}/>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-span-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!f.is_published} onChange={e => setF({...f, is_published: e.target.checked})} className="w-4 h-4 accent-yellow-500"/>
+            Published (แสดงที่ /arsenal)
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold">{saving ? '...' : 'Save'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// ORDERS
+// ──────────────────────────────────────────────────────────
+function Orders({ client, showToast }) {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    if (!client) return;
+    (async () => {
+      const { data } = await client.from('vdo_orders').select('*').order('created_at', { ascending: false }).limit(100);
+      setItems(data || []);
+    })();
+  }, [client]);
+
+  return (
+    <div>
+      <div className="mb-5">
+        <h1 className="font-display font-bold text-2xl">🧾 Orders</h1>
+        <p className="text-sm text-slate-400">{items.length} orders · จาก /vdo + /arsenal</p>
+      </div>
+      <div className="glass overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr><th>Order</th><th>Type</th><th>Customer</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
+          <tbody>
+            {items.map(o => (
+              <tr key={o.id}>
+                <td className="font-mono">{o.order_no || o.id.slice(0,8)}</td>
+                <td className="text-xs">{o.type}</td>
+                <td>{o.customer_name || '—'} {o.customer_line_id && <span className="text-[10px] text-slate-500">· {o.customer_line_id}</span>}</td>
+                <td className="font-mono">฿{fmtTHB(o.amount_thb)}</td>
+                <td><span className={`pill-status st-${o.status === 'paid' ? 'paid' : o.status === 'fulfilled' ? 'accepted' : 'pending'}`}>{o.status}</span></td>
+                <td className="text-xs text-slate-400">{fmtDate(o.created_at)}</td>
+              </tr>
+            ))}
+            {items.length === 0 && <tr><td colSpan="6" className="text-center text-slate-500 py-10">ยังไม่มี orders · ลูกค้าทักไลน์มาแล้วค่อยลงที่นี่</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// SETTINGS
+// ──────────────────────────────────────────────────────────
+function Settings({ cfg, setCfg }) {
+  const [anonKey, setAnonKey] = useState('');
+  return (
+    <div className="max-w-3xl">
+      <h1 className="font-display font-bold text-2xl mb-2">⚙ Settings</h1>
+      <p className="text-sm text-slate-400 mb-5">Supabase config · เก็บใน browser localStorage</p>
+
+      <div className="glass p-5 space-y-4">
+        <div>
+          <label className="lbl">Supabase URL</label>
+          <input className="inp font-mono text-xs" value={cfg.sbUrl} onChange={e => setCfg({...cfg, sbUrl: e.target.value})} placeholder="https://YOUR-PROJECT.supabase.co"/>
+        </div>
+        <div>
+          <label className="lbl">Service Role Key <span className="text-red-400 normal-case">⚠️ Private — เฉพาะ admin</span></label>
+          <input className="inp font-mono text-xs" type="password" value={cfg.sbKey} onChange={e => setCfg({...cfg, sbKey: e.target.value})}/>
+        </div>
+        <div className="text-xs text-slate-500 border-t border-white/5 pt-3">
+          <div className="font-semibold text-slate-300 mb-1">📋 ครั้งแรก:</div>
+          <ol className="list-decimal pl-5 space-y-0.5">
+            <li>Open Supabase Dashboard → SQL Editor</li>
+            <li>Run <code className="bg-white/5 px-1.5 rounded">supabase-schema-vdo.sql</code> (ดูใน repo)</li>
+            <li>Settings → API → คัดลอก URL + service_role key มาวางที่นี่</li>
+            <li>คัดลอก <strong>anon key</strong> (public) แล้วใส่ใน /vdo first-time setup</li>
+          </ol>
+        </div>
+      </div>
+
+      <div className="glass p-5 mt-4 border" style={{borderColor:'rgba(45,212,191,0.30)'}}>
+        <div className="font-semibold text-teal-300 mb-1">🔑 Anon Key สำหรับ /vdo</div>
+        <p className="text-xs text-slate-400 mb-3">ลูกค้าจะใช้ anon key (public · safe) เพื่อ redeem ticket · ใส่ที่ /vdo ครั้งแรก</p>
+        <input className="inp font-mono text-xs" value={anonKey} onChange={e => setAnonKey(e.target.value)} placeholder="eyJhbGc... (paste anon key here to copy)"/>
+        <button onClick={() => { navigator.clipboard.writeText(anonKey); }} className="btn btn-teal text-xs mt-2">📋 Copy</button>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// MODAL
+// ──────────────────────────────────────────────────────────
+function Modal({ title, children, onClose, size = 'md' }) {
+  const sizeClass = size === 'xl' ? 'max-w-5xl' : size === 'lg' ? 'max-w-3xl' : 'max-w-2xl';
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-12 px-4 overflow-y-auto" onClick={onClose}>
+      <div className={`glass-strong w-full ${sizeClass} my-12`} onClick={e => e.stopPropagation()}>
+        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between sticky top-0" style={{background:'rgba(8,8,15,0.95)', backdropFilter:'blur(20px)', borderTopLeftRadius: 24, borderTopRightRadius: 24}}>
+          <h2 className="font-display font-bold text-lg grad-gold">{title}</h2>
+          <button onClick={onClose} className="btn btn-ghost">✕</button>
+        </div>
+        <div className="p-5 max-h-[75vh] overflow-y-auto scrollable">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

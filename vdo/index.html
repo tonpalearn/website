@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TONPALEARN · VDO · เรียนผ่านวิดีโอ</title>
+<meta name="description" content="เรียน TONPALEARN ผ่าน VDO · มี Code Ticket → เข้าเรียนได้เลย">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/assets/liquid.css">
+
+<style>
+  /* Anti-theft: disable selection on player wrapper */
+  .player-wrap { position: relative; user-select: none; -webkit-user-select: none; }
+  .player-wrap iframe { display: block; width: 100%; aspect-ratio: 16/9; border: 0; border-radius: 14px; }
+  .player-overlay-watermark {
+    position: absolute; pointer-events: none;
+    top: 12px; right: 16px;
+    background: rgba(0,0,0,0.35);
+    color: rgba(245, 214, 122, 0.85);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+  }
+  .ticket-pill { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
+  .ep-card { transition: all 0.3s var(--ease-liquid); }
+  .ep-card.locked { opacity: 0.5; }
+  .ep-card.preview { border-color: rgba(45, 212, 191, 0.4); }
+</style>
+</head>
+<body class="mesh-bg min-h-screen">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ──────────────────────────────────────────────────────────
+// Config — Supabase anon (safe to embed; RLS protects writes)
+// ──────────────────────────────────────────────────────────
+const SUPABASE_URL = window.localStorage.getItem('tpl_sb_url') || 'https://lhrzjkizxjigqeuyposw.supabase.co';
+const SUPABASE_ANON = window.localStorage.getItem('tpl_sb_anon') || '';
+// Anon key is intentionally not hard-coded — it'll be set via /admin or
+// /vdo first-time setup. For now, falls back to public read-only mode.
+const sb = SUPABASE_ANON ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+// ──────────────────────────────────────────────────────────
+// Storage keys
+// ──────────────────────────────────────────────────────────
+const KEY_TICKET    = 'tpl_vdo_ticket';
+const KEY_RESUMES   = 'tpl_vdo_resume';
+const KEY_FP        = 'tpl_vdo_fp';
+
+// ──────────────────────────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────────────────────────
+const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } };
+const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+const fmtDuration = (sec) => {
+  if (!sec || sec < 0) return '—';
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = Math.floor(sec%60);
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+};
+const fmtDate = (iso) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'numeric' });
+};
+const daysLeft = (iso) => {
+  if (!iso) return null;
+  const ms = new Date(iso) - new Date();
+  return Math.max(0, Math.ceil(ms / 86400000));
+};
+
+// Device fingerprint (lightweight)
+const getDeviceFP = () => {
+  let fp = localStorage.getItem(KEY_FP);
+  if (fp) return fp;
+  const seed = `${navigator.userAgent}|${navigator.language}|${screen.width}x${screen.height}|${new Date().getTimezoneOffset()}`;
+  let hash = 0;
+  for (let i=0;i<seed.length;i++) { hash = ((hash<<5)-hash) + seed.charCodeAt(i); hash |= 0; }
+  fp = 'fp_' + Math.abs(hash).toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  localStorage.setItem(KEY_FP, fp);
+  return fp;
+};
+
+// ──────────────────────────────────────────────────────────
+// NAV
+// ──────────────────────────────────────────────────────────
+function Nav({ ticket, onClearTicket }) {
+  return (
+    <nav className="fixed top-0 inset-x-0 z-50 glass-strong" style={{borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none'}}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2">
+        <a href="/" className="font-display font-bold text-lg flex items-baseline gap-1">
+          <span className="text-white">TON</span>
+          <span className="grad-gold">PA</span>
+          <span className="grad-teal">LEARN</span>
+        </a>
+        <div className="flex items-center gap-2 sm:gap-3">
+          {ticket ? (
+            <>
+              <span className="hidden sm:inline pill" style={{background:'rgba(245,214,122,0.10)', borderColor:'rgba(245,214,122,0.40)', color:'#F5D67A'}}>
+                🎟 <span className="ticket-pill">{ticket.code}</span>
+                {ticket.ticket_type === 'count' && <span className="ml-1.5 text-[10px] opacity-70">เหลือ {(ticket.max_plays||0) - (ticket.plays_used||0)} ครั้ง</span>}
+                {ticket.ticket_type === 'days' && <span className="ml-1.5 text-[10px] opacity-70">เหลือ {daysLeft(ticket.expires_at)} วัน</span>}
+                {ticket.ticket_type === 'unlimited' && <span className="ml-1.5 text-[10px] opacity-70">∞</span>}
+              </span>
+              <button onClick={onClearTicket} className="btn btn-ghost text-xs">ลบ ticket</button>
+            </>
+          ) : (
+            <a href="/vdo/" className="btn btn-ghost text-xs">🎟 มี ticket?</a>
+          )}
+          <a href="/" className="text-xs text-slate-300 hover:text-white transition hidden sm:inline">Home</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs">LINE</a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// TICKET GATE
+// ──────────────────────────────────────────────────────────
+function TicketGate({ onValid }) {
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const check = async (codeToCheck) => {
+    const c = (codeToCheck || code).trim().toUpperCase();
+    if (!c) return;
+    if (!sb) { setError('ระบบยังไม่ได้ config — ทักไลน์ @tonpalearn'); return; }
+    setLoading(true); setError('');
+    try {
+      const { data, error: e } = await sb.rpc('redeem_ticket', { p_code: c });
+      if (e) throw e;
+      if (!data || data.length === 0) {
+        setError('ไม่พบ ticket นี้ — เช็คอีกครั้ง หรือทักไลน์ @tonpalearn');
+      } else {
+        const t = data[0];
+        if (t.status !== 'active') {
+          setError(`ticket นี้ ${t.status === 'consumed' ? 'ใช้หมดสิทธิ์แล้ว' : t.status === 'expired' ? 'หมดอายุแล้ว' : 'ถูกระงับ'} — ทักไลน์เพื่อสอบถาม`);
+        } else {
+          saveJSON(KEY_TICKET, t);
+          onValid(t);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setError('Error: ' + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-check from URL ?t=CODE
+  useEffect(() => {
+    const url = new URLSearchParams(location.search);
+    const t = url.get('t');
+    if (t) { setCode(t); check(t); }
+  }, []);
+
+  return (
+    <section className="relative pt-32 pb-12">
+      <div className="blob-field">
+        <div className="blob blob-gold blob-drift-1" style={{ width: 400, height: 400, top: '10%', left: '5%' }} />
+        <div className="blob blob-teal blob-drift-2" style={{ width: 500, height: 500, top: '20%', right: '5%' }} />
+      </div>
+      <div className="relative max-w-3xl mx-auto px-6 text-center">
+        <div className="eyebrow mb-3">— VDO Learning · เรียนผ่านวิดีโอ</div>
+        <h1 className="font-display font-bold text-4xl sm:text-5xl text-white leading-tight">
+          เรียน TONPALEARN <br/>
+          <span className="grad-aurora">ผ่าน VDO</span>
+        </h1>
+        <p className="text-slate-300 mt-4 max-w-xl mx-auto text-sm">
+          กรอก ticket code ที่ได้รับจากต้น → เข้าเรียนได้ทันที · เปิดดูได้ตามเวลาคุณ
+        </p>
+
+        <form onSubmit={e => { e.preventDefault(); check(); }} className="mt-7 max-w-md mx-auto">
+          <div className="glass-strong p-4">
+            <label className="lbl text-left">🎟 Ticket Code</label>
+            <div className="flex gap-2">
+              <input
+                value={code}
+                onChange={e => setCode(e.target.value)}
+                placeholder="TPL-XXXX-XXXX"
+                className="inp flex-1 font-mono uppercase tracking-widest text-center"
+                autoFocus
+              />
+              <button type="submit" disabled={loading || !code.trim()} className="btn btn-gold">
+                {loading ? '...' : 'ปลดล็อก →'}
+              </button>
+            </div>
+            {error && <div className="mt-2 text-red-400 text-xs">{error}</div>}
+          </div>
+        </form>
+
+        <div className="mt-4 text-xs text-slate-400">
+          ยังไม่มี ticket? <a href="#catalog" className="text-gold-200 underline" style={{color:'#F5D67A'}}>ดู catalog ด้านล่าง</a> หรือ
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="text-gold-200 underline ml-1" style={{color:'#F5D67A'}}>ทักไลน์เพื่อซื้อ</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// CATALOG
+// ──────────────────────────────────────────────────────────
+function Catalog({ ticket, courses, onPick }) {
+  const entitled = useMemo(() => new Set(ticket?.course_ids || []), [ticket]);
+
+  return (
+    <section id="catalog" className="relative pt-20 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="mb-8 text-center">
+          <div className="eyebrow mb-2">— Catalog</div>
+          <h2 className="font-display font-bold text-3xl text-white">
+            คอร์สทั้งหมด {ticket && <span className="grad-gold">(ของคุณ {entitled.size} คอร์ส)</span>}
+          </h2>
+        </div>
+
+        {courses.length === 0 ? (
+          <div className="text-center py-16 text-slate-500">
+            <div className="text-4xl mb-2">📦</div>
+            <div>ยังไม่มีคอร์ส published · admin ต้องเพิ่มก่อน</div>
+            <a href="/admin/" className="btn btn-ghost text-xs mt-3 inline-flex">→ /admin</a>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {courses.map(c => {
+              const isEntitled = entitled.has(c.id);
+              return (
+                <div key={c.id} onClick={() => onPick(c)}
+                  className="glass glass-hover cursor-pointer overflow-hidden">
+                  <div className="aspect-video bg-gradient-to-br from-ink-700 to-ink-900 relative overflow-hidden"
+                       style={{ backgroundImage: c.cover_url ? `url(${c.cover_url})` : '', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent"></div>
+                    <div className="absolute top-2 left-2 flex gap-1.5">
+                      {isEntitled && <span className="pill-status st-paid">🔓 Unlocked</span>}
+                      {!isEntitled && <span className="pill-status st-pending">🛒 ซื้อก่อน</span>}
+                      {c.level && <span className="pill text-[10px]">{c.level}</span>}
+                    </div>
+                    {c.episode_count > 0 && (
+                      <div className="absolute bottom-2 right-2 pill text-[10px]" style={{background:'rgba(0,0,0,0.6)', borderColor:'rgba(255,255,255,0.2)'}}>
+                        📺 {c.episode_count} ตอน
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <div className="font-display font-bold text-white">{c.title}</div>
+                    {c.title_en && <div className="text-[10px] text-slate-500 font-mono">{c.title_en}</div>}
+                    <div className="text-xs text-slate-400 mt-2 line-clamp-2">{c.description}</div>
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-[11px] text-slate-400">{c.hours_total > 0 ? `${c.hours_total.toFixed(1)} ชม.` : ''}</span>
+                      {c.price_thb && !isEntitled && (
+                        <span className="font-bold text-sm grad-gold">฿{Number(c.price_thb).toLocaleString()}</span>
+                      )}
+                      {isEntitled && <span className="text-xs text-emerald-400">▶ เข้าเรียน</span>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// COURSE DETAIL (episode list)
+// ──────────────────────────────────────────────────────────
+function CourseDetail({ course, ticket, episodes, onBack, onPlay }) {
+  const entitled = ticket && (ticket.course_ids || []).includes(course.id);
+  return (
+    <section className="relative pt-24 pb-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <button onClick={onBack} className="btn btn-ghost text-xs mb-4">← กลับ Catalog</button>
+
+        <div className="glass-strong p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-5">
+            <div className="sm:w-1/3 aspect-video rounded-lg overflow-hidden bg-ink-900"
+                 style={{ backgroundImage: course.cover_url ? `url(${course.cover_url})` : '', backgroundSize:'cover', backgroundPosition:'center' }}>
+            </div>
+            <div className="flex-1">
+              <div className="eyebrow mb-1">{course.category || 'COURSE'}</div>
+              <h1 className="font-display font-bold text-2xl sm:text-3xl text-white">{course.title}</h1>
+              {course.title_en && <div className="text-xs text-slate-500 font-mono mt-1">{course.title_en}</div>}
+              <p className="text-sm text-slate-300 mt-3">{course.description}</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <span className="pill text-[11px]">📺 {episodes.length} ตอน</span>
+                {course.hours_total > 0 && <span className="pill text-[11px]">⏱ {course.hours_total.toFixed(1)} ชม.</span>}
+                {course.level && <span className="pill text-[11px]">{course.level}</span>}
+                {entitled ? (
+                  <span className="pill-status st-paid">🔓 คุณมีสิทธิ์เข้าเรียน</span>
+                ) : (
+                  <span className="pill-status st-pending">🔒 ต้องซื้อก่อน</span>
+                )}
+              </div>
+              {!entitled && course.price_thb && (
+                <a href={`https://line.me/R/ti/p/@tonpalearn?msg=สนใจซื้อคอร์ส ${encodeURIComponent(course.title)} ราคา ${course.price_thb} บาท`}
+                   target="_blank" rel="noopener"
+                   className="btn btn-gold mt-4 inline-flex">
+                  💛 ซื้อคอร์ส ฿{Number(course.price_thb).toLocaleString()} · ทักไลน์
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="text-xs font-mono uppercase tracking-widest text-gold-400 mb-3" style={{color:'#E6B84B'}}>— Episodes</div>
+        <div className="space-y-2">
+          {episodes.map((ep, idx) => {
+            const canPlay = entitled || ep.is_preview;
+            return (
+              <div key={ep.id}
+                   className={`ep-card glass p-4 flex items-start gap-4 ${canPlay ? 'glass-hover cursor-pointer' : 'locked'} ${ep.is_preview && !entitled ? 'preview' : ''}`}
+                   onClick={() => canPlay && onPlay(ep)}>
+                <div className="font-mono text-xl grad-gold font-bold w-10 text-center pt-0.5">{String(idx+1).padStart(2,'0')}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-white text-sm">{ep.title}</span>
+                    {ep.is_preview && <span className="pill-status st-accepted text-[9px]">FREE PREVIEW</span>}
+                    {!canPlay && <span className="pill-status st-expired text-[9px]">🔒 LOCKED</span>}
+                  </div>
+                  {ep.description && <div className="text-[11px] text-slate-400 mt-1 line-clamp-2">{ep.description}</div>}
+                  <div className="flex gap-3 mt-1.5 text-[10px] text-slate-500">
+                    {ep.duration_seconds > 0 && <span>⏱ {fmtDuration(ep.duration_seconds)}</span>}
+                    {ep.resources && ep.resources.length > 0 && <span>📥 {ep.resources.length} files</span>}
+                  </div>
+                </div>
+                {canPlay && <div className="text-2xl">▶</div>}
+              </div>
+            );
+          })}
+          {episodes.length === 0 && <div className="text-center py-8 text-slate-500 text-sm">ยังไม่มี episode</div>}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// PLAYER (anti-theft layers)
+// ──────────────────────────────────────────────────────────
+function Player({ episode, course, ticket, onBack, onNext, hasNext }) {
+  const iframeRef = useRef(null);
+  const [src, setSrc] = useState('');
+  const [showResources, setShowResources] = useState(false);
+
+  // Layer 1: don't render iframe src in initial DOM — inject after mount
+  useEffect(() => {
+    const resumeData = loadJSON(KEY_RESUMES, {});
+    const startSec = resumeData[episode.id] || 0;
+    const params = new URLSearchParams({
+      autoplay: '1',
+      rel: '0',                  // no related videos
+      modestbranding: '1',       // hide YouTube logo (mostly)
+      showinfo: '0',
+      iv_load_policy: '3',       // hide annotations
+      disablekb: '0',            // allow keyboard control
+      fs: '1',                   // allow fullscreen
+      cc_load_policy: '0',
+      controls: '1',
+      start: String(Math.floor(startSec)),
+    });
+    const url = `https://www.youtube-nocookie.com/embed/${episode.youtube_video_id}?${params}`;
+    setSrc(url);
+
+    // Burn play after 5 sec delay (give user time to leave if mistake click)
+    const burnTimer = setTimeout(() => {
+      if (!sb || !ticket || ticket.code === 'PREVIEW' || episode.is_preview && !ticket?.course_ids?.includes(course.id)) return;
+      sb.rpc('burn_play', {
+        p_ticket_id: ticket.ticket_id,
+        p_episode_id: episode.id,
+        p_course_id: course.id,
+        p_device_fp: getDeviceFP(),
+      }).then(({ data, error }) => {
+        if (error) console.warn('burn error:', error);
+      });
+    }, 5000);
+
+    // Heartbeat — track watch progress every 30 sec
+    let elapsed = 0;
+    const heartbeat = setInterval(() => {
+      elapsed += 30;
+      const resumes = loadJSON(KEY_RESUMES, {});
+      resumes[episode.id] = (resumes[episode.id] || 0) + 30;
+      saveJSON(KEY_RESUMES, resumes);
+      if (sb && ticket) {
+        sb.rpc('view_heartbeat', { p_ticket_id: ticket.ticket_id, p_episode_id: episode.id, p_seconds: resumes[episode.id] });
+      }
+    }, 30000);
+
+    return () => { clearTimeout(burnTimer); clearInterval(heartbeat); };
+  }, [episode.id]);
+
+  const lineMessage = encodeURIComponent(`ถามเรื่อง: ${course.title} → ${episode.title}\n\n[คำถาม]`);
+
+  return (
+    <section className="relative pt-20 pb-16 max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <button onClick={onBack} className="btn btn-ghost text-xs">← {course.title}</button>
+        <div className="font-mono text-[10px] text-slate-500 uppercase tracking-widest">EP {episode.episode_no}</div>
+      </div>
+
+      <h1 className="font-display font-bold text-xl sm:text-2xl text-white mb-4">{episode.title}</h1>
+
+      {/* PLAYER */}
+      <div className="player-wrap glass-strong p-2 rounded-2xl mb-5"
+           onContextMenu={e => e.preventDefault()}>
+        {src && <iframe
+          ref={iframeRef}
+          src={src}
+          allow="autoplay; encrypted-media; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+          title="player"
+        />}
+        {/* Watermark overlay — Layer 3: pointer-events:none, identifies session */}
+        <div className="player-overlay-watermark">
+          TONPALEARN · {(ticket?.code || 'PREVIEW').slice(0, 8)}***
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {episode.resources && episode.resources.length > 0 && (
+          <button onClick={() => setShowResources(s => !s)} className="btn btn-ghost text-xs">
+            📥 Resources ({episode.resources.length})
+          </button>
+        )}
+        <a href={`https://line.me/R/ti/p/@tonpalearn?msg=${lineMessage}`} target="_blank" rel="noopener"
+           className="btn btn-ghost text-xs">💬 ถามต้น · LINE</a>
+        {hasNext && <button onClick={onNext} className="btn btn-gold text-xs ml-auto">ตอนถัดไป →</button>}
+      </div>
+
+      {/* Resources panel */}
+      {showResources && episode.resources && episode.resources.length > 0 && (
+        <div className="glass p-4 mb-5">
+          <div className="text-xs font-mono uppercase tracking-widest mb-3" style={{color:'#E6B84B'}}>— Resources</div>
+          <div className="space-y-1.5">
+            {episode.resources.map((r, i) => (
+              <a key={i} href={r.url} target="_blank" rel="noopener"
+                 className="block px-3 py-2 rounded-lg glass-soft hover:border-gold-400 transition text-sm">
+                <span className="mr-2">{r.type === 'pdf' ? '📄' : r.type === 'code' ? '💻' : r.type === 'prompt' ? '✨' : '🔗'}</span>
+                {r.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Description */}
+      {episode.description && (
+        <div className="glass p-4">
+          <div className="text-xs font-mono uppercase tracking-widest mb-2" style={{color:'#E6B84B'}}>— รายละเอียด</div>
+          <p className="text-sm text-slate-300 whitespace-pre-line">{episode.description}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// FOOTER
+// ──────────────────────────────────────────────────────────
+function Footer() {
+  return (
+    <footer className="border-t border-white/5 py-10 mt-20">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <div className="font-display font-bold text-base flex items-baseline gap-1">
+            <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+          </div>
+          <div className="text-xs text-slate-500 mt-1">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-slate-400">
+          <a href="/" className="hover:text-white transition">Home</a>
+          <a href="/services/" className="hover:text-white transition">Services</a>
+          <a href="/arsenal/" className="hover:text-white transition">Arsenal</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="hover:text-gold-200 transition">LINE</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// SETUP MODAL (first-time only — paste anon key from /admin)
+// ──────────────────────────────────────────────────────────
+function SetupModal({ onSaved }) {
+  const [url, setUrl] = useState('https://lhrzjkizxjigqeuyposw.supabase.co');
+  const [key, setKey] = useState('');
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="glass-strong p-6 max-w-md w-full">
+        <div className="eyebrow mb-2">— First-time Setup</div>
+        <div className="font-display font-bold text-xl text-white mb-2">ตั้งค่า Supabase</div>
+        <div className="text-xs text-slate-400 mb-4">เก็บใน browser ของคุณ · จำเป็นต้องตั้งครั้งเดียว</div>
+        <div className="space-y-3">
+          <div>
+            <label className="lbl">Supabase URL</label>
+            <input className="inp font-mono text-xs" value={url} onChange={e => setUrl(e.target.value)}/>
+          </div>
+          <div>
+            <label className="lbl">Anon Key (public · safe)</label>
+            <input className="inp font-mono text-xs" value={key} onChange={e => setKey(e.target.value)} placeholder="eyJhbGc..."/>
+          </div>
+        </div>
+        <button onClick={() => {
+          localStorage.setItem('tpl_sb_url', url);
+          localStorage.setItem('tpl_sb_anon', key);
+          location.reload();
+        }} className="btn btn-gold w-full mt-4 justify-center">บันทึก + Reload</button>
+        <div className="text-[10px] text-slate-500 mt-3 text-center">
+          ขอ anon key จาก /admin Settings หรือ Supabase Dashboard
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// MAIN APP
+// ──────────────────────────────────────────────────────────
+function App() {
+  const [ticket, setTicket] = useState(() => loadJSON(KEY_TICKET, null));
+  const [courses, setCourses] = useState([]);
+  const [episodes, setEpisodes] = useState({}); // courseId → episodes
+  const [pickedCourse, setPickedCourse] = useState(null);
+  const [pickedEp, setPickedEp] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showSetup, setShowSetup] = useState(!sb);
+
+  // Load courses (published only — anon RLS)
+  useEffect(() => {
+    if (!sb) { setLoading(false); return; }
+    (async () => {
+      const { data, error } = await sb.from('vdo_courses').select('*').eq('is_published', true).order('sort_order');
+      if (!error) setCourses(data || []);
+      setLoading(false);
+    })();
+  }, []);
+
+  // Load episodes for picked course
+  useEffect(() => {
+    if (!pickedCourse || !sb) return;
+    if (episodes[pickedCourse.id]) return;
+    (async () => {
+      const { data } = await sb.from('vdo_episodes').select('*')
+        .eq('course_id', pickedCourse.id).eq('is_published', true).order('episode_no');
+      setEpisodes(prev => ({ ...prev, [pickedCourse.id]: data || [] }));
+    })();
+  }, [pickedCourse]);
+
+  const handleClearTicket = () => {
+    if (!confirm('ลบ ticket จาก browser?')) return;
+    localStorage.removeItem(KEY_TICKET);
+    setTicket(null);
+  };
+
+  const handleTicketValid = (t) => {
+    setTicket(t);
+  };
+
+  const handlePickCourse = (c) => {
+    const isEntitled = ticket && (ticket.course_ids || []).includes(c.id);
+    setPickedCourse(c);
+    setPickedEp(null);
+  };
+
+  const handlePlay = (ep) => {
+    setPickedEp(ep);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const courseEps = pickedCourse ? (episodes[pickedCourse.id] || []) : [];
+  const epIndex = pickedEp ? courseEps.findIndex(e => e.id === pickedEp.id) : -1;
+  const nextEp = epIndex >= 0 && epIndex < courseEps.length - 1 ? courseEps[epIndex+1] : null;
+
+  if (showSetup) return <SetupModal onSaved={() => setShowSetup(false)}/>;
+
+  return (
+    <>
+      <Nav ticket={ticket} onClearTicket={handleClearTicket}/>
+      {pickedEp && pickedCourse ? (
+        <Player
+          episode={pickedEp} course={pickedCourse} ticket={ticket}
+          onBack={() => setPickedEp(null)}
+          onNext={() => nextEp && handlePlay(nextEp)}
+          hasNext={!!nextEp}
+        />
+      ) : pickedCourse ? (
+        <CourseDetail
+          course={pickedCourse} ticket={ticket} episodes={courseEps}
+          onBack={() => setPickedCourse(null)}
+          onPlay={handlePlay}
+        />
+      ) : (
+        <>
+          {!ticket && <TicketGate onValid={handleTicketValid}/>}
+          {ticket && (
+            <section className="pt-28 pb-4 max-w-6xl mx-auto px-6">
+              <div className="glass-gold p-4 flex items-center gap-3">
+                <div className="text-2xl">🎟</div>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-white">ปลดล็อก {ticket.customer_name ? `· ${ticket.customer_name}` : ''}</div>
+                  <div className="text-[11px] text-slate-300">
+                    {ticket.ticket_type === 'count' && `เหลือ ${(ticket.max_plays||0) - (ticket.plays_used||0)} ครั้ง · `}
+                    {ticket.ticket_type === 'days' && `เหลือ ${daysLeft(ticket.expires_at)} วัน · `}
+                    {ticket.ticket_type === 'unlimited' && 'ไม่จำกัด · '}
+                    เข้าได้ {(ticket.course_ids||[]).length} คอร์ส
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+          <Catalog ticket={ticket} courses={courses} onPick={handlePickCourse}/>
+        </>
+      )}
+      <Footer/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>

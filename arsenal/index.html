@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TONPALEARN · Arsenal · คลังแสง Prompt Pack</title>
+<meta name="description" content="Prompt Pack สำเร็จรูป สำหรับ AI ของคุณ — Marketing, Sales, Coach, IT Audit และอีกหลายแพ็ค">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/assets/liquid.css">
+
+<style>
+  .pack-card { transition: all 0.4s var(--ease-liquid); }
+  .prompt-preview { font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.55; }
+</style>
+</head>
+<body class="mesh-bg min-h-screen">
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo } = React;
+
+const SUPABASE_URL = window.localStorage.getItem('tpl_sb_url') || 'https://lhrzjkizxjigqeuyposw.supabase.co';
+const SUPABASE_ANON = window.localStorage.getItem('tpl_sb_anon') || '';
+const sb = SUPABASE_ANON ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH');
+
+const CAT_META = {
+  'Marketing':         { icon:'📣', color:'#F5D67A', gradient:'linear-gradient(135deg, rgba(245,214,122,0.20), rgba(230,184,75,0.06))' },
+  'Sales':             { icon:'💰', color:'#67E8F9', gradient:'linear-gradient(135deg, rgba(103,232,249,0.20), rgba(20,184,166,0.06))' },
+  'Coach':             { icon:'🎯', color:'#A78BFA', gradient:'linear-gradient(135deg, rgba(167,139,250,0.20), rgba(124,92,252,0.06))' },
+  'IT Audit':          { icon:'🔍', color:'#4ADE80', gradient:'linear-gradient(135deg, rgba(74,222,128,0.20), rgba(34,197,94,0.06))' },
+  'Personal Assistant':{ icon:'🤖', color:'#F5D67A', gradient:'linear-gradient(135deg, rgba(245,214,122,0.20), rgba(230,184,75,0.06))' },
+  'Content':           { icon:'✨', color:'#67E8F9', gradient:'linear-gradient(135deg, rgba(103,232,249,0.20), rgba(20,184,166,0.06))' },
+  'Other':             { icon:'⚡', color:'#94a3b8', gradient:'linear-gradient(135deg, rgba(148,163,184,0.20), rgba(100,116,139,0.06))' },
+};
+
+function Nav() {
+  return (
+    <nav className="fixed top-0 inset-x-0 z-50 glass-strong" style={{borderRadius: 0, borderLeft: 'none', borderRight: 'none', borderTop: 'none'}}>
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <a href="/" className="font-display font-bold text-lg flex items-baseline gap-1">
+          <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+        </a>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <a href="/vdo/" className="text-xs sm:text-sm text-slate-300 hover:text-white transition">VDO</a>
+          <a href="/services/" className="text-xs sm:text-sm text-slate-300 hover:text-white transition">Services</a>
+          <a href="/" className="text-xs sm:text-sm text-slate-300 hover:text-white transition hidden sm:inline">Home</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs">LINE</a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative pt-32 pb-12 text-center overflow-hidden">
+      <div className="blob-field">
+        <div className="blob blob-violet blob-drift-1" style={{ width: 500, height: 500, top: '10%', left: '20%' }} />
+        <div className="blob blob-gold blob-drift-2" style={{ width: 400, height: 400, top: '30%', right: '15%' }} />
+      </div>
+      <div className="relative max-w-3xl mx-auto px-6">
+        <div className="eyebrow mb-3">— Arsenal · คลังแสง</div>
+        <h1 className="font-display font-bold text-4xl sm:text-5xl text-white leading-tight">
+          <span className="grad-aurora">Prompt Pack</span> สำเร็จรูป<br/>
+          เอาไปใช้ได้เลย
+        </h1>
+        <p className="text-slate-300 mt-4 max-w-xl mx-auto text-sm">
+          Prompt ที่ใช้จริงในงาน — ไม่ใช่ template generic บนเว็บฟรี · ใส่ใน Claude / ChatGPT / Gemini ของคุณได้ทันที
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function PackCard({ pack, onOpen }) {
+  const meta = CAT_META[pack.category] || CAT_META['Other'];
+  return (
+    <div className="pack-card glass glass-hover p-5 cursor-pointer" onClick={() => onOpen(pack)}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="pill text-[11px]" style={{background: meta.gradient, color: meta.color, borderColor: 'transparent'}}>
+          {meta.icon} {pack.category}
+        </div>
+        <div className="text-xs text-slate-400">📦 {pack.prompt_count} prompts</div>
+      </div>
+      <div className="font-display font-bold text-white text-lg mb-1.5">{pack.title}</div>
+      <div className="text-xs text-slate-400 mb-4 line-clamp-2">{pack.description}</div>
+
+      {/* Sample prompts teaser */}
+      {pack.sample_prompts && pack.sample_prompts.length > 0 && (
+        <div className="space-y-1.5 mb-4">
+          {pack.sample_prompts.slice(0, 2).map((p, i) => (
+            <div key={i} className="glass-soft p-2 text-[10px]">
+              <div className="font-semibold text-slate-300 truncate">▸ {p.title}</div>
+            </div>
+          ))}
+          {pack.sample_prompts.length > 2 && <div className="text-[10px] text-gold-200 text-center" style={{color:'#F5D67A'}}>+ {pack.sample_prompts.length - 2} ตัวอย่างอีกใน detail</div>}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between border-t border-white/10 pt-3">
+        <div className="font-bold text-lg grad-gold">฿{fmtTHB(pack.price_thb)}</div>
+        <button onClick={(e) => { e.stopPropagation(); onOpen(pack); }} className="btn btn-gold text-xs">ดู Detail →</button>
+      </div>
+    </div>
+  );
+}
+
+function PackDetailModal({ pack, onClose }) {
+  if (!pack) return null;
+  const meta = CAT_META[pack.category] || CAT_META['Other'];
+  const lineMsg = encodeURIComponent(`สนใจซื้อ ${pack.title} · ราคา ${fmtTHB(pack.price_thb)} บาท`);
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center pt-12 px-4 overflow-y-auto" onClick={onClose}>
+      <div className="glass-strong max-w-3xl w-full my-8 p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="pill text-[11px] mb-2" style={{background: meta.gradient, color: meta.color, borderColor: 'transparent'}}>
+              {meta.icon} {pack.category}
+            </div>
+            <h2 className="font-display font-bold text-2xl text-white">{pack.title}</h2>
+            <p className="text-sm text-slate-300 mt-2">{pack.description}</p>
+          </div>
+          <button onClick={onClose} className="btn btn-ghost">✕</button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 mb-5">
+          <span className="pill text-[11px]">📦 {pack.prompt_count} prompts</span>
+          <span className="pill text-[11px]">⚡ Ready-to-use</span>
+          <span className="pill text-[11px]">🎁 Lifetime access</span>
+        </div>
+
+        <div className="text-xs font-mono uppercase tracking-widest mb-3" style={{color:'#E6B84B'}}>— Sample Prompts (ดูฟรี · ก่อนซื้อ)</div>
+        <div className="space-y-3 mb-5">
+          {(pack.sample_prompts||[]).map((p, i) => (
+            <div key={i} className="glass-soft p-4">
+              <div className="font-semibold text-gold-200 text-sm mb-2" style={{color:'#F5D67A'}}>▸ {p.title}</div>
+              <pre className="prompt-preview text-slate-300 whitespace-pre-wrap">{p.body}</pre>
+            </div>
+          ))}
+        </div>
+
+        <div className="glass-gold p-5 text-center">
+          <div className="text-[10px] eyebrow mb-1">— Total</div>
+          <div className="font-display font-bold text-4xl grad-gold mb-1">฿{fmtTHB(pack.price_thb)}</div>
+          <div className="text-xs text-slate-400 mb-4">{pack.prompt_count} prompts · ใช้ได้ตลอดชีพ</div>
+          <a href={`https://line.me/R/ti/p/@tonpalearn?msg=${lineMsg}`} target="_blank" rel="noopener"
+             className="btn btn-gold w-full justify-center">🛒 ซื้อ · ทักไลน์ @tonpalearn</a>
+          <div className="text-[10px] text-slate-500 mt-2">โอนเสร็จ → admin ส่ง download link ให้ทาง LINE</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Grid({ packs, onOpen }) {
+  const [category, setCategory] = useState('All');
+  const cats = ['All', ...Array.from(new Set(packs.map(p => p.category).filter(Boolean)))];
+  const filtered = category === 'All' ? packs : packs.filter(p => p.category === category);
+
+  return (
+    <section className="relative pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {cats.map(c => (
+            <button key={c} onClick={() => setCategory(c)} className={`pill ${category === c ? 'active' : ''}`}>{c}</button>
+          ))}
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 text-slate-500">
+            <div className="text-4xl mb-2">📦</div>
+            <div>ยังไม่มี pack ในหมวดนี้</div>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map(p => <PackCard key={p.id} pack={p} onOpen={onOpen}/>)}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CTA() {
+  return (
+    <section className="relative py-20">
+      <div className="max-w-3xl mx-auto px-6 text-center">
+        <div className="glass-strong p-8 relative overflow-hidden">
+          <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full blob blob-violet"></div>
+          <div className="relative">
+            <div className="eyebrow mb-2">— Custom Pack</div>
+            <h2 className="font-display font-bold text-2xl text-white">อยากได้ <span className="grad-gold">pack เฉพาะธุรกิจคุณ</span>?</h2>
+            <p className="text-sm text-slate-300 mt-3 max-w-md mx-auto">
+              ต้นทำ custom prompt pack ให้บริษัทได้ — ตาม industry, role, workflow ของคุณโดยเฉพาะ
+            </p>
+            <a href="/services/" className="btn btn-gold mt-5 inline-flex">ดู Services →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-white/5 py-10 mt-10">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <div className="font-display font-bold text-base flex items-baseline gap-1">
+            <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+          </div>
+          <div className="text-xs text-slate-500 mt-1">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-slate-400">
+          <a href="/" className="hover:text-white transition">Home</a>
+          <a href="/vdo/" className="hover:text-white transition">VDO</a>
+          <a href="/services/" className="hover:text-white transition">Services</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="hover:text-gold-200 transition">LINE</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  const [packs, setPacks] = useState([]);
+  const [opened, setOpened] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!sb) { setLoading(false); return; }
+    (async () => {
+      const { data, error } = await sb.from('arsenal_packs').select('*').eq('is_published', true).order('sort_order');
+      if (!error) setPacks(data || []);
+      setLoading(false);
+    })();
+  }, []);
+
+  return (
+    <>
+      <Nav/>
+      <Hero/>
+      {loading
+        ? <div className="text-center py-20 text-slate-500">⏳ กำลังโหลด...</div>
+        : <Grid packs={packs} onOpen={setOpened}/>}
+      <CTA/>
+      <Footer/>
+      {opened && <PackDetailModal pack={opened} onClose={() => setOpened(null)}/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+</body>
+</html>
