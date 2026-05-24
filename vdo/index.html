@@ -50,12 +50,11 @@ const { useState, useEffect, useRef, useMemo } = React;
 
 // ──────────────────────────────────────────────────────────
 // Config — Supabase anon (safe to embed; RLS protects writes)
+// Same key as /verify/ — public by design, RLS limits to published catalog + RPC
 // ──────────────────────────────────────────────────────────
-const SUPABASE_URL = window.localStorage.getItem('tpl_sb_url') || 'https://lhrzjkizxjigqeuyposw.supabase.co';
-const SUPABASE_ANON = window.localStorage.getItem('tpl_sb_anon') || '';
-// Anon key is intentionally not hard-coded — it'll be set via /admin or
-// /vdo first-time setup. For now, falls back to public read-only mode.
-const sb = SUPABASE_ANON ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+const SUPABASE_URL  = 'https://lhrzjkizxjigqeuyposw.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxocnpqa2l6eGppZ3FldXlwb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODA0NDgsImV4cCI6MjA5NDc1NjQ0OH0.00JIC-uWcDh9StWQeJPJ-m6tSWDJSakR2tpUHMc_yPU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ──────────────────────────────────────────────────────────
 // Storage keys
@@ -504,41 +503,6 @@ function Footer() {
 }
 
 // ──────────────────────────────────────────────────────────
-// SETUP MODAL (first-time only — paste anon key from /admin)
-// ──────────────────────────────────────────────────────────
-function SetupModal({ onSaved }) {
-  const [url, setUrl] = useState('https://lhrzjkizxjigqeuyposw.supabase.co');
-  const [key, setKey] = useState('');
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="glass-strong p-6 max-w-md w-full">
-        <div className="eyebrow mb-2">— First-time Setup</div>
-        <div className="font-display font-bold text-xl text-white mb-2">ตั้งค่า Supabase</div>
-        <div className="text-xs text-slate-400 mb-4">เก็บใน browser ของคุณ · จำเป็นต้องตั้งครั้งเดียว</div>
-        <div className="space-y-3">
-          <div>
-            <label className="lbl">Supabase URL</label>
-            <input className="inp font-mono text-xs" value={url} onChange={e => setUrl(e.target.value)}/>
-          </div>
-          <div>
-            <label className="lbl">Anon Key (public · safe)</label>
-            <input className="inp font-mono text-xs" value={key} onChange={e => setKey(e.target.value)} placeholder="eyJhbGc..."/>
-          </div>
-        </div>
-        <button onClick={() => {
-          localStorage.setItem('tpl_sb_url', url);
-          localStorage.setItem('tpl_sb_anon', key);
-          location.reload();
-        }} className="btn btn-gold w-full mt-4 justify-center">บันทึก + Reload</button>
-        <div className="text-[10px] text-slate-500 mt-3 text-center">
-          ขอ anon key จาก /admin Settings หรือ Supabase Dashboard
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────
 // MAIN APP
 // ──────────────────────────────────────────────────────────
 function App() {
@@ -548,7 +512,6 @@ function App() {
   const [pickedCourse, setPickedCourse] = useState(null);
   const [pickedEp, setPickedEp] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showSetup, setShowSetup] = useState(!sb);
 
   // Load courses (published only — anon RLS)
   useEffect(() => {
@@ -595,8 +558,6 @@ function App() {
   const courseEps = pickedCourse ? (episodes[pickedCourse.id] || []) : [];
   const epIndex = pickedEp ? courseEps.findIndex(e => e.id === pickedEp.id) : -1;
   const nextEp = epIndex >= 0 && epIndex < courseEps.length - 1 ? courseEps[epIndex+1] : null;
-
-  if (showSetup) return <SetupModal onSaved={() => setShowSetup(false)}/>;
 
   return (
     <>

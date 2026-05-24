@@ -31,11 +31,22 @@
 const { useState, useEffect, useMemo, useRef } = React;
 
 // ──────────────────────────────────────────────────────────
-// Config
+// Config — auth via /api/sb-admin-config (Vercel env)
+// Admin enters password ONCE → stored in localStorage → fetched on each load
 // ──────────────────────────────────────────────────────────
-const KEY = 'tpl_admin_v1';
+const KEY = 'tpl_admin_v2';
+const PASS_KEY = 'tpl_admin_pass';
 const loadJSON = (k, fb) => { try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; } };
 const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+const fetchAdminConfig = async (pass) => {
+  const res = await fetch('/api/sb-admin-config', { headers: { 'x-admin-pass': pass }});
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'unknown' }));
+    throw new Error(err.message || err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+};
 
 const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtInt = (n) => Number(n||0).toLocaleString('th-TH');
@@ -62,6 +73,47 @@ const getClient = (url, key) => {
 };
 
 // ──────────────────────────────────────────────────────────
+// PASSWORD GATE
+// ──────────────────────────────────────────────────────────
+function PasswordGate({ onLogin, error }) {
+  const [pass, setPass] = useState('');
+  const [busy, setBusy] = useState(false);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!pass.trim()) return;
+    setBusy(true);
+    await onLogin(pass.trim());
+    setBusy(false);
+  };
+  return (
+    <div className="min-h-screen mesh-bg flex items-center justify-center p-6">
+      <div className="blob-field">
+        <div className="blob blob-gold blob-drift-1" style={{ width: 400, height: 400, top: '15%', left: '20%' }}/>
+        <div className="blob blob-teal blob-drift-2" style={{ width: 350, height: 350, bottom: '15%', right: '20%' }}/>
+      </div>
+      <form onSubmit={submit} className="glass-strong p-8 max-w-md w-full relative">
+        <div className="text-center mb-5">
+          <div className="font-display font-bold text-2xl flex items-baseline justify-center gap-1">
+            <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+          </div>
+          <div className="text-[10px] text-slate-500 mt-1 font-mono uppercase tracking-widest">Admin · เฉพาะต้น</div>
+        </div>
+        <label className="lbl">🔐 Admin Password</label>
+        <input type="password" value={pass} onChange={e => setPass(e.target.value)} autoFocus
+               className="inp font-mono"/>
+        {error && <div className="mt-2 text-red-400 text-xs">{error}</div>}
+        <button type="submit" disabled={busy || !pass.trim()} className="btn btn-gold w-full justify-center mt-4">
+          {busy ? '...' : 'เข้าสู่ระบบ'}
+        </button>
+        <div className="mt-5 text-[10px] text-slate-500 text-center">
+          ใช้ <code className="bg-white/5 px-1 rounded">ADMIN_PASS</code> ที่ตั้งไว้ใน Vercel env
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
 // MAIN
 // ──────────────────────────────────────────────────────────
 const TABS = [
@@ -75,15 +127,72 @@ const TABS = [
 ];
 
 function App() {
-  const [cfg, setCfg] = useState(() => loadJSON(KEY, { sbUrl: 'https://lhrzjkizxjigqeuyposw.supabase.co', sbKey: '' }));
+  const [cfg, setCfg] = useState({ sbUrl: '', sbKey: '' });
+  const [authState, setAuthState] = useState('checking');  // checking | needpass | ready | error
+  const [authError, setAuthError] = useState('');
   const [tab, setTab] = useState('dashboard');
   const [toast, setToast] = useState('');
-  useEffect(() => saveJSON(KEY, cfg), [cfg]);
 
-  const client = getClient(cfg.sbUrl, cfg.sbKey);
+  // Try to fetch config on mount with stored password
+  useEffect(() => {
+    const storedPass = localStorage.getItem(PASS_KEY);
+    if (!storedPass) { setAuthState('needpass'); return; }
+    (async () => {
+      try {
+        const c = await fetchAdminConfig(storedPass);
+        setCfg({ sbUrl: c.url, sbKey: c.serviceKey });
+        setAuthState('ready');
+      } catch (e) {
+        if (e.message === 'unauthorized') {
+          localStorage.removeItem(PASS_KEY);
+          setAuthState('needpass');
+        } else {
+          setAuthError(e.message);
+          setAuthState('error');
+        }
+      }
+    })();
+  }, []);
+
+  const login = async (pass) => {
+    setAuthError('');
+    try {
+      const c = await fetchAdminConfig(pass);
+      localStorage.setItem(PASS_KEY, pass);
+      setCfg({ sbUrl: c.url, sbKey: c.serviceKey });
+      setAuthState('ready');
+    } catch (e) {
+      setAuthError(e.message);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem(PASS_KEY);
+    sb = null;
+    setCfg({ sbUrl: '', sbKey: '' });
+    setAuthState('needpass');
+  };
+
+  const client = cfg.sbKey ? getClient(cfg.sbUrl, cfg.sbKey) : null;
   const configured = !!client;
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+
+  // Auth gates
+  if (authState === 'checking') return <div className="min-h-screen flex items-center justify-center text-slate-400">⏳ Loading...</div>;
+  if (authState === 'needpass') return <PasswordGate onLogin={login} error={authError}/>;
+  if (authState === 'error') return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="glass-strong p-6 max-w-md">
+        <div className="text-red-400 font-bold mb-2">⚠ Setup Error</div>
+        <div className="text-sm text-slate-300 mb-3">{authError}</div>
+        <div className="text-xs text-slate-500">
+          ตรวจสอบ Vercel env vars: <code className="bg-white/5 px-1 rounded">ADMIN_PASS</code>, <code className="bg-white/5 px-1 rounded">SUPABASE_URL</code>, <code className="bg-white/5 px-1 rounded">SUPABASE_SERVICE_KEY</code>
+        </div>
+        <button onClick={() => { localStorage.removeItem(PASS_KEY); location.reload(); }} className="btn btn-ghost mt-4">รีเซ็ต + ลองใหม่</button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex">
@@ -105,6 +214,7 @@ function App() {
         <div className="p-2 mt-2 border-t border-white/10">
           <a href="/" className="block px-3 py-2 text-xs text-slate-500 hover:text-white transition">← Home</a>
           <a href="/vdo/" className="block px-3 py-2 text-xs text-slate-500 hover:text-white transition" target="_blank">▶ Open /vdo</a>
+          <button onClick={logout} className="w-full text-left block px-3 py-2 text-xs text-slate-500 hover:text-red-300 transition">🔓 Logout</button>
         </div>
       </aside>
 
@@ -125,7 +235,7 @@ function App() {
         {tab === 'episodes'  && <Episodes client={client} showToast={showToast}/>}
         {tab === 'arsenal'   && <Arsenal client={client} showToast={showToast}/>}
         {tab === 'orders'    && <Orders client={client} showToast={showToast}/>}
-        {tab === 'settings'  && <Settings cfg={cfg} setCfg={setCfg}/>}
+        {tab === 'settings'  && <Settings cfg={cfg} onLogout={logout}/>}
       </main>
 
       {toast && <div className="toast" style={{position:'fixed', bottom: 24, left: '50%', transform:'translateX(-50%)', background:'linear-gradient(135deg,#14B8A6,#0D9488)', color:'#fff', padding:'12px 20px', borderRadius:10, fontWeight:600, zIndex:200}}>{toast}</div>}
@@ -859,38 +969,51 @@ function Orders({ client, showToast }) {
 // ──────────────────────────────────────────────────────────
 // SETTINGS
 // ──────────────────────────────────────────────────────────
-function Settings({ cfg, setCfg }) {
-  const [anonKey, setAnonKey] = useState('');
+function Settings({ cfg, onLogout }) {
   return (
     <div className="max-w-3xl">
       <h1 className="font-display font-bold text-2xl mb-2">⚙ Settings</h1>
-      <p className="text-sm text-slate-400 mb-5">Supabase config · เก็บใน browser localStorage</p>
+      <p className="text-sm text-slate-400 mb-5">Supabase config มาจาก Vercel env automatically</p>
 
-      <div className="glass p-5 space-y-4">
+      <div className="glass p-5 space-y-3">
+        <div className="text-xs eyebrow mb-2">— Current Connection</div>
         <div>
-          <label className="lbl">Supabase URL</label>
-          <input className="inp font-mono text-xs" value={cfg.sbUrl} onChange={e => setCfg({...cfg, sbUrl: e.target.value})} placeholder="https://YOUR-PROJECT.supabase.co"/>
+          <label className="lbl">Supabase URL <span className="text-emerald-400 normal-case text-[10px]">● connected</span></label>
+          <div className="inp font-mono text-xs text-slate-300">{cfg.sbUrl || '—'}</div>
         </div>
         <div>
-          <label className="lbl">Service Role Key <span className="text-red-400 normal-case">⚠️ Private — เฉพาะ admin</span></label>
-          <input className="inp font-mono text-xs" type="password" value={cfg.sbKey} onChange={e => setCfg({...cfg, sbKey: e.target.value})}/>
+          <label className="lbl">Service Role Key</label>
+          <div className="inp font-mono text-xs text-slate-300">{cfg.sbKey ? '••••••••••••••••' + cfg.sbKey.slice(-12) : '—'}</div>
         </div>
-        <div className="text-xs text-slate-500 border-t border-white/5 pt-3">
-          <div className="font-semibold text-slate-300 mb-1">📋 ครั้งแรก:</div>
-          <ol className="list-decimal pl-5 space-y-0.5">
-            <li>Open Supabase Dashboard → SQL Editor</li>
-            <li>Run <code className="bg-white/5 px-1.5 rounded">supabase-schema-vdo.sql</code> (ดูใน repo)</li>
-            <li>Settings → API → คัดลอก URL + service_role key มาวางที่นี่</li>
-            <li>คัดลอก <strong>anon key</strong> (public) แล้วใส่ใน /vdo first-time setup</li>
-          </ol>
-        </div>
+        <button onClick={onLogout} className="btn btn-ghost text-xs" style={{borderColor:'rgba(248,113,113,0.30)', color:'#FCA5A5'}}>
+          🔓 Logout · ลบ password จาก browser
+        </button>
       </div>
 
-      <div className="glass p-5 mt-4 border" style={{borderColor:'rgba(45,212,191,0.30)'}}>
-        <div className="font-semibold text-teal-300 mb-1">🔑 Anon Key สำหรับ /vdo</div>
-        <p className="text-xs text-slate-400 mb-3">ลูกค้าจะใช้ anon key (public · safe) เพื่อ redeem ticket · ใส่ที่ /vdo ครั้งแรก</p>
-        <input className="inp font-mono text-xs" value={anonKey} onChange={e => setAnonKey(e.target.value)} placeholder="eyJhbGc... (paste anon key here to copy)"/>
-        <button onClick={() => { navigator.clipboard.writeText(anonKey); }} className="btn btn-teal text-xs mt-2">📋 Copy</button>
+      <div className="glass p-5 mt-4">
+        <div className="text-xs eyebrow mb-3">— Setup Required (One-time)</div>
+        <ol className="text-xs text-slate-400 list-decimal pl-5 space-y-1.5">
+          <li>
+            <strong className="text-slate-200">Vercel Dashboard</strong> → Settings → Environment Variables → Add:
+            <div className="mt-1 ml-2 space-y-0.5 font-mono text-[10px]">
+              <div><code className="bg-white/5 px-1 rounded">SUPABASE_URL</code> = https://lhrzjkizxjigqeuyposw.supabase.co</div>
+              <div><code className="bg-white/5 px-1 rounded">SUPABASE_SERVICE_KEY</code> = (จาก Supabase Dashboard → API → service_role)</div>
+              <div><code className="bg-white/5 px-1 rounded">ADMIN_PASS</code> = (ตั้งรหัสผ่านที่ต้นใช้ login admin)</div>
+            </div>
+          </li>
+          <li>
+            <strong className="text-slate-200">Supabase Dashboard</strong> → SQL Editor → run:
+            <div className="mt-1 ml-2 font-mono text-[10px]">
+              <div><code className="bg-white/5 px-1 rounded">supabase-schema-vdo.sql</code> (ใน repo)</div>
+            </div>
+          </li>
+          <li>Redeploy Vercel → /admin จะ pick up env vars ทันที</li>
+        </ol>
+      </div>
+
+      <div className="glass p-5 mt-4" style={{borderColor:'rgba(45,212,191,0.30)'}}>
+        <div className="text-xs eyebrow mb-2" style={{color:'#67E8F9'}}>— /vdo + /arsenal Anon Key</div>
+        <div className="text-xs text-slate-400">Anon key ถูก hardcode ใน /vdo และ /arsenal ไว้แล้ว (เดียวกับ /verify) · ไม่ต้องตั้งค่าเพิ่ม</div>
       </div>
     </div>
   );

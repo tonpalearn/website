@@ -29,9 +29,10 @@
 <script type="text/babel" data-presets="env,react">
 const { useState, useEffect, useMemo } = React;
 
-const SUPABASE_URL = window.localStorage.getItem('tpl_sb_url') || 'https://lhrzjkizxjigqeuyposw.supabase.co';
-const SUPABASE_ANON = window.localStorage.getItem('tpl_sb_anon') || '';
-const sb = SUPABASE_ANON ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+// Anon key — public by design (same as /verify/) · RLS protects all mutations
+const SUPABASE_URL  = 'https://lhrzjkizxjigqeuyposw.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxocnpqa2l6eGppZ3FldXlwb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODA0NDgsImV4cCI6MjA5NDc1NjQ0OH0.00JIC-uWcDh9StWQeJPJ-m6tSWDJSakR2tpUHMc_yPU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH');
 
