@@ -862,6 +862,7 @@ const COURSES = [
 ];
 
 const FORMATS = [
+  { key: 'vdo',     label: 'VDO',          sub: 'เรียนตามจังหวะคุณ', vdoLink: true },
   { key: 'group',   label: 'Online Group', sub: 'สอนสด · ยอดนิยม', highlight: true },
   { key: 'private', label: 'Online 1:1',   sub: '1 ต่อ 1' },
   { key: 'onsite',  label: 'On-site',      sub: '3–10 คน' },
@@ -1009,10 +1010,17 @@ function Courses() {
                   </div>
                 )}
 
-                <a href="#contact" className="mt-5 group/btn flex items-center justify-between gap-2 font-display font-semibold text-sm px-4 py-3 rounded-xl bg-gold-500/5 border border-gold-500/25 text-gold-400 hover:bg-gold-500/10 hover:border-gold-500/50 transition-all">
-                  <span>สมัครเรียน</span>
-                  <Icon.ChevR className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform"/>
-                </a>
+                {format === 'vdo' ? (
+                  <a href="/vdo/" className="mt-5 group/btn flex items-center justify-between gap-2 font-display font-semibold text-sm px-4 py-3 rounded-xl bg-gradient-to-r from-gold-500/15 to-teal-400/10 border border-gold-500/40 text-gold-300 hover:from-gold-500/25 hover:to-teal-400/15 hover:border-gold-500/60 transition-all">
+                    <span>▶ ดู VDO Catalog / ซื้อ</span>
+                    <Icon.ChevR className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform"/>
+                  </a>
+                ) : (
+                  <a href="#contact" className="mt-5 group/btn flex items-center justify-between gap-2 font-display font-semibold text-sm px-4 py-3 rounded-xl bg-gold-500/5 border border-gold-500/25 text-gold-400 hover:bg-gold-500/10 hover:border-gold-500/50 transition-all">
+                    <span>สมัครเรียน</span>
+                    <Icon.ChevR className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform"/>
+                  </a>
+                )}
               </div>
             </div>
           ))}

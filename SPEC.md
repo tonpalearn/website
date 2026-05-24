@@ -88,7 +88,7 @@ Website นี้คือ **public face + operations toolkit** ใน 1 repo:
 - Footer — multi-column links
 
 **Course Data Source:** Synced from `/AI Course/COURSES.md` v7.1 (12 courses) + `/AI Course/PRICING.md` v3.3
-**Format options:** VDO ถูกตัดออก — ยังไม่มี VDO products
+**Format options:** VDO + Online Group + Online 1:1 + On-site · VDO format กลับมา (May 2026 — `/vdo/` ระบบ ticket พร้อมใช้)
 
 ---
 
