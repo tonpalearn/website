@@ -1329,17 +1329,36 @@ function CohortEditModal({ cohort, client, onClose, onSaved }) {
 function SlipLink({ path, client }) {
   const [busy, setBusy] = useState(false);
 
+  // Extract filename from either a bare filename or a full Supabase URL
+  // Legacy URLs look like:
+  //   https://...supabase.co/storage/v1/object/public/slips/BOOK-XXX.jpg
+  //   https://...supabase.co/storage/v1/object/sign/slips/BOOK-XXX.jpg?token=...
+  const extractFilename = (p) => {
+    if (!p) return null;
+    if (p.startsWith('http')) {
+      const marker = '/slips/';
+      const idx = p.indexOf(marker);
+      if (idx === -1) return null;
+      let name = p.substring(idx + marker.length);
+      // Strip query string if signed URL
+      const q = name.indexOf('?');
+      if (q !== -1) name = name.substring(0, q);
+      return decodeURIComponent(name);
+    }
+    return p;
+  };
+
   const open = async () => {
     if (!path) return;
-    // Already a full URL (legacy records) → open directly
-    if (path.startsWith('http')) { window.open(path, '_blank'); return; }
+    const fileName = extractFilename(path);
+    if (!fileName) { alert('Slip path ไม่ valid: ' + path); return; }
     setBusy(true);
     try {
-      const { data, error } = await client.storage.from('slips').createSignedUrl(path, 60 * 60);
+      const { data, error } = await client.storage.from('slips').createSignedUrl(fileName, 60 * 60);
       if (error) throw error;
       window.open(data.signedUrl, '_blank');
     } catch (e) {
-      alert('Open สลิปไม่สำเร็จ: ' + e.message);
+      alert('Open สลิปไม่สำเร็จ: ' + e.message + '\n\nFile: ' + fileName);
     } finally { setBusy(false); }
   };
 
