@@ -1,22 +1,24 @@
-// /api/calendar-slots — Returns free/busy slots for a date range
+// /api/calendar-slots — Returns hourly free/busy slots for booking
 // Uses Google Calendar API + service account
 //
-// Query: ?from=2026-06-01&to=2026-06-30
+// Query params:
+//   ?from=YYYY-MM-DD&to=YYYY-MM-DD            range mode (default: today → +60 days)
+//   ?date=YYYY-MM-DD                          single day (overrides from/to)
+//   &duration=N                               desired duration in hours (default 4)
+//   &mode=hourly|block                        slot granularity (default 'hourly')
+//   &buffer_hours=N                           buffer required between bookings (default 1)
 //
-// Response: { slots: [{ start, end, available: boolean }, ...] }
+// Response: { mode, from, to, total, available, slots: [{ date, time, start, end, duration, available }] }
 //
-// Setup env vars: GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_CALENDAR_ID
-//   (see /booking/SETUP.md Step 1)
+// Env vars: GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_CALENDAR_ID
+// (see /booking/SETUP.md Step 1)
 
 import { google } from 'googleapis';
 
-// Available slot template — Mon-Fri × 2 sessions
-const SLOT_TEMPLATE = [
-  { hour: 10, minute: 0, duration: 240 }, // 10:00-14:00 (morning)
-  { hour: 14, minute: 0, duration: 240 }, // 14:00-18:00 (afternoon)
-];
-
-const WEEKDAYS = [1, 2, 3, 4, 5]; // Mon-Fri (0=Sun)
+// Daily availability window — when ต้น can teach
+const DAY_START_HOUR = 9;   // 09:00
+const DAY_END_HOUR   = 19;  // 19:00 (last slot end)
+const WEEKDAYS = [1, 2, 3, 4, 5, 6]; // Mon-Sat (0=Sun)
 
 function getAuth() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -30,22 +32,41 @@ function getAuth() {
   );
 }
 
-function generateSlots(from, to) {
+/**
+ * Generate candidate slots — hourly start times in each day's window
+ * @param {string} from YYYY-MM-DD
+ * @param {string} to   YYYY-MM-DD
+ * @param {number} durationHours
+ * @param {'hourly'|'block'} mode
+ */
+function generateSlots(from, to, durationHours, mode) {
   const slots = [];
-  const cur = new Date(from);
-  const end = new Date(to);
+  const cur = new Date(from + 'T00:00:00');
+  const end = new Date(to + 'T00:00:00');
   while (cur <= end) {
     if (WEEKDAYS.includes(cur.getDay())) {
-      for (const s of SLOT_TEMPLATE) {
+      let startHours;
+      if (mode === 'block') {
+        // Legacy: 10:00 and 14:00 only
+        startHours = [10, 14];
+      } else {
+        // Hourly: every hour from DAY_START to (DAY_END - duration)
+        const lastStart = DAY_END_HOUR - durationHours;
+        startHours = [];
+        for (let h = DAY_START_HOUR; h <= lastStart; h++) startHours.push(h);
+      }
+
+      for (const h of startHours) {
         const slotStart = new Date(cur);
-        slotStart.setHours(s.hour, s.minute, 0, 0);
-        const slotEnd = new Date(slotStart.getTime() + s.duration * 60 * 1000);
+        slotStart.setHours(h, 0, 0, 0);
+        const slotEnd = new Date(slotStart.getTime() + durationHours * 3600 * 1000);
         slots.push({
-          date: slotStart.toISOString().slice(0, 10),
-          time: `${String(s.hour).padStart(2,'0')}:${String(s.minute).padStart(2,'0')}`,
+          date: cur.toISOString().slice(0, 10),
+          time: `${String(h).padStart(2,'0')}:00`,
           start: slotStart.toISOString(),
           end:   slotEnd.toISOString(),
-          duration: s.duration,
+          duration: durationHours * 60,
+          duration_hours: durationHours,
           available: true,
         });
       }
@@ -55,65 +76,101 @@ function generateSlots(from, to) {
   return slots;
 }
 
+/**
+ * Mark slot unavailable if it overlaps OR sits within `bufferMs` of any busy period
+ */
+function applyBusyAndBuffer(slots, busyPeriods, bufferMs) {
+  for (const slot of slots) {
+    const sStart = new Date(slot.start).getTime();
+    const sEnd   = new Date(slot.end).getTime();
+    for (const b of busyPeriods) {
+      const bStart = new Date(b.start).getTime();
+      const bEnd   = new Date(b.end).getTime();
+
+      // Direct overlap
+      if (sStart < bEnd && sEnd > bStart) {
+        slot.available = false;
+        slot.reason = 'overlap';
+        break;
+      }
+      // Buffer violation — slot ends too close to busy.start
+      if (sEnd > bStart - bufferMs && sStart < bStart) {
+        slot.available = false;
+        slot.reason = 'buffer_before';
+        break;
+      }
+      // Buffer violation — slot starts too close to busy.end
+      if (sStart < bEnd + bufferMs && sEnd > bEnd) {
+        slot.available = false;
+        slot.reason = 'buffer_after';
+        break;
+      }
+    }
+  }
+  return slots;
+}
+
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    const from = req.query.from || new Date().toISOString().slice(0, 10);
-    const to   = req.query.to   || new Date(Date.now() + 60*24*60*60*1000).toISOString().slice(0, 10);
+    // Parse query
+    const date = req.query.date;
+    const from = date || req.query.from || new Date().toISOString().slice(0, 10);
+    const to   = date || req.query.to   || new Date(Date.now() + 60*24*60*60*1000).toISOString().slice(0, 10);
+    const durationHours = Math.max(1, Math.min(8, parseInt(req.query.duration) || 4));
+    const mode = req.query.mode === 'block' ? 'block' : 'hourly';
+    const bufferHours = Math.max(0, Math.min(4, parseFloat(req.query.buffer_hours) ?? 1));
+    const bufferMs = bufferHours * 3600 * 1000;
 
-    const slots = generateSlots(from, to);
+    const slots = generateSlots(from, to, durationHours, mode);
 
-    // If no credentials yet — return all slots as available (mock mode)
+    // Mock mode if no credentials
     if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+      const future = slots.filter(s => new Date(s.start).getTime() > Date.now());
       return res.status(200).json({
+        slot_mode: mode,
         mode: 'mock',
-        note: 'GOOGLE_SERVICE_ACCOUNT_JSON not set — returning all slots as available',
-        slots,
+        duration_hours: durationHours,
+        buffer_hours: bufferHours,
+        note: 'GOOGLE_SERVICE_ACCOUNT_JSON not set — all slots shown as available',
+        from, to, total: future.length, available: future.length,
+        slots: future,
       });
     }
 
-    // Query Google Calendar busy times
+    // Query Google Calendar for busy periods
     const auth = getAuth();
     const calendar = google.calendar({ version: 'v3', auth });
     const calId = process.env.GOOGLE_CALENDAR_ID || 'primary';
 
     const freebusy = await calendar.freebusy.query({
       requestBody: {
-        timeMin: new Date(from).toISOString(),
+        timeMin: new Date(from + 'T00:00:00').toISOString(),
         timeMax: new Date(to + 'T23:59:59').toISOString(),
         items: [{ id: calId }],
       },
     });
-
     const busyPeriods = (freebusy.data.calendars?.[calId]?.busy) || [];
 
-    // Mark slots as busy if overlap with any busy period
-    for (const slot of slots) {
-      const sStart = new Date(slot.start).getTime();
-      const sEnd   = new Date(slot.end).getTime();
-      for (const b of busyPeriods) {
-        const bStart = new Date(b.start).getTime();
-        const bEnd   = new Date(b.end).getTime();
-        if (sStart < bEnd && sEnd > bStart) {
-          slot.available = false;
-          break;
-        }
-      }
-    }
+    // Apply busy + 1-hour buffer rule
+    applyBusyAndBuffer(slots, busyPeriods, bufferMs);
 
-    // Filter past slots
-    const now = Date.now();
-    const futureSlots = slots.filter(s => new Date(s.start).getTime() > now);
+    // Filter past slots (≥ now + 30 min so user has time to book)
+    const cutoff = Date.now() + 30 * 60 * 1000;
+    const futureSlots = slots.filter(s => new Date(s.start).getTime() > cutoff);
 
     return res.status(200).json({
+      slot_mode: mode,
       mode: 'live',
+      duration_hours: durationHours,
+      buffer_hours: bufferHours,
       from, to,
       total: futureSlots.length,
       available: futureSlots.filter(s => s.available).length,
+      busy_periods: busyPeriods.length,
       slots: futureSlots,
     });
   } catch (err) {

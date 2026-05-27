@@ -118,9 +118,11 @@ function PasswordGate({ onLogin, error }) {
 // ──────────────────────────────────────────────────────────
 const TABS = [
   { k:'dashboard', icon:'📊', label:'Dashboard' },
-  { k:'tickets',   icon:'🎟', label:'Tickets' },
-  { k:'courses',   icon:'🎓', label:'Courses' },
-  { k:'episodes',  icon:'📺', label:'Episodes' },
+  { k:'cohorts',   icon:'🎓', label:'Public Cohorts' },
+  { k:'bookings',  icon:'📅', label:'Bookings' },
+  { k:'tickets',   icon:'🎟', label:'VDO Tickets' },
+  { k:'courses',   icon:'📺', label:'VDO Courses' },
+  { k:'episodes',  icon:'🎬', label:'VDO Episodes' },
   { k:'arsenal',   icon:'⚡', label:'Arsenal' },
   { k:'orders',    icon:'🧾', label:'Orders' },
   { k:'settings',  icon:'⚙', label:'Settings' },
@@ -230,6 +232,8 @@ function App() {
         )}
 
         {tab === 'dashboard' && <Dashboard client={client}/>}
+        {tab === 'cohorts'   && <Cohorts client={client} showToast={showToast}/>}
+        {tab === 'bookings'  && <Bookings client={client} showToast={showToast}/>}
         {tab === 'tickets'   && <Tickets client={client} showToast={showToast}/>}
         {tab === 'courses'   && <Courses client={client} showToast={showToast}/>}
         {tab === 'episodes'  && <Episodes client={client} showToast={showToast}/>}
@@ -1014,6 +1018,370 @@ function Settings({ cfg, onLogout }) {
       <div className="glass p-5 mt-4" style={{borderColor:'rgba(45,212,191,0.30)'}}>
         <div className="text-xs eyebrow mb-2" style={{color:'#67E8F9'}}>— /vdo + /arsenal Anon Key</div>
         <div className="text-xs text-slate-400">Anon key ถูก hardcode ใน /vdo และ /arsenal ไว้แล้ว (เดียวกับ /verify) · ไม่ต้องตั้งค่าเพิ่ม</div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// COHORTS · Public class scheduling
+// ──────────────────────────────────────────────────────────
+const CATALOG_COURSES = [
+  { num:'01', name:'AI Basic',                hrs:2, prices:{group:2000,onsite:3000} },
+  { num:'02', name:'AI Agentic',              hrs:4, prices:{group:3500,onsite:7000} },
+  { num:'03', name:'MCP Connector',           hrs:5, prices:{group:3500,onsite:7000} },
+  { num:'04', name:'LINE ChatBot',            hrs:3, prices:{group:3500,onsite:7000} },
+  { num:'05', name:'AI for Kids',             hrs:3, prices:{group:2000,onsite:3000} },
+  { num:'06', name:'AI for Personal Assistant',hrs:3, prices:{group:2000,onsite:3000} },
+  { num:'08', name:'AI Agentic Web Builder',  hrs:5, prices:{group:3500,onsite:7000} },
+  { num:'09', name:'AI Agentic App Builder',  hrs:5, prices:{group:3500,onsite:7000} },
+  { num:'10', name:'AI Agentic Orchestra',    hrs:4, prices:{group:4500,onsite:9000} },
+  { num:'11', name:'AI Content Creator System',hrs:4, prices:{group:4500,onsite:9000} },
+];
+
+function Cohorts({ client, showToast }) {
+  const [items, setItems] = useState([]);
+  const [editing, setEditing] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    if (!client) { setLoading(false); return; }
+    setLoading(true);
+    const { data } = await client.from('public_cohorts').select('*').order('start_date', { ascending: true });
+    setItems(data || []); setLoading(false);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  const cancel = async (id) => {
+    const reason = prompt('เหตุผลที่ยกเลิก?');
+    if (!reason) return;
+    await client.from('public_cohorts').update({ status: 'cancelled', cancelled_at: new Date().toISOString(), cancel_reason: reason }).eq('id', id);
+    showToast('✓ ยกเลิก cohort'); load();
+  };
+
+  const confirmManually = async (id) => {
+    if (!confirm('ยืนยัน cohort นี้ก่อนครบ 4 คน?')) return;
+    await client.from('public_cohorts').update({ status: 'confirmed', confirmed_at: new Date().toISOString() }).eq('id', id);
+    showToast('✓ Confirmed'); load();
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">🎓 Public Cohorts</h1>
+          <p className="text-sm text-slate-400">{items.length} cohort · เปิดประกาศวันที่ให้คนจอง</p>
+        </div>
+        <button onClick={() => setEditing({})} disabled={!client} className="btn btn-gold">+ เปิดรอบใหม่</button>
+      </div>
+
+      <div className="glass overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr>
+            <th>No.</th><th>Course</th><th>Date</th><th>Seats</th><th>Price</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody>
+            {items.map(c => (
+              <tr key={c.id}>
+                <td className="font-mono text-xs grad-gold">{c.cohort_no || c.id.slice(0,8)}</td>
+                <td>
+                  <div className="text-white text-sm">{c.title || `${c.course_num} · ${c.course_name}`}</div>
+                  <div className="text-[10px] text-slate-500">{c.format_label} · {c.duration_hours}ชม.</div>
+                </td>
+                <td className="text-xs">
+                  <div className="text-white">{fmtDate(c.start_date)}</div>
+                  <div className="text-slate-500">{c.start_time}</div>
+                </td>
+                <td className="font-mono text-xs">
+                  <div>{c.seats_taken||0}/{c.max_seats}</div>
+                  <div className="text-[9px] text-slate-500">min {c.min_to_confirm}</div>
+                </td>
+                <td className="font-mono text-xs">
+                  ฿{fmtTHB(c.price_thb)}
+                  {c.early_bird_price_thb && <div className="text-[9px]" style={{color:'#F5D67A'}}>EB ฿{fmtTHB(c.early_bird_price_thb)}</div>}
+                </td>
+                <td><span className={`pill-status st-${c.status === 'confirmed' ? 'paid' : c.status === 'cancelled' ? 'declined' : c.status === 'full' ? 'expired' : 'pending'}`}>{c.status}</span></td>
+                <td className="text-right space-x-1">
+                  <button onClick={() => setEditing(c)} className="btn btn-ghost text-xs">Edit</button>
+                  {c.status === 'open' && <button onClick={() => confirmManually(c.id)} className="btn btn-ghost text-xs" style={{color:'#4ADE80', borderColor:'rgba(34,197,94,0.30)'}}>Confirm</button>}
+                  {c.status !== 'cancelled' && <button onClick={() => cancel(c.id)} className="btn btn-ghost text-xs" style={{color:'#FCA5A5', borderColor:'rgba(248,113,113,0.30)'}}>Cancel</button>}
+                </td>
+              </tr>
+            ))}
+            {items.length === 0 && !loading && <tr><td colSpan="7" className="text-center text-slate-500 py-10">ยังไม่มี cohort — กด "+ เปิดรอบใหม่"</td></tr>}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && <CohortEditModal cohort={editing} client={client} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); showToast('✓ Saved'); }}/>}
+    </div>
+  );
+}
+
+function CohortEditModal({ cohort, client, onClose, onSaved }) {
+  const [f, setF] = useState({
+    course_num:'02', course_name:'AI Agentic',
+    format:'group', format_label:'Online Group',
+    start_date: new Date(Date.now()+14*86400000).toISOString().slice(0,10),
+    start_time:'10:00',
+    duration_hours: 4,
+    price_thb: 3500, early_bird_price_thb: 2500,
+    early_bird_deadline: new Date(Date.now()+7*86400000).toISOString().slice(0,10),
+    min_to_confirm: 4, max_seats: 10,
+    refund_deadline: new Date(Date.now()+11*86400000).toISOString().slice(0,10),
+    cover_url:'', title:'', description:'',
+    what_you_learn: [], what_you_get: [],
+    is_published: false, is_featured: false,
+    sort_order: 0,
+    ...cohort,
+  });
+  const [saving, setSaving] = useState(false);
+
+  const onCourseChange = (num) => {
+    const c = CATALOG_COURSES.find(x => x.num === num);
+    if (!c) return;
+    setF(prev => ({
+      ...prev,
+      course_num: num,
+      course_name: c.name,
+      duration_hours: c.hrs,
+      price_thb: c.prices[prev.format] || prev.price_thb,
+    }));
+  };
+
+  const onFormatChange = (fmt) => {
+    const c = CATALOG_COURSES.find(x => x.num === f.course_num);
+    setF(prev => ({
+      ...prev,
+      format: fmt,
+      format_label: fmt === 'group' ? 'Online Group' : fmt === 'onsite' ? 'On-site' : 'Online 1:1',
+      price_thb: c?.prices[fmt] || prev.price_thb,
+    }));
+  };
+
+  const addBullet = (key) => setF({...f, [key]: [...(f[key]||[]), '']});
+  const updBullet = (key, i, v) => setF({...f, [key]: f[key].map((x, ix) => ix === i ? v : x)});
+  const delBullet = (key, i) => setF({...f, [key]: f[key].filter((_, ix) => ix !== i)});
+
+  const save = async () => {
+    if (!f.course_num || !f.start_date) { alert('course + start_date required'); return; }
+    setSaving(true);
+    try {
+      const payload = { ...f };
+      delete payload.created_at; delete payload.updated_at;
+      delete payload.seats_taken;
+
+      // Generate cohort_no for new
+      if (!cohort.id) {
+        const now = new Date();
+        const yymm = String(now.getFullYear()).slice(2) + String(now.getMonth()+1).padStart(2,'0');
+        const { count } = await client.from('public_cohorts').select('id', { count:'exact', head: true })
+          .gte('created_at', new Date(now.getFullYear(), now.getMonth(), 1).toISOString());
+        payload.cohort_no = `C-${yymm}-${String((count || 0) + 1).padStart(3,'0')}`;
+      }
+
+      // Clean empty bullets
+      payload.what_you_learn = (f.what_you_learn || []).filter(x => x.trim());
+      payload.what_you_get = (f.what_you_get || []).filter(x => x.trim());
+
+      if (cohort.id) await client.from('public_cohorts').update(payload).eq('id', cohort.id);
+      else await client.from('public_cohorts').insert(payload);
+      onSaved();
+    } catch (e) { alert('Failed: ' + e.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <Modal title={cohort.id ? `แก้ไข Cohort ${cohort.cohort_no || ''}` : '+ เปิด Cohort ใหม่'} onClose={onClose} size="lg">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="lbl">Course *</label>
+          <select className="inp" value={f.course_num} onChange={e => onCourseChange(e.target.value)}>
+            {CATALOG_COURSES.map(c => <option key={c.num} value={c.num} className="bg-ink-900">{c.num} · {c.name} ({c.hrs}ชม.)</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="lbl">Format *</label>
+          <select className="inp" value={f.format} onChange={e => onFormatChange(e.target.value)}>
+            <option value="group" className="bg-ink-900">Online Group</option>
+            <option value="onsite" className="bg-ink-900">On-site</option>
+          </select>
+        </div>
+
+        <div><label className="lbl">วันเรียน *</label><input type="date" className="inp" value={f.start_date} onChange={e => setF({...f, start_date: e.target.value})}/></div>
+        <div><label className="lbl">เวลาเริ่ม *</label><input type="time" className="inp" value={f.start_time} onChange={e => setF({...f, start_time: e.target.value})}/></div>
+
+        <div><label className="lbl">ระยะเวลา (ชม.)</label><input type="number" className="inp" value={f.duration_hours} onChange={e => setF({...f, duration_hours: Number(e.target.value)})}/></div>
+        <div><label className="lbl">Cover image URL</label><input className="inp text-xs" value={f.cover_url||''} onChange={e => setF({...f, cover_url: e.target.value})} placeholder="/assets/covers/course-02.png"/></div>
+
+        <div className="col-span-2">
+          <label className="lbl">Title (override course name — optional)</label>
+          <input className="inp" value={f.title||''} onChange={e => setF({...f, title: e.target.value})} placeholder={`${f.course_num} · ${f.course_name}`}/>
+        </div>
+
+        <div className="col-span-2">
+          <label className="lbl">Description</label>
+          <textarea rows="2" className="inp text-xs" value={f.description||''} onChange={e => setF({...f, description: e.target.value})}/>
+        </div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>ราคา + Early Bird</div>
+        </div>
+        <div><label className="lbl">ราคาเต็ม (THB) *</label><input type="number" className="inp" value={f.price_thb} onChange={e => setF({...f, price_thb: Number(e.target.value)})}/></div>
+        <div><label className="lbl">Early Bird price (THB)</label><input type="number" className="inp" value={f.early_bird_price_thb||''} onChange={e => setF({...f, early_bird_price_thb: e.target.value ? Number(e.target.value) : null})}/></div>
+        <div className="col-span-2"><label className="lbl">Early Bird หมดเขต</label><input type="date" className="inp" value={f.early_bird_deadline||''} onChange={e => setF({...f, early_bird_deadline: e.target.value || null})}/></div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+          <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>ที่นั่ง + Refund</div>
+        </div>
+        <div><label className="lbl">Min to confirm</label><input type="number" className="inp" value={f.min_to_confirm} onChange={e => setF({...f, min_to_confirm: Number(e.target.value)})}/></div>
+        <div><label className="lbl">Max seats</label><input type="number" className="inp" value={f.max_seats} onChange={e => setF({...f, max_seats: Number(e.target.value)})}/></div>
+        <div className="col-span-2"><label className="lbl">Refund deadline (วันสุดท้ายที่ refund ได้ถ้าไม่ครบ)</label><input type="date" className="inp" value={f.refund_deadline||''} onChange={e => setF({...f, refund_deadline: e.target.value || null})}/></div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+          <div className="flex items-center justify-between mb-1">
+            <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>📌 จะได้เรียน (bullets)</div>
+            <button onClick={() => addBullet('what_you_learn')} className="btn btn-ghost text-xs">+ เพิ่ม</button>
+          </div>
+          <div className="space-y-1.5">
+            {(f.what_you_learn||[]).map((b, i) => (
+              <div key={i} className="flex gap-1.5">
+                <input className="inp text-xs flex-1" value={b} onChange={e => updBullet('what_you_learn', i, e.target.value)} placeholder="เช่น เข้าใจ AI Agent คืออะไร"/>
+                <button onClick={() => delBullet('what_you_learn', i)} className="text-red-400 px-2">✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-1">
+          <div className="flex items-center justify-between mb-1">
+            <div className="text-xs font-bold uppercase tracking-widest" style={{color:'#E6B84B'}}>🎁 จะได้อะไร (bullets)</div>
+            <button onClick={() => addBullet('what_you_get')} className="btn btn-ghost text-xs">+ เพิ่ม</button>
+          </div>
+          <div className="space-y-1.5">
+            {(f.what_you_get||[]).map((b, i) => (
+              <div key={i} className="flex gap-1.5">
+                <input className="inp text-xs flex-1" value={b} onChange={e => updBullet('what_you_get', i, e.target.value)} placeholder="เช่น Slide + Working code + Certificate"/>
+                <button onClick={() => delBullet('what_you_get', i)} className="text-red-400 px-2">✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="col-span-2 border-t border-white/10 pt-3 mt-1 flex gap-4 text-sm">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={!!f.is_published} onChange={e => setF({...f, is_published: e.target.checked})} className="w-4 h-4 accent-yellow-500"/> Published</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={!!f.is_featured} onChange={e => setF({...f, is_featured: e.target.checked})} className="w-4 h-4 accent-yellow-500"/> ⭐ Featured</label>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={onClose} className="btn btn-ghost">Cancel</button>
+        <button onClick={save} disabled={saving} className="btn btn-gold">{saving ? '...' : 'Save'}</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
+// BOOKINGS · Public + Private
+// ──────────────────────────────────────────────────────────
+function Bookings({ client, showToast }) {
+  const [items, setItems] = useState([]);
+  const [filterMode, setFilterMode] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  const load = async () => {
+    if (!client) return;
+    const { data } = await client.from('bookings').select('*').order('created_at', { ascending: false }).limit(200);
+    setItems(data || []);
+  };
+  useEffect(() => { load(); }, [client]);
+
+  const filtered = useMemo(() => {
+    let f = items;
+    if (filterMode !== 'all') f = f.filter(b => (b.mode || 'private') === filterMode);
+    if (filterStatus !== 'all') f = f.filter(b => b.status === filterStatus);
+    return f;
+  }, [items, filterMode, filterStatus]);
+
+  const confirmPayment = async (id) => {
+    if (!confirm('Confirm ว่าโอนเงินมาแล้ว?')) return;
+    await client.from('bookings').update({ status: 'confirmed', confirmed_at: new Date().toISOString() }).eq('id', id);
+    showToast('✓ Confirmed'); load();
+  };
+
+  const reject = async (id) => {
+    const reason = prompt('เหตุผล reject?');
+    if (!reason) return;
+    await client.from('bookings').update({ status: 'rejected', rejected_at: new Date().toISOString(), rejection_reason: reason }).eq('id', id);
+    showToast('Rejected'); load();
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="font-display font-bold text-2xl">📅 Bookings</h1>
+          <p className="text-sm text-slate-400">{items.length} bookings (Public + Private)</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="flex gap-1 p-0.5 rounded-lg glass-soft">
+          {['all','public_cohort','private'].map(m => (
+            <button key={m} onClick={() => setFilterMode(m)} className={`pill text-[11px] ${filterMode === m ? 'active' : ''}`}>
+              {m === 'all' ? 'ทั้งหมด' : m === 'public_cohort' ? '🎓 Public' : '👤 Private'}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-1 p-0.5 rounded-lg glass-soft">
+          {['all','pending_payment','slip_uploaded','confirmed','rejected','cancelled'].map(s => (
+            <button key={s} onClick={() => setFilterStatus(s)} className={`pill text-[11px] ${filterStatus === s ? 'active' : ''}`}>{s}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr>
+            <th>No.</th><th>Mode</th><th>Customer</th><th>Course</th><th>Date</th><th>Amount</th><th>Slip</th><th>Status</th><th></th>
+          </tr></thead>
+          <tbody>
+            {filtered.map(b => (
+              <tr key={b.id}>
+                <td className="font-mono text-xs grad-gold">{b.booking_no}</td>
+                <td className="text-xs">{(b.mode || 'private') === 'public_cohort' ? '🎓' : '👤'}</td>
+                <td>
+                  <div className="text-white text-sm">{b.customer_name}</div>
+                  <div className="text-[10px] text-slate-500">{b.customer_phone}</div>
+                </td>
+                <td>
+                  <div className="text-white text-xs">{b.course_num} · {b.course_name}</div>
+                  <div className="text-[10px] text-slate-500">{b.format_label} · {b.duration_hours || b.hours}ชม.</div>
+                </td>
+                <td className="text-xs">
+                  <div className="text-white">{fmtDate(b.preferred_date)}</div>
+                  <div className="text-slate-500">{b.preferred_time}</div>
+                </td>
+                <td className="font-mono text-xs">
+                  ฿{fmtTHB(b.amount)}
+                  {b.is_early_bird && <div className="text-[9px]" style={{color:'#F5D67A'}}>EB</div>}
+                </td>
+                <td>{b.slip_url ? <a href={b.slip_url} target="_blank" rel="noopener" className="text-teal-300 text-xs underline">📎 ดูสลิป</a> : <span className="text-slate-500 text-xs">—</span>}</td>
+                <td><span className={`pill-status st-${b.status === 'confirmed' ? 'paid' : b.status === 'rejected' ? 'declined' : b.status === 'slip_uploaded' ? 'accepted' : 'pending'}`}>{b.status}</span></td>
+                <td className="text-right space-x-1">
+                  {(b.status === 'slip_uploaded' || b.status === 'pending_payment') && (
+                    <button onClick={() => confirmPayment(b.id)} className="btn btn-ghost text-xs" style={{color:'#4ADE80', borderColor:'rgba(34,197,94,0.30)'}}>✓ OK</button>
+                  )}
+                  {b.status !== 'rejected' && b.status !== 'cancelled' && (
+                    <button onClick={() => reject(b.id)} className="btn btn-ghost text-xs" style={{color:'#FCA5A5'}}>✕</button>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && <tr><td colSpan="9" className="text-center text-slate-500 py-10">ไม่มี bookings ตาม filter</td></tr>}
+          </tbody>
+        </table>
       </div>
     </div>
   );

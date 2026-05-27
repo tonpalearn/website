@@ -1,756 +1,694 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TONPALEARN · จองตารางเรียน</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TONPALEARN · จองเรียน · Public Class + Private 1:1</title>
+<meta name="description" content="จองคอร์ส TONPALEARN — Public Class (เปิดรอบ) + Private 1:1 (เลือกวันเวลาเอง)">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/promptpay-qr@0.5.0/build/promptpay-qr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <style>
-    html { background: #08080F; }
-    body { font-family: 'IBM Plex Sans Thai', sans-serif; background: #08080F; color: #FAFAFA; -webkit-font-smoothing: antialiased; min-height: 100vh; }
-    *::selection { background: rgba(230,184,75,0.25); color: #fff; }
-    .font-display { font-family: 'Space Grotesk', 'IBM Plex Sans Thai', sans-serif; }
-    .font-mono    { font-family: 'JetBrains Mono', monospace; }
+<link rel="stylesheet" href="/assets/liquid.css">
 
-    .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-    }
-
-    .grad-text-gold {
-      background: linear-gradient(135deg, #F5D67A 0%, #E6B84B 50%, #C8A84B 100%);
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .grad-text-teal {
-      background: linear-gradient(135deg, #67E8F9 0%, #2DD4BF 100%);
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    }
-
-    .inp {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #fff;
-      font-size: 14px;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .inp:hover { border-color: rgba(230,184,75,0.35); }
-    .inp:focus { outline: none; border-color: #E6B84B; background: rgba(255,255,255,0.06); }
-    .inp::placeholder { color: rgba(255,255,255,0.3); }
-
-    .step-dot {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 12px;
-      border: 2px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.5);
-      transition: all 0.3s;
-    }
-    .step-dot.active { background: linear-gradient(135deg, #F0CC72, #E6B84B); border-color: transparent; color: #08080F; }
-    .step-dot.done { background: rgba(45,212,191,0.2); border-color: #2DD4BF; color: #2DD4BF; }
-
-    .slot-btn {
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.03);
-      transition: all 0.15s;
-      cursor: pointer;
-      text-align: center;
-    }
-    .slot-btn:hover:not(:disabled) { border-color: rgba(230,184,75,0.4); background: rgba(230,184,75,0.06); }
-    .slot-btn.selected { background: linear-gradient(135deg, #F0CC72, #E6B84B); color: #08080F; border-color: transparent; }
-    .slot-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-    .course-card {
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.02);
-      transition: all 0.15s;
-      cursor: pointer;
-      text-align: left;
-    }
-    .course-card:hover { border-color: rgba(230,184,75,0.4); transform: translateY(-2px); }
-    .course-card.selected { border-color: #E6B84B; background: rgba(230,184,75,0.06); box-shadow: 0 0 20px -6px rgba(230,184,75,0.4); }
-
-    @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .pop { animation: pop 0.4s ease-out forwards; }
-
-    .mesh-bg {
-      background:
-        radial-gradient(ellipse 60% 50% at 20% 0%, rgba(124,92,252,0.10) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 80% 100%, rgba(45,212,191,0.08) 0%, transparent 55%);
-    }
-  </style>
+<style>
+  .seat-bar { height: 6px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.06); }
+  .seat-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #F5D67A, #E6B84B);
+    transition: width 0.6s var(--ease-liquid);
+  }
+  .seat-bar-confirmed .seat-bar-fill {
+    background: linear-gradient(90deg, #67E8F9, #14B8A6);
+  }
+  .cohort-cover {
+    aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #1A1A2A, #0D0D14);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .placeholder-icon {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; opacity: 0.2;
+  }
+  .slot-pill {
+    padding: 10px 14px;
+    border-radius: 12px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: #E5E7EB;
+    cursor: pointer;
+    transition: all var(--dur-snap) var(--ease-liquid);
+  }
+  .slot-pill:hover { border-color: rgba(245,214,122,0.50); background: rgba(245,214,122,0.08); }
+  .slot-pill.selected {
+    background: linear-gradient(135deg, #F5D67A, #E6B84B);
+    color: #08080F;
+    border-color: transparent;
+  }
+  .slot-pill.disabled { opacity: 0.3; cursor: not-allowed; }
+  .slot-pill.disabled:hover { border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); }
+</style>
 </head>
-<body>
+<body class="mesh-bg min-h-screen">
 
 <div id="root"></div>
 
 <script type="text/babel" data-presets="env,react">
-const { useState, useMemo, useEffect, useRef } = React;
+const { useState, useEffect, useMemo } = React;
 
-// ───────────────────────────────────────────────────────────
-// COURSES (synced from /AI Course/COURSES.md v7.1 + PRICING.md v3.3)
-// ───────────────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://lhrzjkizxjigqeuyposw.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxocnpqa2l6eGppZ3FldXlwb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODA0NDgsImV4cCI6MjA5NDc1NjQ0OH0.00JIC-uWcDh9StWQeJPJ-m6tSWDJSakR2tpUHMc_yPU';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
 const COURSES = [
-  { num: '01', name: 'AI Basic', emoji: '🌱', hrs: 2, desc: 'จาก 0 ถึง AI ที่ใช้ได้จริง — Prompt + ใช้ AI ในงานจริง',
-    prices: { vdo: 990, group: 2000, private: 2500, onsite: 3000 } },
-  { num: '02', name: 'AI Agentic', emoji: '⚡', hrs: 4, desc: 'AI User → AI Builder — Setup + Skill + Build Agent', featured: true,
-    prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
-  { num: '03', name: 'MCP Connector', emoji: '🔌', hrs: 5, desc: 'เชื่อม AI กับ Notion · Gmail · Slack · ทุก App',
-    prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 }, prereq: '02' },
-  { num: '04', name: 'LINE ChatBot', emoji: '🤖', hrs: 3, desc: 'ChatBot LINE ของคุณเอง — ตอบลูกค้า 24/7',
-    prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 }, prereq: '02' },
-  { num: '05', name: 'AI for Kids', emoji: '👧', hrs: 3, desc: 'สำหรับเด็ก ม.1–ม.6 — Kid-safe + creative AI',
-    prices: { vdo: 990, group: 2000, private: 3000, onsite: 3000 } },
-  { num: '06', name: 'AI for Personal Assistant', emoji: '🚀', hrs: 3, desc: 'PA ที่ใช้ AI เป็น — ทำงานเร็วขึ้น 10x',
-    prices: { vdo: 1500, group: 2000, private: 3000, onsite: 3000 } },
-  { num: '07', name: 'AI for ABOs', emoji: '💼', hrs: 3, desc: 'AI สำหรับนักธุรกิจเครือข่าย · กลุ่ม 5+',
-    prices: { vdo: 0, group: 0, private: 0, onsite: 0 }, quote: true },
-  { num: '08', name: 'AI Agentic Web Builder', emoji: '🧱', hrs: 5, desc: 'Code ไม่เป็น ก็มี Web เองได้ — Vibe Coding',
-    prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 } },
-  { num: '09', name: 'AI Agentic App Builder', emoji: '📱', hrs: 5, desc: 'Web App + Database + Login + เก็บข้อมูล',
-    prices: { vdo: 2500, group: 3500, private: 4500, onsite: 7000 }, prereq: '08' },
-  { num: '10', name: 'AI Agentic Orchestra', emoji: '🎼', hrs: 4, desc: 'Multi-Agent — Cowork + Persona + Auto Deploy', isNew: true,
-    prices: { vdo: 3500, group: 4500, private: 6000, onsite: 9000 } },
-  { num: '11', name: 'AI Content Creator System', emoji: '🎬', hrs: 4, desc: 'YouTube/TikTok + Content OS + Multi-Agent', isNew: true,
-    prices: { vdo: 3500, group: 4500, private: 6000, onsite: 9000 } },
-  { num: '12', name: 'AI Agentic for IT Audit & Consult', emoji: '🔍', hrs: 4, desc: 'AI Agent สำหรับ IT Auditor / Consultant', isNew: true,
-    prices: { vdo: 0, group: 0, private: 0, onsite: 0 }, quote: true },
+  { num:'01', name:'AI Basic',                hrs:2, prices:{vdo:990,group:2000,private:2500,onsite:3000} },
+  { num:'02', name:'AI Agentic',              hrs:4, prices:{vdo:2500,group:3500,private:4500,onsite:7000} },
+  { num:'03', name:'MCP Connector',           hrs:5, prices:{vdo:2500,group:3500,private:4500,onsite:7000} },
+  { num:'04', name:'LINE ChatBot',            hrs:3, prices:{vdo:2500,group:3500,private:4500,onsite:7000} },
+  { num:'05', name:'AI for Kids',             hrs:3, prices:{vdo:990,group:2000,private:3000,onsite:3000} },
+  { num:'06', name:'AI for Personal Assistant',hrs:3, prices:{vdo:1500,group:2000,private:3000,onsite:3000} },
+  { num:'07', name:'AI for ABOs',             hrs:3, prices:{vdo:0,group:0,private:0,onsite:0}, quote:true },
+  { num:'08', name:'AI Agentic Web Builder',  hrs:5, prices:{vdo:2500,group:3500,private:4500,onsite:7000} },
+  { num:'09', name:'AI Agentic App Builder',  hrs:5, prices:{vdo:2500,group:3500,private:4500,onsite:7000} },
+  { num:'10', name:'AI Agentic Orchestra',    hrs:4, prices:{vdo:3500,group:4500,private:6000,onsite:9000} },
+  { num:'11', name:'AI Content Creator System',hrs:4, prices:{vdo:3500,group:4500,private:6000,onsite:9000} },
+  { num:'12', name:'AI for IT Audit & Consult',hrs:4, prices:{vdo:0,group:0,private:0,onsite:0}, quote:true },
 ];
 
 const FORMATS = [
-  { key: 'group',   label: 'Online Group', sub: 'สอนสด · 5+ คน · ยอดนิยม', mins: 240 },
-  { key: 'private', label: 'Online 1:1',   sub: '1 ต่อ 1 · ยืดหยุ่น',       mins: 240 },
-  { key: 'onsite',  label: 'On-site',      sub: '3-10 คน · ไปสอนในสถานที่', mins: 240 },
+  { key:'group',   label:'Online Group', sub:'Zoom · 4+ คน' },
+  { key:'private', label:'Online 1:1',   sub:'Zoom · ส่วนตัว' },
+  { key:'onsite',  label:'On-site',      sub:'ไปสอนถึงที่' },
 ];
 
-// PromptPay
-const PROMPTPAY_ID = '0939149397'; // ต้น's mobile
+const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH');
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { day:'numeric', month:'long', year:'numeric' }) : '—';
+const fmtDateShort = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { day:'numeric', month:'short' }) : '—';
+const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { weekday:'long' }) : '—';
+const daysLeft = (iso) => iso ? Math.max(0, Math.ceil((new Date(iso) - new Date()) / 86400000)) : 0;
 
-// API endpoints
-const API = {
-  slots:   '/api/calendar-slots',
-  booking: '/api/bookings',
-};
+function Nav() {
+  return (
+    <nav className="fixed top-0 inset-x-0 z-40 glass-strong" style={{borderRadius:0, borderLeft:'none', borderRight:'none', borderTop:'none'}}>
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <a href="/" className="font-display font-bold text-lg flex items-baseline gap-1">
+          <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+        </a>
+        <div className="flex items-center gap-2 sm:gap-4 text-xs text-slate-300">
+          <a href="/" className="hover:text-white transition">Home</a>
+          <a href="/vdo/" className="hover:text-white transition">VDO</a>
+          <a href="/services/" className="hover:text-white transition">Services</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs">LINE</a>
+        </div>
+      </div>
+    </nav>
+  );
+}
 
-// Format helpers
-const fmtTHB = (n) => n.toLocaleString('th-TH');
-const fmtThaiDate = (iso) => {
-  const d = new Date(iso);
-  const m = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  const day = ['อา','จ','อ','พ','พฤ','ศ','ส'];
-  return `${day[d.getDay()]} ${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
-};
+function Hero({ mode, setMode }) {
+  return (
+    <section className="relative pt-28 pb-8 overflow-hidden">
+      <div className="blob-field">
+        <div className="blob blob-gold blob-drift-1" style={{ width: 400, height: 400, top: '10%', left: '8%' }}/>
+        <div className="blob blob-teal blob-drift-2" style={{ width: 350, height: 350, top: '20%', right: '8%' }}/>
+      </div>
+      <div className="relative max-w-5xl mx-auto px-6 text-center">
+        <div className="eyebrow mb-3">— จองเรียน</div>
+        <h1 className="font-display font-bold text-4xl sm:text-5xl text-white leading-tight">
+          เลือกแบบที่<span className="grad-aurora">เหมาะกับคุณ</span>
+        </h1>
+        <p className="text-slate-300 mt-3 max-w-xl mx-auto text-sm">
+          🎓 Public Class — รอบเปิดประจำ · เรียนเป็นกลุ่ม · ราคาคุ้ม<br/>
+          👤 Private 1:1 — เลือกวันเวลาเอง · เน้นโจทย์เฉพาะ
+        </p>
 
-// ───────────────────────────────────────────────────────────
-// APP
-// ───────────────────────────────────────────────────────────
-function App() {
-  const [step, setStep] = useState(1);
-  const [courseNum, setCourseNum] = useState(null);
-  const [format,    setFormat]    = useState('group');
-  const [attendees, setAttendees] = useState(1);
-  const [selectedSlot, setSelectedSlot] = useState(null);
+        <div className="mt-7 inline-flex p-1 rounded-2xl glass-soft">
+          <button onClick={() => setMode('public')}
+            className={`px-5 sm:px-8 py-3 rounded-xl text-sm font-display font-semibold transition-all ${mode === 'public' ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
+            style={mode === 'public' ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)', color:'#08080F'} : {}}>
+            🎓 Public Class
+          </button>
+          <button onClick={() => setMode('private')}
+            className={`px-5 sm:px-8 py-3 rounded-xl text-sm font-display font-semibold transition-all ${mode === 'private' ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
+            style={mode === 'private' ? {background:'linear-gradient(135deg,#67E8F9,#14B8A6)', color:'#08080F'} : {}}>
+            👤 Private 1:1
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-  const [customer, setCustomer] = useState({
-    name: '', email: '', phone: '', company: '',
-  });
+function CohortCard({ cohort, onBook }) {
+  const seats = cohort.seats_taken || 0;
+  const minConfirm = cohort.min_to_confirm || 4;
+  const maxSeats = cohort.max_seats || 10;
+  const isConfirmed = cohort.status === 'confirmed' || cohort.status === 'full' || seats >= minConfirm;
+  const isFull = seats >= maxSeats;
+  const isCancelled = cohort.status === 'cancelled';
 
-  const [booking, setBooking] = useState(null); // created booking object
-  const [slipFile, setSlipFile] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const ebActive = !!(cohort.early_bird_price_thb && cohort.early_bird_deadline && daysLeft(cohort.early_bird_deadline) > 0);
+  const displayPrice = ebActive ? cohort.early_bird_price_thb : cohort.price_thb;
 
-  const course = COURSES.find(c => c.num === courseNum);
-  const fmtObj = FORMATS.find(f => f.key === format);
-  const unitPrice = course && !course.quote ? (course.prices[format] || 0) : 0;
-  const total = unitPrice * attendees;
-
-  const canNext1 = courseNum && format && !course?.quote;
-  const canNext2 = !!selectedSlot;
-  const canNext3 = customer.name && customer.phone;
+  const seatsToConfirm = Math.max(0, minConfirm - seats);
+  const seatsRemaining = Math.max(0, maxSeats - seats);
+  const progressPct = Math.min(100, (seats / minConfirm) * 100);
 
   return (
-    <div className="min-h-screen mesh-bg">
-      <Header step={step}/>
+    <div className="glass glass-hover overflow-hidden flex flex-col">
+      <div className="cohort-cover" style={cohort.cover_url ? { backgroundImage: `url(${cohort.cover_url})` } : {}}>
+        {!cohort.cover_url && <div className="placeholder-icon">🎓</div>}
+        {cohort.is_featured && (
+          <div className="absolute top-3 left-3 pill text-[10px]" style={{background:'rgba(230,184,75,0.20)', borderColor:'rgba(245,214,122,0.50)', color:'#F5D67A', zIndex:1}}>
+            ⭐ ยอดนิยม
+          </div>
+        )}
+        <div className="absolute top-3 right-3" style={{zIndex:1}}>
+          {isCancelled && <span className="pill-status st-declined">❌ ยกเลิก</span>}
+          {!isCancelled && isFull && <span className="pill-status st-expired">🔒 เต็มแล้ว</span>}
+          {!isCancelled && !isFull && isConfirmed && <span className="pill-status st-paid">✅ Confirmed</span>}
+          {!isCancelled && !isFull && !isConfirmed && <span className="pill-status st-pending">⏳ Pre-booking</span>}
+        </div>
+        <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%)', pointerEvents:'none'}}/>
+      </div>
 
-      <main className="mx-auto max-w-3xl px-5 py-6">
-        {error && (
-          <div className="mb-4 panel p-3 border-red-500/40 text-red-300 text-sm">
-            ⚠️ {error}
+      <div className="p-5 flex-1 flex flex-col">
+        <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{cohort.format_label} · {cohort.duration_hours} ชม.</div>
+        <div className="font-display font-bold text-lg text-white mt-0.5 line-clamp-2">{cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}</div>
+
+        <div className="mt-3 flex items-center gap-2 text-xs text-slate-300">
+          <span>📅</span>
+          <span className="font-semibold">{fmtDate(cohort.start_date)}</span>
+          <span className="text-slate-500">({fmtDay(cohort.start_date)})</span>
+        </div>
+        <div className="text-xs text-slate-400 ml-5">⏰ {cohort.start_time} · {cohort.duration_hours} ชม.</div>
+
+        {cohort.what_you_learn && cohort.what_you_learn.length > 0 && (
+          <div className="mt-3">
+            <div className="text-[10px] font-mono uppercase tracking-widest mb-1" style={{color:'#E6B84B'}}>— จะได้เรียน</div>
+            <ul className="space-y-1">
+              {(cohort.what_you_learn || []).slice(0, 3).map((b, i) => (
+                <li key={i} className="text-[11px] text-slate-300 flex items-start gap-1.5">
+                  <span style={{color:'#E6B84B', marginTop:1}}>▸</span>
+                  <span className="line-clamp-2">{b}</span>
+                </li>
+              ))}
+              {cohort.what_you_learn.length > 3 && <li className="text-[10px] text-slate-500 italic">+ {cohort.what_you_learn.length - 3} หัวข้ออื่นๆ</li>}
+            </ul>
           </div>
         )}
 
-        {step === 1 && (
-          <Step1
-            courseNum={courseNum} setCourseNum={setCourseNum}
-            format={format} setFormat={setFormat}
-            attendees={attendees} setAttendees={setAttendees}
-            course={course} unitPrice={unitPrice} total={total}
-            canNext={canNext1}
-            onNext={() => setStep(2)}
-          />
-        )}
+        <div className="mt-4">
+          <div className="flex items-baseline gap-2">
+            {ebActive && cohort.early_bird_price_thb !== cohort.price_thb && (
+              <span className="text-xs text-slate-500 line-through">฿{fmtTHB(cohort.price_thb)}</span>
+            )}
+            <span className="font-display font-bold text-2xl grad-gold">฿{fmtTHB(displayPrice)}</span>
+            {ebActive && (
+              <span className="pill text-[9px]" style={{background:'rgba(239,68,68,0.15)', borderColor:'rgba(239,68,68,0.40)', color:'#FCA5A5'}}>
+                🔥 Early Bird
+              </span>
+            )}
+          </div>
+          {ebActive && (
+            <div className="text-[10px] text-red-300 mt-0.5">หมดเขต Early Bird · {fmtDateShort(cohort.early_bird_deadline)} · เหลือ {daysLeft(cohort.early_bird_deadline)} วัน</div>
+          )}
+        </div>
 
-        {step === 2 && (
-          <Step2
-            course={course} format={fmtObj} attendees={attendees} total={total}
-            selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot}
-            canNext={canNext2}
-            onBack={() => setStep(1)}
-            onNext={() => setStep(3)}
-          />
-        )}
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-[11px] mb-1.5">
+            <span className="text-slate-400">👥 ที่นั่ง</span>
+            <span className={isConfirmed ? 'text-teal-300' : 'text-slate-300'}>
+              {seats} / {maxSeats}
+              {!isConfirmed && seatsToConfirm > 0 && (
+                <span className="ml-1" style={{color:'#F5D67A'}}>· ขาดอีก {seatsToConfirm} คน</span>
+              )}
+              {isConfirmed && seatsRemaining > 0 && (
+                <span className="text-teal-300 ml-1">· เหลือ {seatsRemaining} ที่</span>
+              )}
+            </span>
+          </div>
+          <div className={`seat-bar ${isConfirmed ? 'seat-bar-confirmed' : ''}`}>
+            <div className="seat-bar-fill" style={{ width: `${progressPct}%` }}/>
+          </div>
+        </div>
 
-        {step === 3 && (
-          <Step3
-            course={course} format={fmtObj} attendees={attendees} total={total}
-            selectedSlot={selectedSlot}
-            customer={customer} setCustomer={setCustomer}
-            canNext={canNext3}
-            submitting={submitting}
-            onBack={() => setStep(2)}
-            onSubmit={async () => {
-              setSubmitting(true); setError('');
-              try {
-                const resp = await fetch(API.booking, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    customer_name: customer.name,
-                    customer_email: customer.email,
-                    customer_phone: customer.phone,
-                    customer_company: customer.company,
-                    course_num: course.num,
-                    course_name: course.name,
-                    format: format,
-                    format_label: fmtObj.label,
-                    hours: course.hrs,
-                    num_attendees: attendees,
-                    preferred_date: selectedSlot.date,
-                    preferred_time: selectedSlot.time,
-                    duration_mins: selectedSlot.duration,
-                    amount: total,
-                  }),
-                });
-                if (!resp.ok) throw new Error(await resp.text() || 'Booking failed');
-                const data = await resp.json();
-                setBooking(data);
-                setStep(4);
-              } catch (e) {
-                setError(e.message || 'เกิดข้อผิดพลาด — ลองใหม่อีกครั้ง');
-              } finally {
-                setSubmitting(false);
-              }
-            }}
-          />
+        <button onClick={() => onBook(cohort, displayPrice, ebActive)}
+                disabled={isFull || isCancelled}
+                className="btn btn-gold w-full justify-center mt-5"
+                style={isFull || isCancelled ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
+          {isFull ? '🔒 เต็มแล้ว' : isCancelled ? '❌ ยกเลิก' : isConfirmed ? '🎫 จองที่นั่ง · ฿' + fmtTHB(displayPrice) : '⏳ Pre-Book · ฿' + fmtTHB(displayPrice)}
+        </button>
+        {!isConfirmed && !isCancelled && !isFull && (
+          <div className="text-[9px] text-slate-500 text-center mt-1.5">💛 ครบ {minConfirm} คน → ยืนยันเปิดเรียน · ถ้าไม่ครบ คืนเงินเต็ม</div>
         )}
-
-        {step === 4 && booking && (
-          <Step4
-            booking={booking}
-            slipFile={slipFile} setSlipFile={setSlipFile}
-            onUploadComplete={(updated) => { setBooking(updated); setStep(5); }}
-            setError={setError}
-          />
-        )}
-
-        {step === 5 && booking && (
-          <Step5 booking={booking}/>
-        )}
-      </main>
-
-      <footer className="text-center py-8 text-xs text-slate-500">
-        ปัญหา / สอบถาม → <a href="https://line.me/ti/p/@tonpalearn" className="grad-text-gold">@tonpalearn</a> · 093-914-9397
-      </footer>
+      </div>
     </div>
   );
 }
 
-// ───────────────────────────────────────────────────────────
-// HEADER + STEP INDICATOR
-// ───────────────────────────────────────────────────────────
-function Header({ step }) {
-  const labels = ['เลือกคอร์ส', 'เลือกตาราง', 'ข้อมูลลูกค้า', 'ชำระเงิน', 'เสร็จสิ้น'];
+function PublicTab({ cohorts, loading, onBook }) {
+  const [filter, setFilter] = useState('all');
+  const filtered = useMemo(() => {
+    let f = cohorts;
+    if (filter === 'open') f = f.filter(c => ['open','confirmed'].includes(c.status) && (c.seats_taken||0) < (c.max_seats||10));
+    if (filter === 'confirmed') f = f.filter(c => c.status === 'confirmed');
+    return f;
+  }, [cohorts, filter]);
+
   return (
-    <header className="border-b border-white/10 bg-ink-950/85 backdrop-blur-xl sticky top-0 z-30">
-      <div className="mx-auto max-w-3xl px-5 py-3">
-        <div className="flex items-center justify-between mb-3">
-          <a href="/" className="font-display font-bold text-base">
-            <span className="text-white">TON</span>
-            <span className="grad-text-gold">PA</span>
-            <span className="grad-text-teal">LEARN</span>
-            <span className="text-slate-500 mx-2 text-sm font-normal">·</span>
-            <span className="text-sm text-slate-400 font-normal">จองตารางเรียน</span>
-          </a>
-        </div>
-        <div className="flex items-center gap-2">
-          {labels.map((l, i) => (
-            <React.Fragment key={i}>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className={`step-dot ${step > i+1 ? 'done' : step === i+1 ? 'active' : ''}`}>
-                  {step > i+1 ? '✓' : i+1}
-                </div>
-                <span className={`text-[11px] hidden sm:inline ${step === i+1 ? 'text-white font-semibold' : 'text-slate-500'}`}>{l}</span>
-              </div>
-              {i < labels.length - 1 && <div className="flex-1 h-px bg-white/10"/>}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-    </header>
-  );
-}
-
-// ───────────────────────────────────────────────────────────
-// STEP 1 — Course + Format
-// ───────────────────────────────────────────────────────────
-function Step1({ courseNum, setCourseNum, format, setFormat, attendees, setAttendees, course, unitPrice, total, canNext, onNext }) {
-  return (
-    <div className="space-y-5 pop">
-      <SectionTitle num="1" title="เลือกคอร์ส" sub="คลิกการ์ดเพื่อเลือก"/>
-
-      <div className="grid sm:grid-cols-2 gap-3">
-        {COURSES.map(c => (
-          <button key={c.num}
-            onClick={() => setCourseNum(c.num)}
-            className={`course-card ${courseNum === c.num ? 'selected' : ''}`}>
-            <div className="flex items-start gap-3">
-              <div className="text-3xl flex-shrink-0">{c.emoji}</div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-slate-500">{c.num}</span>
-                  <div className="font-display font-bold text-base text-white truncate">{c.name}</div>
-                  {c.featured && <span className="text-[9px] px-1.5 py-0.5 rounded bg-teal-500 text-black font-bold">⭐</span>}
-                  {c.isNew && <span className="text-[9px] px-1.5 py-0.5 rounded bg-violet-500 text-white font-bold">NEW</span>}
-                </div>
-                <p className="text-xs text-slate-400 mt-1 leading-snug">{c.desc}</p>
-                <div className="mt-2 flex items-baseline justify-between">
-                  <span className="text-[10px] text-slate-500">⏱ {c.hrs} ชม.</span>
-                  <span className="text-xs font-mono text-slate-400">
-                    {c.quote ? <em>Corporate · Quote</em> : `฿${fmtTHB(c.prices.group)}+ / คน`}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {course && course.quote && (
-        <div className="panel p-4 border-yellow-500/40">
-          <div className="text-sm text-yellow-300 font-semibold">⚠️ คอร์ส {course.num} เป็น Quote-based</div>
-          <div className="text-xs text-slate-400 mt-1">
-            กรุณาทักผ่าน LINE OA <a href="https://line.me/ti/p/@tonpalearn" className="grad-text-gold">@tonpalearn</a> เพื่อขอใบเสนอราคา · ระบบจองออนไลน์รองรับเฉพาะคอร์สที่มีราคา list
+    <section className="relative pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div>
+            <h2 className="font-display font-bold text-xl text-white">🎓 รอบเรียนที่กำลังเปิด</h2>
+            <p className="text-xs text-slate-400 mt-0.5">เลือกรอบที่สะดวก · จองได้แม้ยังไม่ครบ · ครบ 4 คน เปิดสอน</p>
           </div>
-        </div>
-      )}
-
-      {course && !course.quote && (
-        <>
-          <SectionTitle num="2" title="รูปแบบการเรียน"/>
-          <div className="grid sm:grid-cols-3 gap-3">
-            {FORMATS.map(f => (
-              <button key={f.key}
-                onClick={() => setFormat(f.key)}
-                className={`course-card ${format === f.key ? 'selected' : ''}`}>
-                <div className="font-display font-bold text-sm text-white">{f.label}</div>
-                <div className="text-xs text-slate-400 mt-1">{f.sub}</div>
-                <div className="mt-2 font-mono text-sm grad-text-gold">฿{fmtTHB(course.prices[f.key])} / คน</div>
-              </button>
+          <div className="flex gap-1 p-0.5 rounded-lg glass-soft">
+            {[
+              {k:'all', label:'ทั้งหมด'},
+              {k:'open', label:'ยังจองได้'},
+              {k:'confirmed', label:'Confirmed'},
+            ].map(o => (
+              <button key={o.k} onClick={() => setFilter(o.k)} className={`pill text-[11px] ${filter === o.k ? 'active' : ''}`}>{o.label}</button>
             ))}
           </div>
+        </div>
 
-          <SectionTitle num="3" title="จำนวนผู้เรียน"/>
-          <div className="panel p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setAttendees(Math.max(1, attendees - 1))}
-                      className="w-9 h-9 rounded-lg border border-white/20 hover:border-white/40 text-white">−</button>
-              <span className="font-display font-bold text-xl w-12 text-center">{attendees}</span>
-              <button onClick={() => setAttendees(Math.min(20, attendees + 1))}
-                      className="w-9 h-9 rounded-lg border border-white/20 hover:border-white/40 text-white">+</button>
-              <span className="text-xs text-slate-400 ml-2">คน</span>
-            </div>
-            <div className="text-right">
-              <div className="text-[10px] text-slate-500">รวม</div>
-              <div className="font-display font-bold text-xl grad-text-gold">฿{fmtTHB(total)}</div>
-            </div>
+        {loading ? (
+          <div className="text-center py-12 text-slate-500">⏳ กำลังโหลด...</div>
+        ) : filtered.length === 0 ? (
+          <div className="glass-strong p-10 text-center">
+            <div className="text-5xl mb-3">📭</div>
+            <div className="font-display font-bold text-white text-lg">ยังไม่มีรอบเปิด</div>
+            <p className="text-sm text-slate-400 mt-2 max-w-md mx-auto">ทักไลน์เพื่อแจ้งความสนใจ — มีคน 4+ คน ต้นจะเปิดรอบใหม่ให้ครับ</p>
+            <a href="https://line.me/R/ti/p/@tonpalearn?msg=สนใจคอร์ส%20Public%20Class%20แจ้งเปิดรอบใหม่ด้วย" target="_blank" rel="noopener" className="btn btn-gold mt-5 inline-flex">💬 ทักไลน์แจ้งความสนใจ</a>
           </div>
-        </>
-      )}
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filtered.map(c => <CohortCard key={c.id} cohort={c} onBook={onBook}/>)}
+          </div>
+        )}
 
-      <div className="flex justify-end gap-3 pt-4">
-        <button onClick={onNext} disabled={!canNext}
-                className="px-6 py-3 rounded-xl font-display font-bold transition disabled:opacity-30"
-                style={{ background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' }}>
-          ถัดไป — เลือกตารางเวลา →
-        </button>
+        <div className="glass-soft p-4 mt-8 text-xs text-slate-300 flex items-center gap-3">
+          <span className="text-2xl">🛡️</span>
+          <div>
+            <div className="font-semibold text-white">Refund Guarantee</div>
+            <div className="text-[11px] text-slate-400 mt-0.5">ถ้ารอบไม่ครบจนถึง refund deadline (default 3 วันก่อนเรียน) — คืนเงินเต็ม 100% ทันที</div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-// ───────────────────────────────────────────────────────────
-// STEP 2 — Calendar slot picker
-// ───────────────────────────────────────────────────────────
-function Step2({ course, format, attendees, total, selectedSlot, setSelectedSlot, canNext, onBack, onNext }) {
+function PrivateTab({ onBook }) {
+  const [courseNum, setCourseNum] = useState('02');
+  const [format, setFormat] = useState('private');
+  const [duration, setDuration] = useState(4);
+  const [date, setDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 3);
+    return d.toISOString().slice(0,10);
+  });
   const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [mockMode, setMockMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [pickedSlot, setPickedSlot] = useState(null);
 
-  // Default range: today+3d → today+45d
-  const from = new Date(Date.now() + 3*24*60*60*1000).toISOString().slice(0,10);
-  const to   = new Date(Date.now() + 45*24*60*60*1000).toISOString().slice(0,10);
+  const course = COURSES.find(c => c.num === courseNum);
+  const price = course?.prices[format] || 0;
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const resp = await fetch(`${API.slots}?from=${from}&to=${to}`);
-        if (!resp.ok) throw new Error('Failed to load slots');
-        const data = await resp.json();
-        setMockMode(data.mode === 'mock');
-        setSlots(data.slots || []);
-      } catch (e) {
-        // Fallback: generate locally
-        setMockMode(true);
-        setSlots(generateLocalSlots());
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    setLoading(true);
+    setPickedSlot(null);
+    fetch(`/api/calendar-slots?date=${date}&duration=${duration}&buffer_hours=1`)
+      .then(r => r.json())
+      .then(data => setSlots(data.slots || []))
+      .catch(() => setSlots([]))
+      .finally(() => setLoading(false));
+  }, [date, duration]);
 
-  // Group slots by date
-  const byDate = useMemo(() => {
-    const m = {};
-    slots.forEach(s => {
-      if (!m[s.date]) m[s.date] = [];
-      m[s.date].push(s);
+  const proceed = () => {
+    if (!pickedSlot) return;
+    onBook({
+      mode: 'private',
+      course_num: courseNum,
+      course_name: course.name,
+      format,
+      format_label: FORMATS.find(f => f.key === format)?.label,
+      hours: duration,
+      duration_hours: duration,
+      preferred_date: date,
+      preferred_time: pickedSlot.time,
+      amount: price,
     });
-    return m;
-  }, [slots]);
-
-  const dates = Object.keys(byDate).sort();
+  };
 
   return (
-    <div className="space-y-5 pop">
-      <BookingSummary course={course} format={format} attendees={attendees} total={total}/>
-
-      <SectionTitle num="•" title="เลือกวันและเวลา" sub="ตารางว่างจาก Google Calendar ของต้น"/>
-
-      {mockMode && (
-        <div className="panel p-3 border-amber-500/40 text-xs text-amber-300">
-          ⚠️ Mock mode — Google Calendar ยังไม่ได้ setup · slots ทั้งหมดแสดงเป็น available · ตารางจริงจะ sync เมื่อ admin setup เสร็จ
+    <section className="relative pb-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="mb-6">
+          <h2 className="font-display font-bold text-xl text-white">👤 จอง Private 1:1</h2>
+          <p className="text-xs text-slate-400 mt-0.5">เลือกคอร์ส · format · ระยะเวลา · วัน · เวลา · slots ห่างกัน ≥ 1 ชม. เสมอ</p>
         </div>
-      )}
 
-      {loading && <div className="panel p-8 text-center text-slate-400">กำลังโหลดตาราง...</div>}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="glass-strong p-5 space-y-4">
+            <div>
+              <label className="lbl">เลือกคอร์ส</label>
+              <select className="inp" value={courseNum} onChange={e => setCourseNum(e.target.value)}>
+                {COURSES.map(c => <option key={c.num} value={c.num} className="bg-ink-900">{c.num} · {c.name} ({c.hrs} ชม.)</option>)}
+              </select>
+            </div>
 
-      {!loading && dates.length === 0 && (
-        <div className="panel p-8 text-center text-slate-400">ไม่มีตารางว่างในช่วงนี้ · กรุณาติดต่อ LINE OA</div>
-      )}
-
-      <div className="space-y-2 max-h-[480px] overflow-y-auto pr-2">
-        {dates.map(d => {
-          const daySlots = byDate[d];
-          const hasAvailable = daySlots.some(s => s.available);
-          return (
-            <div key={d} className={`panel p-3 ${!hasAvailable ? 'opacity-50' : ''}`}>
-              <div className="text-xs font-display font-semibold text-slate-300 mb-2">{fmtThaiDate(d)}</div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {daySlots.map((s, i) => {
-                  const sel = selectedSlot?.start === s.start;
-                  const [hh, mm] = s.time.split(':');
-                  const endH = parseInt(hh) + Math.floor(s.duration / 60);
-                  return (
-                    <button key={i}
-                      disabled={!s.available}
-                      onClick={() => setSelectedSlot(s)}
-                      className={`slot-btn ${sel ? 'selected' : ''}`}>
-                      <div className="font-mono text-xs">
-                        {s.time} - {String(endH).padStart(2,'0')}:{mm}
-                      </div>
-                      <div className="text-[9px] opacity-70 mt-0.5">
-                        {!s.available ? 'จองแล้ว' : `${s.duration/60} ชม.`}
-                      </div>
-                    </button>
-                  );
-                })}
+            <div>
+              <label className="lbl">Format</label>
+              <div className="grid grid-cols-3 gap-1 p-0.5 rounded-lg glass-soft">
+                {FORMATS.map(f => (
+                  <button key={f.key} onClick={() => setFormat(f.key)}
+                    className="px-2 py-2 rounded-md text-xs font-semibold transition"
+                    style={format === f.key ? {background:'linear-gradient(135deg,#67E8F9,#14B8A6)', color:'#08080F'} : {color:'#94a3b8'}}>
+                    <div>{f.label}</div>
+                    <div className="text-[9px] opacity-70 font-normal">{f.sub}</div>
+                  </button>
+                ))}
               </div>
             </div>
-          );
-        })}
-      </div>
 
-      <div className="flex justify-between gap-3 pt-4">
-        <button onClick={onBack} className="px-5 py-3 rounded-xl text-slate-400 hover:text-white transition">← ย้อนกลับ</button>
-        <button onClick={onNext} disabled={!canNext}
-                className="px-6 py-3 rounded-xl font-display font-bold transition disabled:opacity-30"
-                style={{ background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' }}>
-          ถัดไป — กรอกข้อมูล →
-        </button>
+            <div>
+              <label className="lbl">ระยะเวลา (ชั่วโมง)</label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {[1, 2, 3, 4].map(h => (
+                  <button key={h} onClick={() => setDuration(h)}
+                    className="px-3 py-2 rounded-md text-sm font-semibold transition"
+                    style={duration === h ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)', color:'#08080F'} : {background:'rgba(255,255,255,0.04)', color:'#94a3b8', border:'1px solid rgba(255,255,255,0.10)'}}>
+                    {h} ชม.
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="lbl">วันที่</label>
+              <input type="date" className="inp" value={date} onChange={e => setDate(e.target.value)} min={new Date().toISOString().slice(0,10)}/>
+            </div>
+
+            <div className="glass-gold p-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-300">ราคา</span>
+                <span className="font-display font-bold text-xl grad-gold">฿{fmtTHB(price)}</span>
+              </div>
+              <div className="text-[10px] text-slate-400 mt-1">{course?.name} · {FORMATS.find(f => f.key === format)?.label} · {duration} ชม.</div>
+            </div>
+          </div>
+
+          <div className="glass-strong p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-display font-bold text-white">เลือกเวลาเริ่ม</div>
+              <div className="text-[10px] text-slate-500">วันที่ {fmtDateShort(date)}</div>
+            </div>
+            {loading ? (
+              <div className="text-center py-10 text-slate-500">⏳ กำลังโหลด slots...</div>
+            ) : slots.length === 0 ? (
+              <div className="text-center py-10 text-slate-500">
+                <div className="text-4xl mb-2">📅</div>
+                <div className="text-sm">ไม่มี slot ในวันนี้</div>
+                <div className="text-[10px] mt-1">ลองเลือกวันอื่น (จันทร์-เสาร์ เท่านั้น)</div>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {slots.map(s => (
+                    <button key={s.time} onClick={() => s.available && setPickedSlot(s)}
+                      className={`slot-pill ${pickedSlot?.time === s.time ? 'selected' : ''} ${!s.available ? 'disabled' : ''}`}
+                      title={s.reason ? `Blocked: ${s.reason}` : 'Available'}>
+                      {s.time}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-3 text-[10px] text-slate-500">
+                  💡 แต่ละ slot ห่างกันอย่างน้อย 1 ชม. (เผื่อ buffer ระหว่างนัด)
+                </div>
+              </>
+            )}
+
+            {pickedSlot && (
+              <div className="mt-4 glass-soft p-3 text-xs">
+                <div className="text-slate-400">เลือกแล้ว</div>
+                <div className="text-white font-semibold mt-0.5">
+                  {fmtDate(date)} ({fmtDay(date)}) · {pickedSlot.time} – {new Date(pickedSlot.end).toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit'})}
+                </div>
+              </div>
+            )}
+
+            <button onClick={proceed} disabled={!pickedSlot} className="btn btn-gold w-full justify-center mt-4"
+              style={!pickedSlot ? {opacity:0.5, cursor:'not-allowed'} : {}}>
+              ดำเนินการต่อ → ฿{fmtTHB(price)}
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-function generateLocalSlots() {
-  const slots = [];
-  const start = new Date(Date.now() + 3*24*60*60*1000);
-  for (let i = 0; i < 30; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    if (d.getDay() === 0 || d.getDay() === 6) continue;
-    for (const t of [{h:10,m:0},{h:14,m:0}]) {
-      const sl = new Date(d);
-      sl.setHours(t.h, t.m, 0, 0);
-      const el = new Date(sl.getTime() + 4*60*60*1000);
-      slots.push({
-        date: sl.toISOString().slice(0,10),
-        time: `${String(t.h).padStart(2,'0')}:${String(t.m).padStart(2,'0')}`,
-        start: sl.toISOString(), end: el.toISOString(), duration: 240, available: true,
-      });
-    }
-  }
-  return slots;
-}
+function BookingModal({ payload, onClose }) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({
+    customer_name:'', customer_phone:'', customer_email:'', customer_company:'',
+    num_attendees: 1,
+  });
+  const [slipFile, setSlipFile] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [bookingNo, setBookingNo] = useState(null);
+  const [error, setError] = useState('');
 
-// ───────────────────────────────────────────────────────────
-// STEP 3 — Customer info
-// ───────────────────────────────────────────────────────────
-function Step3({ course, format, attendees, total, selectedSlot, customer, setCustomer, canNext, submitting, onBack, onSubmit }) {
-  const upd = (k) => (e) => setCustomer({ ...customer, [k]: e.target.value });
-  return (
-    <div className="space-y-5 pop">
-      <BookingSummary course={course} format={format} attendees={attendees} total={total} slot={selectedSlot}/>
-
-      <SectionTitle num="•" title="ข้อมูลผู้จอง" sub="ใช้สำหรับติดต่อกลับ"/>
-
-      <div className="panel p-5 space-y-3">
-        <div>
-          <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">ชื่อ-นามสกุล *</label>
-          <input className="inp" value={customer.name} onChange={upd('name')} placeholder="เช่น สมชาย ใจดี"/>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">เบอร์โทร *</label>
-            <input className="inp" value={customer.phone} onChange={upd('phone')} placeholder="08X-XXX-XXXX"/>
-          </div>
-          <div>
-            <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">Email (ทางเลือก)</label>
-            <input className="inp" value={customer.email} onChange={upd('email')} placeholder="you@example.com"/>
-          </div>
-        </div>
-        <div>
-          <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-1">บริษัท / หน่วยงาน (ทางเลือก)</label>
-          <input className="inp" value={customer.company} onChange={upd('company')} placeholder="ใช้สำหรับใบเสนอราคา/ใบกำกับภาษี"/>
-        </div>
-      </div>
-
-      <div className="flex justify-between gap-3 pt-4">
-        <button onClick={onBack} className="px-5 py-3 rounded-xl text-slate-400 hover:text-white transition">← ย้อนกลับ</button>
-        <button onClick={onSubmit} disabled={!canNext || submitting}
-                className="px-6 py-3 rounded-xl font-display font-bold transition disabled:opacity-30"
-                style={{ background: 'linear-gradient(135deg, #F0CC72, #E6B84B)', color: '#08080F' }}>
-          {submitting ? 'กำลังบันทึก...' : 'จองเลย — แสดง QR ชำระ →'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────────────────────
-// STEP 4 — QR Code + Slip Upload
-// ───────────────────────────────────────────────────────────
-function Step4({ booking, slipFile, setSlipFile, onUploadComplete, setError }) {
-  const qrRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    if (!qrRef.current) return;
+  const submit = async () => {
+    setSubmitting(true); setError('');
     try {
-      const payload = window.generatePayload(PROMPTPAY_ID, { amount: booking.amount });
-      window.QRCode.toCanvas(qrRef.current, payload, {
-        width: 280,
-        color: { dark: '#08080F', light: '#FFFFFF' },
-        margin: 1,
-      });
+      const now = new Date();
+      const yymm = String(now.getFullYear()).slice(2) + String(now.getMonth()+1).padStart(2,'0');
+      const rand = Math.floor(Math.random() * 9999).toString().padStart(4,'0');
+      const booking_no = `BOOK-${yymm}-${rand}`;
+
+      let slip_url = null;
+      if (slipFile) {
+        const fileName = `${booking_no}-${Date.now()}.${slipFile.name.split('.').pop()}`;
+        const { error: upErr } = await sb.storage.from('slips').upload(fileName, slipFile);
+        if (upErr) throw new Error('Upload สลิป fail: ' + upErr.message);
+        const { data: { publicUrl } } = sb.storage.from('slips').getPublicUrl(fileName);
+        slip_url = publicUrl;
+      }
+
+      const booking = {
+        booking_no,
+        status: slip_url ? 'slip_uploaded' : 'pending_payment',
+        mode: payload.mode,
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone,
+        customer_email: form.customer_email || null,
+        customer_company: form.customer_company || null,
+        course_num: payload.course_num,
+        course_name: payload.course_name,
+        format: payload.format,
+        format_label: payload.format_label,
+        hours: payload.hours,
+        duration_hours: payload.duration_hours,
+        num_attendees: form.num_attendees || 1,
+        preferred_date: payload.preferred_date,
+        preferred_time: payload.preferred_time,
+        amount: payload.amount,
+        payment_amount: payload.amount,
+        is_early_bird: !!payload.is_early_bird,
+        cohort_id: payload.cohort_id || null,
+        slip_url,
+        slip_uploaded_at: slip_url ? new Date().toISOString() : null,
+      };
+
+      const { error: insErr } = await sb.from('bookings').insert(booking);
+      if (insErr) throw insErr;
+
+      setBookingNo(booking_no);
+      setStep(4);
     } catch (e) {
-      console.error('QR generation failed', e);
-    }
-  }, [booking.amount]);
-
-  const handleUpload = async (file) => {
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { setError('ไฟล์ใหญ่เกิน 5MB'); return; }
-
-    setUploading(true);
-    try {
-      // Upload to Supabase Storage via fetch
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('booking_id', booking.id);
-
-      // Direct upload to Supabase Storage
-      const supabaseUrl = 'https://lhrzjkizxjigqeuyposw.supabase.co';
-      const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxocnpqa2l6eGppZ3FldXlwb3N3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxODA0NDgsImV4cCI6MjA5NDc1NjQ0OH0.00JIC-uWcDh9StWQeJPJ-m6tSWDJSakR2tpUHMc_yPU';
-
-      const fileName = `${booking.booking_no}-${Date.now()}.${file.name.split('.').pop()}`;
-      const sb = window.supabase.createClient(supabaseUrl, anonKey);
-
-      const { error: upErr } = await sb.storage.from('slips').upload(fileName, file, {
-        cacheControl: '3600', upsert: false,
-      });
-      if (upErr) throw upErr;
-
-      const { data: pub } = sb.storage.from('slips').getPublicUrl(fileName);
-      const slipUrl = pub.publicUrl;
-
-      // Update booking with slip url
-      const resp = await fetch(`${API.booking}?id=${booking.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          slip_url: slipUrl,
-          slip_uploaded_at: new Date().toISOString(),
-          status: 'slip_uploaded',
-        }),
-      });
-      if (!resp.ok) throw new Error('Update failed');
-      const updated = await resp.json();
-      onUploadComplete(updated);
-    } catch (e) {
-      setError('Upload ไม่สำเร็จ: ' + (e.message || e));
+      console.error(e);
+      setError(e.message);
     } finally {
-      setUploading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-5 pop">
-      <div className="panel p-5 border-teal-500/40">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">✓</span>
-          <div>
-            <div className="font-display font-bold text-lg text-white">บันทึก booking เรียบร้อย</div>
-            <div className="font-mono text-xs grad-text-gold">{booking.booking_no}</div>
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-12 px-4 overflow-y-auto" onClick={onClose}>
+      <div className="glass-strong max-w-2xl w-full my-8" onClick={e => e.stopPropagation()}>
+        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between" style={{background:'rgba(8,8,15,0.95)', backdropFilter:'blur(20px)', borderTopLeftRadius:24, borderTopRightRadius:24}}>
+          <h2 className="font-display font-bold text-lg grad-gold">
+            {step === 1 && 'ข้อมูลผู้จอง'}
+            {step === 2 && 'ชำระเงิน'}
+            {step === 3 && 'อัพโหลดสลิป'}
+            {step === 4 && '✓ จองสำเร็จ'}
+          </h2>
+          <button onClick={onClose} className="btn btn-ghost text-sm">✕</button>
+        </div>
+
+        <div className="p-5 max-h-[75vh] overflow-y-auto scrollable">
+          {step === 1 && (
+            <div className="space-y-3">
+              <div className="glass-gold p-3 mb-3 text-xs">
+                <div className="font-semibold text-white">{payload.course_name}</div>
+                <div className="text-slate-300 mt-1">{payload.format_label} · {payload.duration_hours || payload.hours} ชม. · ฿{fmtTHB(payload.amount)}</div>
+                {payload.is_early_bird && <div className="text-red-300 mt-1">🔥 Early Bird ราคาพิเศษ</div>}
+                <div className="text-[10px] text-slate-400 mt-1">📅 {fmtDate(payload.preferred_date)} · {payload.preferred_time}</div>
+              </div>
+
+              <div><label className="lbl">ชื่อ-สกุล *</label><input className="inp" value={form.customer_name} onChange={e => setForm({...form, customer_name: e.target.value})}/></div>
+              <div><label className="lbl">เบอร์โทร *</label><input className="inp" value={form.customer_phone} onChange={e => setForm({...form, customer_phone: e.target.value})}/></div>
+              <div><label className="lbl">Email</label><input className="inp" type="email" value={form.customer_email} onChange={e => setForm({...form, customer_email: e.target.value})}/></div>
+              <div><label className="lbl">บริษัท (optional)</label><input className="inp" value={form.customer_company} onChange={e => setForm({...form, customer_company: e.target.value})}/></div>
+
+              <button onClick={() => setStep(2)} disabled={!form.customer_name || !form.customer_phone} className="btn btn-gold w-full justify-center mt-3"
+                style={(!form.customer_name || !form.customer_phone) ? {opacity:0.5, cursor:'not-allowed'} : {}}>
+                ถัดไป → ชำระเงิน
+              </button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div>
+              <div className="text-xs text-slate-300 mb-3 text-center">โอนเงิน <span className="font-bold grad-gold">฿{fmtTHB(payload.amount)}</span> ไปที่บัญชี:</div>
+              <div className="glass p-4 mb-4 text-center">
+                <div className="text-xs text-slate-400 mb-1">บัญชี · กสิกรไทย</div>
+                <div className="font-mono font-bold text-2xl grad-gold mb-1">745-2-61376-4</div>
+                <div className="text-xs text-slate-300">ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
+              </div>
+              <div className="text-[10px] text-slate-400 mb-4 text-center">หรือ PromptPay <span className="font-mono">0939149397</span></div>
+
+              <button onClick={() => setStep(3)} className="btn btn-gold w-full justify-center">ฉันโอนแล้ว → อัพโหลดสลิป</button>
+              <button onClick={() => setStep(1)} className="btn btn-ghost w-full justify-center mt-2 text-xs">← กลับ</button>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div>
+              <div className="text-xs text-slate-300 mb-3">แนบสลิปการโอน (JPG / PNG)</div>
+              <input type="file" accept="image/*" onChange={e => setSlipFile(e.target.files?.[0])} className="inp"/>
+              {slipFile && <div className="text-xs text-emerald-400 mt-2">✓ {slipFile.name}</div>}
+              {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
+              <button onClick={submit} disabled={!slipFile || submitting} className="btn btn-gold w-full justify-center mt-4"
+                style={(!slipFile || submitting) ? {opacity:0.5, cursor:'not-allowed'} : {}}>
+                {submitting ? '⏳ กำลังบันทึก...' : 'ส่งใบจอง'}
+              </button>
+              <div className="text-[10px] text-slate-500 mt-3 text-center">ส่งไม่ได้? <button onClick={submit} disabled={submitting} className="underline" style={{color:'#F5D67A'}}>ข้ามอัพโหลด · ส่งภายหลัง</button></div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="text-center py-4">
+              <div className="text-5xl mb-3">🎉</div>
+              <div className="font-display font-bold text-xl text-white">จองสำเร็จแล้ว!</div>
+              <div className="text-sm text-slate-300 mt-2">เลขที่จอง: <span className="font-mono font-bold grad-gold">{bookingNo}</span></div>
+              <div className="text-xs text-slate-400 mt-4 max-w-sm mx-auto">
+                {payload.mode === 'public_cohort'
+                  ? '⏳ รอ admin verify การโอน · เมื่อครบ 4 คน Class จะ Confirm และแจ้งคุณทาง LINE'
+                  : '⏳ รอ admin verify การโอน · จะ confirm slot ภายใน 24 ชม.'}
+              </div>
+              <div className="text-[10px] text-slate-500 mt-4">หรือเร่งได้ที่ <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="underline" style={{color:'#F5D67A'}}>LINE @tonpalearn</a></div>
+              <button onClick={onClose} className="btn btn-gold mt-5">เสร็จสิ้น</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-white/5 py-10 mt-10">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <div className="font-display font-bold text-base flex items-baseline gap-1">
+            <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
           </div>
+          <div className="text-xs text-slate-500 mt-1">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-slate-400">
+          <a href="/" className="hover:text-white transition">Home</a>
+          <a href="/vdo/" className="hover:text-white transition">VDO</a>
+          <a href="/arsenal/" className="hover:text-white transition">Arsenal</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="hover:text-gold-200 transition">LINE</a>
         </div>
       </div>
-
-      <SectionTitle num="•" title="ชำระเงิน" sub="สแกน QR หรือโอนผ่าน PromptPay"/>
-
-      <div className="panel p-6 text-center">
-        <div className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-2">PromptPay · ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
-        <div className="text-3xl font-display font-bold grad-text-gold mb-4">฿{fmtTHB(booking.amount)}</div>
-        <div className="inline-block p-4 rounded-2xl bg-white">
-          <canvas ref={qrRef}></canvas>
-        </div>
-        <div className="mt-3 font-mono text-xs text-slate-400">เบอร์ {PROMPTPAY_ID.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}</div>
-        <div className="mt-2 text-xs text-slate-500">หรือโอนเข้า ธ.กสิกร · 745-2-61376-4 · ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
-      </div>
-
-      <SectionTitle num="•" title="อัปโหลด Slip" sub="หลังโอนแล้ว · jpg/png/pdf · ≤ 5MB"/>
-
-      <label className="panel p-8 block text-center cursor-pointer hover:border-gold-500/40 transition border-dashed">
-        <input type="file" accept="image/*,.pdf" hidden onChange={(e) => { setSlipFile(e.target.files?.[0]); handleUpload(e.target.files?.[0]); }}/>
-        <div className="text-4xl mb-2">{uploading ? '⏳' : '📎'}</div>
-        <div className="font-display font-bold text-base text-white">
-          {uploading ? 'กำลังอัปโหลด...' : 'คลิกเพื่อเลือกไฟล์ slip'}
-        </div>
-        <div className="text-xs text-slate-400 mt-1">jpg / png / pdf · ≤ 5MB</div>
-      </label>
-    </div>
+    </footer>
   );
 }
 
-// ───────────────────────────────────────────────────────────
-// STEP 5 — Done · waiting for confirmation
-// ───────────────────────────────────────────────────────────
-function Step5({ booking }) {
+function App() {
+  const url = new URLSearchParams(location.search);
+  const [mode, setMode] = useState(url.get('mode') || 'public');
+  const [cohorts, setCohorts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [bookingPayload, setBookingPayload] = useState(null);
+
+  useEffect(() => {
+    const u = new URL(location.href);
+    u.searchParams.set('mode', mode);
+    history.replaceState(null, '', u);
+  }, [mode]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await sb.from('public_cohorts').select('*')
+        .eq('is_published', true)
+        .gte('start_date', new Date().toISOString().slice(0,10))
+        .order('start_date');
+      setCohorts(data || []);
+      setLoading(false);
+    })();
+  }, []);
+
+  const handlePublicBook = (cohort, price, isEB) => {
+    setBookingPayload({
+      mode: 'public_cohort',
+      cohort_id: cohort.id,
+      course_num: cohort.course_num,
+      course_name: cohort.title || cohort.course_name,
+      format: cohort.format,
+      format_label: cohort.format_label,
+      hours: cohort.duration_hours,
+      duration_hours: cohort.duration_hours,
+      preferred_date: cohort.start_date,
+      preferred_time: cohort.start_time,
+      amount: price,
+      is_early_bird: isEB,
+    });
+  };
+
   return (
-    <div className="space-y-5 pop">
-      <div className="panel p-8 text-center">
-        <div className="text-6xl mb-4">🎉</div>
-        <div className="font-display font-bold text-2xl text-white mb-2">รับ booking + slip แล้ว</div>
-        <div className="font-mono text-sm grad-text-gold mb-4">{booking.booking_no}</div>
-        <p className="text-sm text-slate-400 leading-relaxed max-w-md mx-auto">
-          ต้นจะตรวจสอบ slip และยืนยันตารางผ่าน LINE OA ภายใน 24 ชั่วโมง
-          <br/>ถ้าจองแล้วยังไม่ confirm กรุณาทักผ่าน LINE
-        </p>
-
-        <div className="mt-6 panel p-4 text-left text-xs space-y-1">
-          <div className="flex justify-between"><span className="text-slate-500">Booking</span><span className="font-mono">{booking.booking_no}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">คอร์ส</span><span>{booking.course_name}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Format</span><span>{booking.format_label}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">วันที่จอง</span><span>{fmtThaiDate(booking.preferred_date)} · {booking.preferred_time}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">ยอด</span><span className="grad-text-gold font-bold">฿{fmtTHB(booking.amount)}</span></div>
-          <div className="flex justify-between"><span className="text-slate-500">Status</span><span className="text-teal-400">รอ admin ยืนยัน</span></div>
-        </div>
-
-        <div className="mt-6 flex gap-2 justify-center">
-          <a href="https://line.me/ti/p/@tonpalearn" target="_blank" rel="noopener"
-             className="px-5 py-2.5 rounded-xl bg-[#06c755] text-white font-display font-semibold text-sm">
-            💬 LINE OA
-          </a>
-          <a href="/" className="px-5 py-2.5 rounded-xl border border-white/15 text-slate-300 font-display font-semibold text-sm hover:bg-white/5 transition">
-            ← กลับหน้าแรก
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ───────────────────────────────────────────────────────────
-// Sub-components
-// ───────────────────────────────────────────────────────────
-function SectionTitle({ num, title, sub }) {
-  return (
-    <div className="flex items-baseline gap-3">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-gold-400" style={{ color: '#E6B84B' }}>{num}</span>
-      <div>
-        <h2 className="font-display font-bold text-lg text-white">{title}</h2>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
-      </div>
-    </div>
-  );
-}
-
-function BookingSummary({ course, format, attendees, total, slot }) {
-  return (
-    <div className="panel p-4 flex flex-wrap items-center gap-4 text-sm">
-      <div className="text-2xl">{course?.emoji}</div>
-      <div className="flex-1 min-w-0">
-        <div className="font-display font-bold text-white">{course?.name}</div>
-        <div className="text-xs text-slate-400">{format?.label} · {attendees} คน · {course?.hrs} ชม.</div>
-        {slot && <div className="text-xs text-teal-300 mt-1">📅 {fmtThaiDate(slot.date)} · {slot.time}</div>}
-      </div>
-      <div className="text-right">
-        <div className="text-[10px] text-slate-500">รวม</div>
-        <div className="font-display font-bold text-lg grad-text-gold">฿{fmtTHB(total)}</div>
-      </div>
-    </div>
+    <>
+      <Nav/>
+      <Hero mode={mode} setMode={setMode}/>
+      {mode === 'public' ? (
+        <PublicTab cohorts={cohorts} loading={loading} onBook={handlePublicBook}/>
+      ) : (
+        <PrivateTab onBook={setBookingPayload}/>
+      )}
+      <Footer/>
+      {bookingPayload && <BookingModal payload={bookingPayload} onClose={() => setBookingPayload(null)}/>}
+    </>
   );
 }
 
