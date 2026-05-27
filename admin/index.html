@@ -1393,7 +1393,17 @@ function Bookings({ client, showToast }) {
                 <td className="text-xs">{(b.mode || 'private') === 'public_cohort' ? '🎓' : '👤'}</td>
                 <td>
                   <div className="text-white text-sm">{b.customer_name}</div>
-                  <div className="text-[10px] text-slate-500">{b.customer_phone}</div>
+                  {b.customer_phone && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <a href={`tel:${b.customer_phone}`} className="font-mono text-[11px] text-teal-300 hover:text-teal-200 transition" style={{color:'#5EEAD4'}}>
+                        📞 {b.customer_phone}
+                      </a>
+                      <button onClick={() => { navigator.clipboard.writeText(b.customer_phone); showToast('Copied'); }}
+                        className="text-[10px] text-slate-500 hover:text-white" title="Copy">📋</button>
+                    </div>
+                  )}
+                  {b.customer_line_id && <div className="text-[10px] text-slate-500">LINE: {b.customer_line_id}</div>}
+                  {b.customer_email && <div className="text-[10px] text-slate-500">{b.customer_email}</div>}
                 </td>
                 <td>
                   <div className="text-white text-xs">{b.course_num} · {b.course_name}</div>
