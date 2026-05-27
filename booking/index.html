@@ -562,8 +562,9 @@ function BookingModal({ payload, onClose }) {
             slipWarning = 'upload_failed';
           }
         } else {
-          const { data: { publicUrl } } = sb.storage.from('slips').getPublicUrl(fileName);
-          slip_url = publicUrl;
+          // Store filename (not full URL) — admin generates signed URL on demand.
+          // Works for both private and public buckets · slip stays private.
+          slip_url = fileName;
         }
       }
 

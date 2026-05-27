@@ -1323,6 +1323,34 @@ function CohortEditModal({ cohort, client, onClose, onSaved }) {
 }
 
 // ──────────────────────────────────────────────────────────
+// SLIP LINK — generates signed URL on demand (works for private buckets)
+// Backward compat: if slip_url already looks like a full URL, just open it
+// ──────────────────────────────────────────────────────────
+function SlipLink({ path, client }) {
+  const [busy, setBusy] = useState(false);
+
+  const open = async () => {
+    if (!path) return;
+    // Already a full URL (legacy records) → open directly
+    if (path.startsWith('http')) { window.open(path, '_blank'); return; }
+    setBusy(true);
+    try {
+      const { data, error } = await client.storage.from('slips').createSignedUrl(path, 60 * 60);
+      if (error) throw error;
+      window.open(data.signedUrl, '_blank');
+    } catch (e) {
+      alert('Open สลิปไม่สำเร็จ: ' + e.message);
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <button onClick={open} disabled={busy} className="text-teal-300 text-xs underline" style={{color:'#5EEAD4'}}>
+      {busy ? '⏳' : '📎 ดูสลิป'}
+    </button>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
 // BOOKINGS · Public + Private
 // ──────────────────────────────────────────────────────────
 function Bookings({ client, showToast }) {
@@ -1417,7 +1445,7 @@ function Bookings({ client, showToast }) {
                   ฿{fmtTHB(b.amount)}
                   {b.is_early_bird && <div className="text-[9px]" style={{color:'#F5D67A'}}>EB</div>}
                 </td>
-                <td>{b.slip_url ? <a href={b.slip_url} target="_blank" rel="noopener" className="text-teal-300 text-xs underline">📎 ดูสลิป</a> : <span className="text-slate-500 text-xs">—</span>}</td>
+                <td>{b.slip_url ? <SlipLink path={b.slip_url} client={client}/> : <span className="text-slate-500 text-xs">—</span>}</td>
                 <td><span className={`pill-status st-${b.status === 'confirmed' ? 'paid' : b.status === 'rejected' ? 'declined' : b.status === 'slip_uploaded' ? 'accepted' : 'pending'}`}>{b.status}</span></td>
                 <td className="text-right space-x-1">
                   {(b.status === 'slip_uploaded' || b.status === 'pending_payment') && (
