@@ -537,6 +537,7 @@ function BookingModal({ payload, onClose }) {
   const [slipFile, setSlipFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [bookingNo, setBookingNo] = useState(null);
+  const [slipStatus, setSlipStatus] = useState('none'); // 'none' | 'uploaded' | 'storage_not_ready' | 'upload_failed'
   const [error, setError] = useState('');
 
   const submit = async () => {
@@ -548,12 +549,22 @@ function BookingModal({ payload, onClose }) {
       const booking_no = `BOOK-${yymm}-${rand}`;
 
       let slip_url = null;
+      let slipWarning = null;
       if (slipFile) {
         const fileName = `${booking_no}-${Date.now()}.${slipFile.name.split('.').pop()}`;
         const { error: upErr } = await sb.storage.from('slips').upload(fileName, slipFile);
-        if (upErr) throw new Error('Upload สลิป fail: ' + upErr.message);
-        const { data: { publicUrl } } = sb.storage.from('slips').getPublicUrl(fileName);
-        slip_url = publicUrl;
+        if (upErr) {
+          // Graceful fallback — booking still saves, slip can be sent via LINE
+          console.warn('Slip upload failed:', upErr.message);
+          if (upErr.message?.toLowerCase().includes('bucket')) {
+            slipWarning = 'storage_not_ready';
+          } else {
+            slipWarning = 'upload_failed';
+          }
+        } else {
+          const { data: { publicUrl } } = sb.storage.from('slips').getPublicUrl(fileName);
+          slip_url = publicUrl;
+        }
       }
 
       const booking = {
@@ -585,6 +596,7 @@ function BookingModal({ payload, onClose }) {
       if (insErr) throw insErr;
 
       setBookingNo(booking_no);
+      setSlipStatus(slip_url ? 'uploaded' : slipWarning || (slipFile ? 'upload_failed' : 'none'));
       setStep(4);
     } catch (e) {
       console.error(e);
@@ -682,7 +694,22 @@ function BookingModal({ payload, onClose }) {
                   ? '⏳ รอ admin verify การโอน · เมื่อครบ 4 คน Class จะ Confirm และแจ้งคุณทาง LINE'
                   : '⏳ รอ admin verify การโอน · จะ confirm slot ภายใน 24 ชม.'}
               </div>
-              <div className="text-[10px] text-slate-500 mt-4">หรือเร่งได้ที่ <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="underline" style={{color:'#F5D67A'}}>LINE @tonpalearn</a></div>
+
+              {(slipStatus === 'storage_not_ready' || slipStatus === 'upload_failed') && (
+                <div className="glass-gold p-3 mt-4 text-left">
+                  <div className="text-[11px] font-semibold text-white mb-1">⚠️ สลิปยังไม่ได้อัปโหลด</div>
+                  <div className="text-[10px] text-slate-300 mb-2">
+                    {slipStatus === 'storage_not_ready'
+                      ? 'ระบบเก็บสลิปยังไม่พร้อม — กรุณาส่งสลิปทาง LINE พร้อมเลขจอง:'
+                      : 'อัปโหลดสลิปไม่สำเร็จ — กรุณาส่งสลิปทาง LINE พร้อมเลขจอง:'}
+                  </div>
+                  <a href={`https://line.me/R/ti/p/@tonpalearn?msg=${encodeURIComponent('สลิปสำหรับเลขจอง ' + bookingNo)}`}
+                     target="_blank" rel="noopener"
+                     className="btn btn-gold w-full justify-center text-xs">💬 ส่งสลิปทาง LINE</a>
+                </div>
+              )}
+
+              <div className="text-[10px] text-slate-500 mt-4">หรือสอบถามได้ที่ <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="underline" style={{color:'#F5D67A'}}>LINE @tonpalearn</a></div>
               <button onClick={onClose} className="btn btn-gold mt-5">เสร็จสิ้น</button>
             </div>
           )}
