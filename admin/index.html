@@ -1065,6 +1065,41 @@ function Cohorts({ client, showToast }) {
     showToast('✓ Confirmed'); load();
   };
 
+  // Duplicate: open edit modal pre-filled with source cohort's data
+  // Clear id/cohort_no/seats so save creates a NEW cohort
+  // Bump start_date and early_bird_deadline forward by 14 days as a sensible default
+  const duplicate = (c) => {
+    const shift = (iso, days) => {
+      if (!iso) return iso;
+      const d = new Date(iso); d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    };
+    const SHIFT = 14;
+    setEditing({
+      // copy everything from source
+      ...c,
+      // strip identity/runtime
+      id: undefined,
+      cohort_no: undefined,
+      seats_taken: 0,
+      status: 'open',
+      confirmed_at: null,
+      cancelled_at: null,
+      cancel_reason: null,
+      created_at: undefined,
+      updated_at: undefined,
+      // shift dates forward
+      start_date: shift(c.start_date, SHIFT),
+      early_bird_deadline: shift(c.early_bird_deadline, SHIFT),
+      refund_deadline: shift(c.refund_deadline, SHIFT),
+      // mark as draft — admin reviews before publishing
+      is_published: false,
+      // append "(copy)" hint to title if there's a custom title
+      title: c.title ? `${c.title} (copy)` : c.title,
+    });
+    showToast('📋 Duplicated · กด Save เพื่อสร้าง cohort ใหม่');
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
@@ -1103,6 +1138,7 @@ function Cohorts({ client, showToast }) {
                 <td><span className={`pill-status st-${c.status === 'confirmed' ? 'paid' : c.status === 'cancelled' ? 'declined' : c.status === 'full' ? 'expired' : 'pending'}`}>{c.status}</span></td>
                 <td className="text-right space-x-1">
                   <button onClick={() => setEditing(c)} className="btn btn-ghost text-xs">Edit</button>
+                  <button onClick={() => duplicate(c)} className="btn btn-ghost text-xs" title="ทำซ้ำเป็นรอบใหม่">📋 Duplicate</button>
                   {c.status === 'open' && <button onClick={() => confirmManually(c.id)} className="btn btn-ghost text-xs" style={{color:'#4ADE80', borderColor:'rgba(34,197,94,0.30)'}}>Confirm</button>}
                   {c.status !== 'cancelled' && <button onClick={() => cancel(c.id)} className="btn btn-ghost text-xs" style={{color:'#FCA5A5', borderColor:'rgba(248,113,113,0.30)'}}>Cancel</button>}
                 </td>
@@ -1171,8 +1207,12 @@ function CohortEditModal({ cohort, client, onClose, onSaved }) {
       delete payload.created_at; delete payload.updated_at;
       delete payload.seats_taken;
 
-      // Generate cohort_no for new
+      // Generate cohort_no for new + strip identity fields (for duplicate flow)
       if (!cohort.id) {
+        delete payload.id;
+        delete payload.cohort_no;
+        delete payload.confirmed_at;
+        delete payload.cancelled_at;
         const now = new Date();
         const yymm = String(now.getFullYear()).slice(2) + String(now.getMonth()+1).padStart(2,'0');
         const { count } = await client.from('public_cohorts').select('id', { count:'exact', head: true })
