@@ -212,6 +212,59 @@ create policy "Service role full cohorts"
 grant select on public_cohorts to anon;
 
 -- ──────────────────────────────────────────────────────────
+-- v3 (May 2026) — Analytics: track funnel + sources
+-- ──────────────────────────────────────────────────────────
+
+create table if not exists booking_events (
+  id           uuid primary key default gen_random_uuid(),
+  event_type   text not null,            -- 'page_view' | 'tab_switch' | 'cohort_view' | 'cohort_click' | 'modal_open' | 'step_advance' | 'submit_success' | 'private_book_click'
+  event_data   jsonb default '{}'::jsonb, -- {cohort_id, course_num, step, mode, ...}
+  session_id   text,                      -- localStorage anon UUID
+  source       text,                      -- referrer hostname (fb, line, google, direct)
+  referrer     text,                      -- full referrer URL
+  device_fp    text,                      -- lightweight fingerprint
+  user_agent   text,
+  page_path    text,                      -- /booking/?mode=public
+  created_at   timestamptz default now()
+);
+
+create index if not exists idx_events_type    on booking_events(event_type);
+create index if not exists idx_events_session on booking_events(session_id);
+create index if not exists idx_events_source  on booking_events(source);
+create index if not exists idx_events_created on booking_events(created_at desc);
+create index if not exists idx_events_cohort  on booking_events((event_data->>'cohort_id'));
+
+alter table booking_events enable row level security;
+
+drop policy if exists "Service full events" on booking_events;
+create policy "Service full events" on booking_events for all to service_role using (true) with check (true);
+
+-- Anon can ONLY insert events (write-only, no read)
+drop policy if exists "Anon insert events" on booking_events;
+create policy "Anon insert events" on booking_events for insert to anon with check (true);
+
+grant insert on booking_events to anon;
+
+-- RPC log_event — clean way for anon to log without exposing full table
+create or replace function log_event(
+  p_event_type text,
+  p_event_data jsonb default '{}'::jsonb,
+  p_session_id text default null,
+  p_source     text default null,
+  p_referrer   text default null,
+  p_device_fp  text default null,
+  p_user_agent text default null,
+  p_page_path  text default null
+) returns void language plpgsql security definer as $$
+begin
+  insert into booking_events (event_type, event_data, session_id, source, referrer, device_fp, user_agent, page_path)
+  values (p_event_type, p_event_data, p_session_id, p_source, p_referrer, p_device_fp, p_user_agent, p_page_path);
+end;
+$$;
+
+grant execute on function log_event(text, jsonb, text, text, text, text, text, text) to anon;
+
+-- ──────────────────────────────────────────────────────────
 -- Storage bucket `slips` — must be created via Dashboard separately
 -- See booking/SETUP.md Step 2.2 for the bucket policies SQL
 -- ──────────────────────────────────────────────────────────

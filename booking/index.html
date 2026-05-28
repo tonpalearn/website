@@ -98,6 +98,59 @@ const FORMATS = [
 const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH');
 
 // ──────────────────────────────────────────────
+// Analytics tracker — anon-safe via log_event RPC
+// ──────────────────────────────────────────────
+const SESSION_KEY = 'tpl_book_session';
+const getSession = () => {
+  let id = localStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = 's_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+    localStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+};
+const getDeviceFP = () => {
+  let fp = localStorage.getItem('tpl_book_fp');
+  if (fp) return fp;
+  const seed = `${navigator.userAgent}|${navigator.language}|${screen.width}x${screen.height}|${new Date().getTimezoneOffset()}`;
+  let h = 0;
+  for (let i=0;i<seed.length;i++) { h = ((h<<5)-h) + seed.charCodeAt(i); h |= 0; }
+  fp = 'fp_' + Math.abs(h).toString(36);
+  localStorage.setItem('tpl_book_fp', fp);
+  return fp;
+};
+const detectSource = (referrer) => {
+  if (!referrer) return 'direct';
+  try {
+    const host = new URL(referrer).hostname.toLowerCase();
+    if (host.includes('facebook') || host.includes('fb.')) return 'facebook';
+    if (host.includes('line')) return 'line';
+    if (host.includes('google') || host.includes('youtube')) return 'google';
+    if (host.includes('instagram')) return 'instagram';
+    if (host.includes('tiktok')) return 'tiktok';
+    if (host.includes('tonpalearn')) return 'internal';
+    return host;
+  } catch { return 'direct'; }
+};
+
+let trackInited = false;
+const track = async (eventType, eventData = {}) => {
+  try {
+    await sb.rpc('log_event', {
+      p_event_type: eventType,
+      p_event_data: eventData,
+      p_session_id: getSession(),
+      p_source: detectSource(document.referrer),
+      p_referrer: document.referrer || null,
+      p_device_fp: getDeviceFP(),
+      p_user_agent: navigator.userAgent.slice(0, 200),
+      p_page_path: location.pathname + location.search,
+    });
+  } catch (e) { /* silent — analytics never breaks UX */ }
+};
+
+
+// ──────────────────────────────────────────────
 // PromptPay QR payload generator (EMV-compliant)
 // id: phone (10 digits) or national ID (13 digits)
 // amount: optional THB float
@@ -216,6 +269,25 @@ function Hero({ mode, setMode }) {
 }
 
 function CohortCard({ cohort, onBook }) {
+  const cardRef = React.useRef(null);
+  const viewedRef = React.useRef(false);
+
+  // Track view once when card enters viewport
+  useEffect(() => {
+    if (!cardRef.current) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !viewedRef.current) {
+          viewedRef.current = true;
+          track('cohort_view', { cohort_id: cohort.id, course_num: cohort.course_num });
+          io.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(cardRef.current);
+    return () => io.disconnect();
+  }, [cohort.id]);
+
   const seats = cohort.seats_taken || 0;
   const minConfirm = cohort.min_to_confirm || 4;
   const maxSeats = cohort.max_seats || 10;
@@ -231,7 +303,7 @@ function CohortCard({ cohort, onBook }) {
   const progressPct = Math.min(100, (seats / minConfirm) * 100);
 
   return (
-    <div className="glass glass-hover overflow-hidden flex flex-col">
+    <div ref={cardRef} className="glass glass-hover overflow-hidden flex flex-col">
       <div className="cohort-cover" style={cohort.cover_url ? { backgroundImage: `url(${cohort.cover_url})` } : {}}>
         {!cohort.cover_url && <div className="placeholder-icon">🎓</div>}
         {cohort.is_featured && (
@@ -540,6 +612,12 @@ function BookingModal({ payload, onClose }) {
   const [slipStatus, setSlipStatus] = useState('none'); // 'none' | 'uploaded' | 'storage_not_ready' | 'upload_failed'
   const [error, setError] = useState('');
 
+  // Track modal open + step advances
+  useEffect(() => { track('modal_open', { mode: payload.mode, cohort_id: payload.cohort_id, course_num: payload.course_num }); }, []);
+  useEffect(() => {
+    if (step > 1) track('step_advance', { step, mode: payload.mode, cohort_id: payload.cohort_id, course_num: payload.course_num });
+  }, [step]);
+
   const submit = async () => {
     setSubmitting(true); setError('');
     try {
@@ -598,6 +676,7 @@ function BookingModal({ payload, onClose }) {
 
       setBookingNo(booking_no);
       setSlipStatus(slip_url ? 'uploaded' : slipWarning || (slipFile ? 'upload_failed' : 'none'));
+      track('submit_success', { mode: payload.mode, cohort_id: payload.cohort_id, course_num: payload.course_num, amount: payload.amount, has_slip: !!slip_url });
       setStep(4);
     } catch (e) {
       console.error(e);
@@ -748,7 +827,12 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [bookingPayload, setBookingPayload] = useState(null);
 
+  // Page view + tab switch tracking
   useEffect(() => {
+    if (!trackInited) { track('page_view', { mode }); trackInited = true; }
+  }, []);
+  useEffect(() => {
+    if (trackInited) track('tab_switch', { mode });
     const u = new URL(location.href);
     u.searchParams.set('mode', mode);
     history.replaceState(null, '', u);
@@ -766,6 +850,7 @@ function App() {
   }, []);
 
   const handlePublicBook = (cohort, price, isEB) => {
+    track('cohort_click', { cohort_id: cohort.id, course_num: cohort.course_num, price, is_early_bird: isEB });
     setBookingPayload({
       mode: 'public_cohort',
       cohort_id: cohort.id,
@@ -789,7 +874,7 @@ function App() {
       {mode === 'public' ? (
         <PublicTab cohorts={cohorts} loading={loading} onBook={handlePublicBook}/>
       ) : (
-        <PrivateTab onBook={setBookingPayload}/>
+        <PrivateTab onBook={(p) => { track('private_book_click', { course_num: p.course_num, format: p.format, amount: p.amount }); setBookingPayload(p); }}/>
       )}
       <Footer/>
       {bookingPayload && <BookingModal payload={bookingPayload} onClose={() => setBookingPayload(null)}/>}
