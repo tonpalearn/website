@@ -61,6 +61,101 @@
   }
   .slot-pill.disabled { opacity: 0.3; cursor: not-allowed; }
   .slot-pill.disabled:hover { border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); }
+
+  /* ─── Classroom Marquee ────────────────────────────── */
+  .marquee-strip {
+    position: relative;
+    overflow: hidden;
+    padding: 8px 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  }
+  .marquee-track {
+    display: flex; gap: 14px;
+    width: max-content;
+    will-change: transform;
+  }
+  .marquee-left  { animation: marquee-left  64s linear infinite; }
+  .marquee-right { animation: marquee-right 80s linear infinite; }
+  .marquee-strip:hover .marquee-track { animation-play-state: paused; }
+  @keyframes marquee-left  { from { transform: translateX(0); }     to { transform: translateX(-50%); } }
+  @keyframes marquee-right { from { transform: translateX(-50%); }  to { transform: translateX(0); } }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-left, .marquee-right { animation: none; }
+  }
+
+  .mq-card {
+    position: relative;
+    flex-shrink: 0;
+    width: 220px; height: 132px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1A1A2A, #0D0D14);
+    background-size: cover; background-position: center;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 6px 16px -6px rgba(0,0,0,0.5);
+    transition: transform 0.4s var(--ease-liquid);
+  }
+  .mq-card:hover { transform: translateY(-3px) scale(1.02); }
+  .mq-card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,0.85) 100%);
+    pointer-events: none;
+  }
+  .mq-caption {
+    position: absolute; bottom: 8px; left: 10px; right: 10px;
+    color: #F5F5F5;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    z-index: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .mq-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(8, 8, 15, 0.72);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(245, 214, 122, 0.30);
+    color: #F5D67A;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 6px;
+    border-radius: 6px;
+    z-index: 2;
+  }
+  .marquee-live {
+    position: absolute; top: 14px; left: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(8, 8, 15, 0.72);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #4ADE80;
+    z-index: 5;
+    letter-spacing: 0.04em;
+  }
+  .marquee-live::before {
+    content: ''; width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #4ADE80;
+    box-shadow: 0 0 8px #4ADE80;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(1.3); }
+  }
 </style>
 </head>
 <body class="mesh-bg min-h-screen">
@@ -216,6 +311,61 @@ const fmtDateShort = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { 
 const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { weekday:'long' }) : '—';
 const daysLeft = (iso) => iso ? Math.max(0, Math.ceil((new Date(iso) - new Date()) / 86400000)) : 0;
 
+// ──────────────────────────────────────────────
+// CLASSROOM MARQUEE — 2 rows of course covers, opposite directions
+// ──────────────────────────────────────────────
+const MARQUEE_TILES = [
+  { num:'02', cover:'/assets/covers/coursepub-02.png', name:'AI Agentic · Workflow Automation' },
+  { num:'01', cover:'/assets/covers/course-01.png',    name:'AI Basic · เริ่มต้นแบบไม่ติดศัพท์' },
+  { num:'03', cover:'/assets/covers/course-03.png',    name:'MCP Connector · เชื่อม AI กับเครื่องมือ' },
+  { num:'04', cover:'/assets/covers/course-04.png',    name:'LINE ChatBot ที่ฉลาดเหมือนเพื่อน' },
+  { num:'09', cover:'/assets/covers/coursepub-09.png', name:'AI Agentic App Builder' },
+  { num:'08', cover:'/assets/covers/course-08.png',    name:'AI Agentic Web Builder' },
+  { num:'10', cover:'/assets/covers/course-10.png',    name:'AI Agentic Orchestra · Multi-Agent' },
+  { num:'11', cover:'/assets/covers/course-11.png',    name:'AI Content Creator System' },
+  { num:'05', cover:'/assets/covers/course-05.png',    name:'AI for Kids · เริ่มจากเด็ก' },
+  { num:'06', cover:'/assets/covers/course-06.png',    name:'AI for Personal Assistant' },
+  { num:'07', cover:'/assets/covers/course-07.png',    name:'AI for ABOs · เครือข่ายขายตรง' },
+  { num:'12', cover:'/assets/covers/course-12.png',    name:'AI for IT Audit & Consult' },
+];
+
+function ClassroomMarquee() {
+  // Split into 2 rows · row 1 = first half, row 2 = second half
+  const half = Math.ceil(MARQUEE_TILES.length / 2);
+  const row1 = MARQUEE_TILES.slice(0, half);
+  const row2 = MARQUEE_TILES.slice(half).concat(MARQUEE_TILES.slice(0, 1)); // pad for visual balance
+
+  const Card = ({ t }) => (
+    <div className="mq-card" style={{ backgroundImage: `url(${t.cover})` }}>
+      <span className="mq-badge">C{t.num}</span>
+      <div className="mq-caption">{t.name}</div>
+    </div>
+  );
+
+  return (
+    <section className="relative pt-20 pb-2" style={{minHeight: 'auto'}}>
+      <span className="marquee-live">● LIVE FROM CLASS</span>
+
+      <div className="marquee-strip">
+        <div className="marquee-track marquee-left">
+          {[...row1, ...row1].map((t, i) => <Card key={'a'+i} t={t}/>)}
+        </div>
+      </div>
+      <div className="marquee-strip mt-3">
+        <div className="marquee-track marquee-right">
+          {[...row2, ...row2].map((t, i) => <Card key={'b'+i} t={t}/>)}
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 mt-3 text-center">
+        <div className="text-[10px] eyebrow text-slate-500" style={{color:'#94a3b8'}}>
+          — สอนสด ตัวต่อตัว · ทำโจทย์จริง · ออกใบรับรอง
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Nav() {
   return (
     <nav className="fixed top-0 inset-x-0 z-40 glass-strong" style={{borderRadius:0, borderLeft:'none', borderRight:'none', borderTop:'none'}}>
@@ -236,7 +386,7 @@ function Nav() {
 
 function Hero({ mode, setMode }) {
   return (
-    <section className="relative pt-28 pb-8 overflow-hidden">
+    <section className="relative pt-8 pb-8 overflow-hidden">
       <div className="blob-field">
         <div className="blob blob-gold blob-drift-1" style={{ width: 400, height: 400, top: '10%', left: '8%' }}/>
         <div className="blob blob-teal blob-drift-2" style={{ width: 350, height: 350, top: '20%', right: '8%' }}/>
@@ -870,6 +1020,7 @@ function App() {
   return (
     <>
       <Nav/>
+      <ClassroomMarquee/>
       <Hero mode={mode} setMode={setMode}/>
       {mode === 'public' ? (
         <PublicTab cohorts={cohorts} loading={loading} onBook={handlePublicBook}/>
