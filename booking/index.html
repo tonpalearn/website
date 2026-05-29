@@ -132,7 +132,6 @@
     z-index: 2;
   }
   .marquee-live {
-    position: absolute; top: 14px; left: 14px;
     display: inline-flex; align-items: center; gap: 6px;
     background: rgba(8, 8, 15, 0.72);
     backdrop-filter: blur(8px);
@@ -142,7 +141,6 @@
     font-size: 10px;
     font-family: 'JetBrains Mono', monospace;
     color: #4ADE80;
-    z-index: 5;
     letter-spacing: 0.04em;
   }
   .marquee-live::before {
@@ -344,7 +342,10 @@ function ClassroomMarquee() {
 
   return (
     <section className="relative pt-20 pb-2" style={{minHeight: 'auto'}}>
-      <span className="marquee-live">● LIVE FROM CLASS</span>
+      <div className="max-w-7xl mx-auto px-6 mb-3 flex items-center justify-between">
+        <span className="marquee-live">● LIVE FROM CLASS</span>
+        <span className="text-[10px] eyebrow text-slate-500" style={{color:'#94a3b8'}}>— Course Library</span>
+      </div>
 
       <div className="marquee-strip">
         <div className="marquee-track marquee-left">
