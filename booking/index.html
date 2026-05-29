@@ -310,30 +310,41 @@ const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { weekda
 const daysLeft = (iso) => iso ? Math.max(0, Math.ceil((new Date(iso) - new Date()) / 86400000)) : 0;
 
 // ──────────────────────────────────────────────
-// CLASSROOM MARQUEE — 2 rows of course covers, opposite directions
+// CLASSROOM MARQUEE — Row 1 = real class photos · Row 2 = course covers
 // ──────────────────────────────────────────────
-const MARQUEE_TILES = [
-  { num:'02', cover:'/assets/covers/coursepub-02.png', name:'AI Agentic · Workflow Automation' },
-  { num:'01', cover:'/assets/covers/course-01.png',    name:'AI Basic · เริ่มต้นแบบไม่ติดศัพท์' },
-  { num:'03', cover:'/assets/covers/course-03.png',    name:'MCP Connector · เชื่อม AI กับเครื่องมือ' },
-  { num:'04', cover:'/assets/covers/course-04.png',    name:'LINE ChatBot ที่ฉลาดเหมือนเพื่อน' },
-  { num:'09', cover:'/assets/covers/coursepub-09.png', name:'AI Agentic App Builder' },
-  { num:'08', cover:'/assets/covers/course-08.png',    name:'AI Agentic Web Builder' },
-  { num:'10', cover:'/assets/covers/course-10.png',    name:'AI Agentic Orchestra · Multi-Agent' },
-  { num:'11', cover:'/assets/covers/course-11.png',    name:'AI Content Creator System' },
-  { num:'05', cover:'/assets/covers/course-05.png',    name:'AI for Kids · เริ่มจากเด็ก' },
+const CLASS_PHOTOS = [
+  { src:'/assets/reviews/class-01.jpg', caption:'Agentic AI Masterclass · Bangkok' },
+  { src:'/assets/reviews/class-02.jpg', caption:'Workshop · Coworking Space' },
+  { src:'/assets/reviews/class-03.jpg', caption:'Group Workshop · 8 ผู้เรียน' },
+  { src:'/assets/reviews/class-04.jpg', caption:'Demo Live · LINE Bot Build' },
+  { src:'/assets/reviews/class-05.jpg', caption:'Happy Students · After Class' },
+  { src:'/assets/reviews/class-06.jpg', caption:'Hands-on · Claude.md Setup' },
+  { src:'/assets/reviews/class-07.jpg', caption:'Classroom · Projector Session' },
+  { src:'/assets/reviews/class-08.jpg', caption:'Private 1:1 · Data Analysis' },
+  { src:'/assets/reviews/class-09.jpg', caption:'The 7 Levels of AI Use' },
+];
+
+const COURSE_TILES = [
+  { num:'02', cover:'/assets/covers/coursepub-02.png', name:'AI Agentic · Workflow' },
+  { num:'01', cover:'/assets/covers/course-01.png',    name:'AI Basic · เริ่มต้น' },
+  { num:'03', cover:'/assets/covers/course-03.png',    name:'MCP Connector' },
+  { num:'04', cover:'/assets/covers/course-04.png',    name:'LINE ChatBot' },
+  { num:'09', cover:'/assets/covers/coursepub-09.png', name:'AI App Builder' },
+  { num:'08', cover:'/assets/covers/course-08.png',    name:'AI Web Builder' },
+  { num:'10', cover:'/assets/covers/course-10.png',    name:'AI Agentic Orchestra' },
+  { num:'11', cover:'/assets/covers/course-11.png',    name:'AI Content Creator' },
   { num:'06', cover:'/assets/covers/course-06.png',    name:'AI for Personal Assistant' },
-  { num:'07', cover:'/assets/covers/course-07.png',    name:'AI for ABOs · เครือข่ายขายตรง' },
-  { num:'12', cover:'/assets/covers/course-12.png',    name:'AI for IT Audit & Consult' },
+  { num:'12', cover:'/assets/covers/course-12.png',    name:'AI for IT Audit' },
 ];
 
 function ClassroomMarquee() {
-  // Split into 2 rows · row 1 = first half, row 2 = second half
-  const half = Math.ceil(MARQUEE_TILES.length / 2);
-  const row1 = MARQUEE_TILES.slice(0, half);
-  const row2 = MARQUEE_TILES.slice(half).concat(MARQUEE_TILES.slice(0, 1)); // pad for visual balance
-
-  const Card = ({ t }) => (
+  const PhotoCard = ({ p }) => (
+    <div className="mq-card" style={{ backgroundImage: `url(${p.src})` }}>
+      <span className="mq-badge" style={{borderColor:'rgba(74,222,128,0.40)', color:'#4ADE80'}}>● LIVE</span>
+      <div className="mq-caption">{p.caption}</div>
+    </div>
+  );
+  const CourseCard = ({ t }) => (
     <div className="mq-card" style={{ backgroundImage: `url(${t.cover})` }}>
       <span className="mq-badge">C{t.num}</span>
       <div className="mq-caption">{t.name}</div>
@@ -343,18 +354,21 @@ function ClassroomMarquee() {
   return (
     <section className="relative pt-20 pb-2" style={{minHeight: 'auto'}}>
       <div className="max-w-7xl mx-auto px-6 mb-3 flex items-center justify-between">
-        <span className="marquee-live">● LIVE FROM CLASS</span>
-        <span className="text-[10px] eyebrow text-slate-500" style={{color:'#94a3b8'}}>— Course Library</span>
+        <span className="marquee-live">● บรรยากาศการเรียน · LIVE FROM CLASS</span>
+        <span className="text-[10px] eyebrow text-slate-500" style={{color:'#94a3b8'}}>— จากห้องเรียนจริง</span>
       </div>
 
+      {/* Row 1 — real class photos */}
       <div className="marquee-strip">
         <div className="marquee-track marquee-left">
-          {[...row1, ...row1].map((t, i) => <Card key={'a'+i} t={t}/>)}
+          {[...CLASS_PHOTOS, ...CLASS_PHOTOS].map((p, i) => <PhotoCard key={'p'+i} p={p}/>)}
         </div>
       </div>
+
+      {/* Row 2 — course covers */}
       <div className="marquee-strip mt-3">
         <div className="marquee-track marquee-right">
-          {[...row2, ...row2].map((t, i) => <Card key={'b'+i} t={t}/>)}
+          {[...COURSE_TILES, ...COURSE_TILES].map((t, i) => <CourseCard key={'c'+i} t={t}/>)}
         </div>
       </div>
 
@@ -950,6 +964,163 @@ function BookingModal({ payload, onClose }) {
   );
 }
 
+// ──────────────────────────────────────────────
+// TESTIMONIALS — รีวิวจากผู้เรียนจริง
+// ──────────────────────────────────────────────
+const TESTIMONIALS = [
+  {
+    name: 'คุณแบงค์',
+    role: 'ธุรกิจนำเข้า-ส่งออกสัตว์เลี้ยง',
+    photo: '/assets/reviews/class-03.jpg',
+    text: 'อาจารย์สอนดีมากครับ จากคนที่ไม่เข้าทั้งโครงสร้าง AI และ workflow การทำงานของ AI พร้อมทั้งแทรกวิธีคิดในทักษะด้านอื่นๆ ให้ง่ายต่อการประยุกต์ใช้ AI และช่วยเพิ่มรายละเอียดปลีกย่อยต่างๆ ในการใช้งาน AI ดีมากครับ ถ้ามีใครสนใจหาอาจารย์สอนอยู่ ผมแนะนำอาจารย์ต้นครับ ไม่ผิดหวังครับ',
+    rating: 5,
+    initial: 'บ',
+    accent: 'gold',
+  },
+  {
+    name: 'คุณตอง',
+    role: 'นักการตลาด Online',
+    photo: '/assets/reviews/class-02.jpg',
+    text: 'ประทับใจมากค่ะ บอกเลยว่าตัดสินใจไม่ผิดจริงๆ ที่เลือกปรึกษาคุณต้น สอนดีมากและให้คำแนะนำอย่างจริงใจสุดๆ จุดไหนที่เป็นเทคนิคสำคัญหรือเคล็ดลับที่ควรรู้ บอกหมดแบบไม่มีกั๊กเลยค่ะ\n\nใจเย็นมาก ไม่ว่าเราจะสงสัยตรงไหน ช่วยอธิบายด้วยภาษาที่เข้าใจง่าย ทำให้เรื่องยากๆ กลายเป็นเรื่องธรรมดาไปเลย\n\nที่สำคัญคือเนื้อหาที่สอนสามารถเอาไปต่อยอดใช้งานได้จริง ไม่ใช่แค่ทฤษฎีพื้นฐานทั่วไป จบ session แล้วรู้สึกมั่นใจขึ้นเยอะเลย แนะนำค่ะคนนี้',
+    rating: 5,
+    initial: 'ต',
+    accent: 'teal',
+    featured: true,
+  },
+  {
+    name: 'คุณผักขม',
+    role: 'ธุรกิจนำเที่ยว',
+    photo: '/assets/reviews/class-06.jpg',
+    text: 'คุณต้นสอนดีมากๆๆๆ ค่ะ คุ้มค่าจริงๆ ทักษะการสอนการพูดของคุณต้นดีมาก น้ำเสียงนุ่มน่าฟัง สอนแบบใจเย็น ถามได้หมดเลย ส่วนตัวไม่มี basic ด้านนี้เลย ภายใน 2 ชม. คุณต้นเริ่มตั้งแต่ให้พื้นฐาน เห็นภาพรวม AI มีตัวอย่างประกอบจากการใช้งานจริง ไปจนถึงการ setup ว่าทำอะไรได้บ้าง และจบด้วยลอง customise กับงานของเราให้ เนื้อหาดีมาก เป็นประโยชน์และใช้งานได้จริง แนะนำค่ะ ☺️',
+    rating: 5,
+    initial: 'ผ',
+    accent: 'violet',
+  },
+  {
+    name: 'คุณเหน่ง',
+    role: 'ธุรกิจโรงแรม + คลีนิก',
+    photo: '/assets/reviews/class-04.jpg',
+    text: 'สอนได้ดีมากครับ ตั้งแต่ Mindset ภาพรวม จนถึงขั้นตอนการทำ',
+    rating: 5,
+    initial: 'น',
+    accent: 'gold',
+  },
+  {
+    name: 'คุณเอ็ม',
+    role: 'ธุรกิจ Event Organizer',
+    photo: '/assets/reviews/class-05.jpg',
+    text: 'พี่ต้นสอนละเอียดย่อยข้อมูลเข้าใจง่ายมากครับ แนะนำสำหรับคนที่อยากพัฒนาการใช้ AI ให้เก่งขึ้นมากๆ ครับ',
+    rating: 5,
+    initial: 'ม',
+    accent: 'teal',
+  },
+];
+
+const ACCENT_STYLE = {
+  gold:   { color:'#F5D67A', borderColor:'rgba(245,214,122,0.40)', bg:'linear-gradient(135deg, rgba(245,214,122,0.14), rgba(230,184,75,0.04))' },
+  teal:   { color:'#5EEAD4', borderColor:'rgba(94,234,212,0.40)',  bg:'linear-gradient(135deg, rgba(94,234,212,0.14), rgba(20,184,166,0.04))' },
+  violet: { color:'#C4B5FD', borderColor:'rgba(196,181,253,0.40)', bg:'linear-gradient(135deg, rgba(196,181,253,0.14), rgba(124,92,252,0.04))' },
+};
+
+function Stars({ n = 5 }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({length: n}).map((_, i) => (
+        <span key={i} style={{color:'#F5D67A', fontSize: 14, textShadow:'0 0 4px rgba(245,214,122,0.4)'}}>★</span>
+      ))}
+    </div>
+  );
+}
+
+function ReviewCard({ r, span }) {
+  const a = ACCENT_STYLE[r.accent] || ACCENT_STYLE.gold;
+  return (
+    <div className={`glass glass-hover overflow-hidden relative flex flex-col ${span}`}>
+      {/* Photo backdrop at low opacity */}
+      <div style={{
+        position:'absolute', inset:0,
+        backgroundImage: `url(${r.photo})`,
+        backgroundSize:'cover', backgroundPosition:'center',
+        opacity: 0.18,
+        filter: 'blur(1px) saturate(110%)',
+        pointerEvents: 'none',
+      }}/>
+      <div style={{
+        position:'absolute', inset:0,
+        background: 'linear-gradient(180deg, rgba(8,8,15,0.50) 0%, rgba(8,8,15,0.85) 100%)',
+        pointerEvents: 'none',
+      }}/>
+
+      <div className="relative p-5 sm:p-6 flex flex-col h-full">
+        {/* Quote mark */}
+        <div className="absolute top-2 right-4 text-7xl leading-none opacity-15" style={{color: a.color, fontFamily:'Cormorant Garamond, serif'}}>"</div>
+
+        {/* Header: avatar + name */}
+        <div className="flex items-center gap-3 mb-3 relative z-10">
+          <div className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center font-display font-bold text-lg"
+               style={{background: a.bg, border: `1px solid ${a.borderColor}`, color: a.color}}>
+            {r.initial}
+          </div>
+          <div>
+            <div className="font-display font-bold text-white text-sm">{r.name}</div>
+            <div className="text-[11px] text-slate-400">{r.role}</div>
+          </div>
+          <div className="ml-auto">
+            <Stars n={r.rating}/>
+          </div>
+        </div>
+
+        {/* Quote text */}
+        <p className="text-[13px] sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line relative z-10">
+          {r.text}
+        </p>
+
+        {/* Bottom verified badge */}
+        <div className="mt-4 pt-3 border-t border-white/5 text-[10px] text-slate-500 font-mono uppercase tracking-widest flex items-center gap-1.5 relative z-10">
+          <span style={{color: a.color}}>✓</span> ผู้เรียนจริง · Verified
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Testimonials() {
+  return (
+    <section className="relative pt-2 pb-16">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-8">
+          <div className="eyebrow mb-2">— รีวิวจากผู้เรียนจริง</div>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl text-white">
+            <span className="grad-gold">5.0</span> · จากศิษย์เก่า <span className="grad-aurora">ทุกอุตสาหกรรม</span>
+          </h2>
+          <p className="text-xs text-slate-400 mt-2">ตั้งแต่ Online Marketer · Pet Logistics · Tour · Hotel & Clinic · Event Organizer</p>
+        </div>
+
+        {/* 5 cards · masonry-ish grid · featured (longest) spans 2 cols on lg */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 auto-rows-max">
+          <ReviewCard r={TESTIMONIALS[0]} span="lg:col-span-1"/>
+          <ReviewCard r={TESTIMONIALS[1]} span="sm:col-span-2 lg:col-span-2"/>
+          <ReviewCard r={TESTIMONIALS[2]} span="lg:col-span-2 sm:col-span-2"/>
+          <ReviewCard r={TESTIMONIALS[3]} span="lg:col-span-1 sm:col-span-1"/>
+          <ReviewCard r={TESTIMONIALS[4]} span="lg:col-span-1 sm:col-span-1"/>
+        </div>
+
+        {/* Bottom CTA strip */}
+        <div className="glass-gold p-4 sm:p-5 mt-8 flex flex-col sm:flex-row items-center gap-3">
+          <span className="text-3xl">⭐</span>
+          <div className="flex-1 text-center sm:text-left">
+            <div className="font-display font-bold text-white">รีวิว 5/5 · ผู้เรียนทุกคน</div>
+            <div className="text-[11px] text-slate-300">ส่วนใหญ่กลับมาเรียนต่อ · บางคนแนะนำเพื่อนต่อ</div>
+          </div>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs">
+            💬 ทักไลน์ลองคุย
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t border-white/5 py-10 mt-10">
@@ -1028,6 +1199,7 @@ function App() {
       ) : (
         <PrivateTab onBook={(p) => { track('private_book_click', { course_num: p.course_num, format: p.format, amount: p.amount }); setBookingPayload(p); }}/>
       )}
+      <Testimonials/>
       <Footer/>
       {bookingPayload && <BookingModal payload={bookingPayload} onClose={() => setBookingPayload(null)}/>}
     </>
