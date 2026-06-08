@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌅 Morning Brief · TONPALEARN</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Personal morning brief for ต้น">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%85%3C/text%3E%3C/svg%3E">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #08080F;
+    --ink-2: #0F0F1A;
+    --ink-3: #1A1A2E;
+    --gold: #F5D67A;
+    --gold-2: #E6B84B;
+    --teal: #67E8F9;
+    --teal-2: #14B8A6;
+    --violet: #A78BFA;
+    --violet-2: #7C5CFC;
+    --rose: #F472B6;
+    --emerald: #34D399;
+    --amber: #FBBF24;
+    --red: #EF4444;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--ink); color: #fff; font-family: 'Sarabun', 'Plus Jakarta Sans', -apple-system, sans-serif; min-height: 100vh; }
+  body {
+    background:
+      radial-gradient(60% 80% at 10% 0%, rgba(124, 92, 252, 0.18), transparent 60%),
+      radial-gradient(50% 70% at 100% 10%, rgba(103, 232, 249, 0.14), transparent 65%),
+      radial-gradient(70% 90% at 50% 100%, rgba(245, 214, 122, 0.10), transparent 60%),
+      var(--ink);
+    background-attachment: fixed;
+  }
+
+  /* ===== Glass surfaces ===== */
+  .glass {
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .glass-strong {
+    background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+  }
+  .glass-gold {
+    background: linear-gradient(135deg, rgba(245,214,122,0.10), rgba(230,184,75,0.04));
+    border: 1px solid rgba(245,214,122,0.20);
+  }
+  .glass-teal {
+    background: linear-gradient(135deg, rgba(103,232,249,0.10), rgba(20,184,166,0.04));
+    border: 1px solid rgba(103,232,249,0.20);
+  }
+  .glass-violet {
+    background: linear-gradient(135deg, rgba(167,139,250,0.10), rgba(124,92,252,0.04));
+    border: 1px solid rgba(167,139,250,0.20);
+  }
+  .glass-rose {
+    background: linear-gradient(135deg, rgba(244,114,182,0.10), rgba(244,114,182,0.04));
+    border: 1px solid rgba(244,114,182,0.20);
+  }
+
+  /* ===== Gradients & text ===== */
+  .grad-aurora {
+    background: linear-gradient(135deg, #F5D67A 0%, #67E8F9 50%, #A78BFA 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .grad-gold {
+    background: linear-gradient(135deg, #F5D67A, #E6B84B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .grad-teal {
+    background: linear-gradient(135deg, #67E8F9, #14B8A6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ===== Buttons ===== */
+  .btn-gold {
+    background: linear-gradient(135deg, #F5D67A, #E6B84B);
+    color: #08080F;
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 10px 18px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 14px rgba(245, 214, 122, 0.25);
+    cursor: pointer;
+    border: none;
+  }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245, 214, 122, 0.4); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 8px 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.20); }
+  .btn-teal {
+    background: linear-gradient(135deg, #67E8F9, #14B8A6);
+    color: #08080F;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 8px 14px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-teal:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(103, 232, 249, 0.4); }
+
+  /* ===== Pills ===== */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .pill-gold { background: rgba(245,214,122,0.12); color: #F5D67A; border-color: rgba(245,214,122,0.25); }
+  .pill-teal { background: rgba(103,232,249,0.12); color: #67E8F9; border-color: rgba(103,232,249,0.25); }
+  .pill-violet { background: rgba(167,139,250,0.12); color: #A78BFA; border-color: rgba(167,139,250,0.25); }
+  .pill-rose { background: rgba(244,114,182,0.12); color: #F472B6; border-color: rgba(244,114,182,0.25); }
+  .pill-emerald { background: rgba(52,211,153,0.12); color: #34D399; border-color: rgba(52,211,153,0.25); }
+  .pill-amber { background: rgba(251,191,36,0.12); color: #FBBF24; border-color: rgba(251,191,36,0.25); }
+  .pill-red { background: rgba(239,68,68,0.14); color: #FCA5A5; border-color: rgba(239,68,68,0.30); }
+
+  /* ===== Inputs ===== */
+  .inp {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #fff;
+    font-size: 15px;
+    width: 100%;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  .inp:focus { border-color: rgba(245,214,122,0.4); background: rgba(255,255,255,0.07); }
+
+  /* ===== Animations ===== */
+  @keyframes float-slow {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    33% { transform: translate(30px, -40px) rotate(120deg); }
+    66% { transform: translate(-25px, 30px) rotate(240deg); }
+  }
+  .blob {
+    position: fixed; pointer-events: none; z-index: 0;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float-slow 25s ease-in-out infinite;
+  }
+  .blob-gold { background: radial-gradient(circle, rgba(245,214,122,0.6), transparent 70%); width: 320px; height: 320px; top: 5%; right: -8%; }
+  .blob-teal { background: radial-gradient(circle, rgba(103,232,249,0.5), transparent 70%); width: 280px; height: 280px; bottom: 10%; left: -6%; animation-delay: -8s; }
+  .blob-violet { background: radial-gradient(circle, rgba(167,139,250,0.5), transparent 70%); width: 300px; height: 300px; top: 50%; right: 30%; animation-delay: -16s; }
+
+  @keyframes shimmer { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+  .pulse-dot { animation: shimmer 2s ease-in-out infinite; }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { animation: slide-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+  /* Section heading */
+  .sec-h {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  .sec-icon {
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+  ::-webkit-scrollbar-thumb { background: rgba(245,214,122,0.18); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(245,214,122,0.32); }
+
+  /* Cards hover */
+  .card-h { transition: all 0.2s ease; }
+  .card-h:hover { background: rgba(255,255,255,0.05); border-color: rgba(245,214,122,0.18); transform: translateY(-1px); }
+
+  /* Code chip */
+  .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 7px;
+    background: rgba(103,232,249,0.10);
+    color: #67E8F9;
+    border-radius: 6px;
+    border: 1px solid rgba(103,232,249,0.18);
+  }
+</style>
+</head>
+<body>
+<div class="blob blob-gold"></div>
+<div class="blob blob-teal"></div>
+<div class="blob blob-violet"></div>
+
+<!-- Encrypted brief data injected at generation time -->
+<!-- Placeholder values are replaced by morning-brief generator script -->
+<script id="brief-stats-plain" type="application/json">{"events_today":2,"important_emails":0,"pending_tasks":11,"news_count":9,"preview":"วันจันทร์เริ่มต้นสัปดาห์ — มี 2 นัด: Sally Rama 3 (10:30–21:00) แล้วต่อ ส่งของแจง @ Estara Haven (18:00). ⚡ ข่าวเด่น: Cl"}</script>
+<script id="brief-meta" type="application/json">
+{
+  "date": "2026-06-08",
+  "weekday_th": "จันทร์",
+  "weekday_en": "Monday",
+  "generated_at": "2026-06-08 12:42 BKK",
+  "version": "1.0",
+  "encrypted": "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"
+}
+</script>
+
+<div id="app" class="relative z-10"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ============= Helpers =============
+const meta = (() => {
+  try { return JSON.parse(document.getElementById('brief-meta').textContent); }
+  catch (e) { return {}; }
+})();
+
+const STORAGE_KEY = 'mb_pwd_v1';
+
+function decryptPayload(encryptedB64, password) {
+  try {
+    const decrypted = CryptoJS.AES.decrypt(encryptedB64, password);
+    const utf8 = decrypted.toString(CryptoJS.enc.Utf8);
+    if (!utf8) return null;
+    return JSON.parse(utf8);
+  } catch (e) {
+    return null;
+  }
+}
+
+function getStoredPassword() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const { pwd, exp } = JSON.parse(raw);
+    if (Date.now() > exp) { localStorage.removeItem(STORAGE_KEY); return null; }
+    return pwd;
+  } catch (e) { return null; }
+}
+
+function storePassword(pwd, days = 7) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      pwd, exp: Date.now() + days * 24 * 60 * 60 * 1000
+    }));
+  } catch (e) {}
+}
+
+function clearStoredPassword() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false });
+  } catch (e) { return iso; }
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch (e) { return iso; }
+}
+
+function relTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const diffH = (now - d) / (1000 * 60 * 60);
+  if (diffH < 1) return `${Math.round(diffH * 60)} นาทีที่แล้ว`;
+  if (diffH < 24) return `${Math.round(diffH)} ชม.ที่แล้ว`;
+  if (diffH < 48) return 'เมื่อวาน';
+  return `${Math.round(diffH / 24)} วันที่แล้ว`;
+}
+
+function gmailComposeUrl(to, subject, body) {
+  const params = new URLSearchParams({ view: 'cm', to: to || '', su: subject || '', body: body || '' });
+  return `https://mail.google.com/mail/?${params.toString()}`;
+}
+
+// ============= Password Gate =============
+function PasswordGate({ onUnlock }) {
+  const [pwd, setPwd] = useState('');
+  const [error, setError] = useState('');
+  const [remember, setRemember] = useState(true);
+  const [shaking, setShaking] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const stored = getStoredPassword();
+    if (stored && meta.encrypted) {
+      const result = decryptPayload(meta.encrypted, stored);
+      if (result) {
+        onUnlock(result, stored);
+        return;
+      }
+      clearStoredPassword();
+    }
+    inputRef.current && inputRef.current.focus();
+  }, []);
+
+  function submit(e) {
+    e && e.preventDefault();
+    if (!pwd) return;
+    const result = decryptPayload(meta.encrypted, pwd);
+    if (result) {
+      if (remember) storePassword(pwd);
+      onUnlock(result, pwd);
+    } else {
+      setError('Password ไม่ถูกต้อง');
+      setShaking(true);
+      setTimeout(() => setShaking(false), 400);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={submit} className={`glass-strong rounded-3xl p-8 md:p-10 w-full max-w-md ${shaking ? 'animate-pulse' : ''}`} style={{boxShadow:'0 20px 60px rgba(0,0,0,0.4)'}}>
+        <div className="text-center mb-8">
+          <div className="text-5xl mb-3">🌅</div>
+          <div className="text-2xl font-extrabold grad-aurora">Morning Brief</div>
+          <div className="text-sm text-white/60 mt-2">
+            {meta.weekday_th || ''} · {fmtDate(meta.date)}
+          </div>
+          <div className="text-xs text-white/40 mt-1 font-mono">TONPALEARN · Personal</div>
+        </div>
+        <label className="block mb-3 text-sm text-white/70 font-medium">เข้าสู่ระบบด้วย password</label>
+        <input
+          ref={inputRef}
+          type="password"
+          className="inp"
+          placeholder="ADMIN_PASS"
+          value={pwd}
+          onChange={e => { setPwd(e.target.value); setError(''); }}
+          autoComplete="current-password"
+        />
+        <label className="flex items-center gap-2 mt-3 text-xs text-white/60 cursor-pointer">
+          <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="rounded" />
+          จำไว้ 7 วัน (เบราว์เซอร์นี้)
+        </label>
+        {error && <div className="mt-3 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">{error}</div>}
+        <button type="submit" className="btn-gold w-full mt-5">
+          ปลดล็อค Brief
+        </button>
+        <div className="text-center mt-6 text-xs text-white/40">
+          เนื้อหาถูก encrypt ด้วย AES-256 · ปลอดภัยต่อให้ URL หลุด
+        </div>
+      </form>
+    </div>
+  );
+}
+
+// ============= Sections =============
+function StatTile({ icon, label, value, accent }) {
+  const accentMap = {
+    gold: 'glass-gold', teal: 'glass-teal', violet: 'glass-violet', rose: 'glass-rose'
+  };
+  return (
+    <div className={`${accentMap[accent] || 'glass'} rounded-2xl p-4 reveal`}>
+      <div className="text-2xl mb-1">{icon}</div>
+      <div className="text-2xl font-extrabold">{value}</div>
+      <div className="text-xs text-white/60 font-medium mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function TodaySchedule({ events }) {
+  if (!events || events.length === 0) {
+    return (
+      <div className="glass rounded-2xl p-8 text-center">
+        <div className="text-5xl mb-3">🌴</div>
+        <div className="text-white/70">วันนี้ไม่มีนัด — เป็นวันสบายๆ</div>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {events.map((ev, idx) => (
+        <div key={idx} className="glass rounded-2xl p-4 card-h reveal" style={{animationDelay: `${idx * 60}ms`}}>
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col items-center min-w-[64px]">
+              <div className="font-mono text-lg font-bold grad-gold">{ev.time_start || ''}</div>
+              {ev.time_end && <div className="text-[10px] text-white/40 font-mono mt-0.5">→ {ev.time_end}</div>}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <div className="font-semibold text-base">{ev.title || '(ไม่มีหัวข้อ)'}</div>
+                {ev.calendar && <span className="pill pill-violet whitespace-nowrap">{ev.calendar}</span>}
+              </div>
+              {ev.location && (
+                <div className="flex items-center gap-1.5 text-sm text-white/60 mb-2">
+                  <span>📍</span><span className="truncate">{ev.location}</span>
+                </div>
+              )}
+              {ev.travel && (
+                <div className="glass-gold rounded-xl p-3 mt-2">
+                  <div className="text-xs text-white/60 mb-1">🚗 การเดินทาง</div>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="text-sm">
+                      จาก <span className="font-medium">{ev.travel.from_label || 'ที่ก่อนหน้า'}</span>
+                      {ev.travel.duration_min && <span className="text-white/60"> · {ev.travel.duration_min} นาที</span>}
+                    </div>
+                    {ev.travel.leave_at && (
+                      <div className="pill pill-gold">⏰ ออก {ev.travel.leave_at}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {ev.notes && <div className="text-sm text-white/50 mt-2 italic">{ev.notes}</div>}
+              {ev.attendees_count > 0 && (
+                <div className="text-xs text-white/40 mt-2">👥 {ev.attendees_count} คน</div>
+              )}
+              {ev.url && (
+                <a href={ev.url} target="_blank" className="text-xs text-cyan-300 hover:text-cyan-200 inline-block mt-2">
+                  ↗ เปิดใน Calendar
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ReminderList({ items }) {
+  if (!items || items.length === 0) {
+    return <div className="text-sm text-white/50 italic">ไม่มี reminder ใน 1-2 วันนี้</div>;
+  }
+  return (
+    <div className="space-y-2">
+      {items.map((r, idx) => (
+        <div key={idx} className="glass rounded-xl p-3 card-h flex items-center gap-3 reveal" style={{animationDelay: `${idx * 50}ms`}}>
+          <div className="pill pill-amber whitespace-nowrap text-[10px]">{r.when_label || fmtDate(r.due)}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium truncate">{r.title}</div>
+            {r.source && <div className="text-[11px] text-white/40 mt-0.5">via {r.source}</div>}
+          </div>
+          {r.url && (
+            <a href={r.url} target="_blank" className="btn-ghost text-xs whitespace-nowrap">เปิด</a>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function UpcomingSchedule({ days }) {
+  if (!days || days.length === 0) {
+    return <div className="text-sm text-white/50 italic">ไม่มีนัดใน 2 วันถัดไป</div>;
+  }
+  return (
+    <div className="space-y-4">
+      {days.map((d, di) => (
+        <div key={di} className="glass rounded-2xl p-4 reveal" style={{animationDelay: `${di * 80}ms`}}>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="pill pill-teal">{d.date_label}</span>
+            <span className="text-xs text-white/40 font-mono">{d.date}</span>
+            {d.events.length === 0 && <span className="text-xs text-white/40 italic ml-2">(ว่าง)</span>}
+          </div>
+          {d.events.length > 0 && (
+            <div className="space-y-2">
+              {d.events.map((ev, ei) => (
+                <div key={ei} className="flex items-start gap-3 text-sm">
+                  <div className="font-mono text-xs text-cyan-300 min-w-[44px] pt-0.5">{ev.time_start || 'ทั้งวัน'}</div>
+                  <div className="flex-1">
+                    <div className="text-white/90">{ev.title}</div>
+                    {ev.location && <div className="text-xs text-white/40">📍 {ev.location}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmailCard({ email, idx }) {
+  const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function copyReply() {
+    navigator.clipboard.writeText(email.suggested_reply || '');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div className="glass rounded-2xl p-4 card-h reveal" style={{animationDelay: `${idx * 60}ms`}}>
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {email.importance === 'high' && <span className="pill pill-red text-[10px]">⚡ สำคัญ</span>}
+            {email.category && <span className="pill pill-violet text-[10px]">{email.category}</span>}
+            <span className="text-[11px] text-white/40">{relTime(email.received_at)}</span>
+          </div>
+          <div className="font-semibold text-base truncate">{email.subject || '(no subject)'}</div>
+          <div className="text-xs text-white/60 mt-0.5">
+            จาก <span className="text-white/80">{email.from_name || email.from}</span>
+            {email.from_name && email.from && <span className="text-white/40 ml-1">&lt;{email.from}&gt;</span>}
+          </div>
+        </div>
+      </div>
+
+      {email.snippet && (
+        <div className="text-sm text-white/70 leading-relaxed bg-white/[0.03] rounded-lg p-3 my-2 border-l-2 border-white/10">
+          {email.snippet}
+        </div>
+      )}
+
+      {email.suggested_reply && (
+        <div className="glass-teal rounded-xl p-3 mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs text-cyan-300 font-semibold">💡 Suggested Reply</div>
+            <div className="flex gap-2">
+              <button onClick={copyReply} className="text-[11px] text-white/60 hover:text-white">
+                {copied ? '✓ Copied' : '📋 Copy'}
+              </button>
+              <button onClick={() => setExpanded(!expanded)} className="text-[11px] text-white/60 hover:text-white">
+                {expanded ? '▲ ย่อ' : '▼ ขยาย'}
+              </button>
+            </div>
+          </div>
+          <div className={`text-sm text-white/80 leading-relaxed whitespace-pre-wrap ${expanded ? '' : 'line-clamp-3'}`}>
+            {email.suggested_reply}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2 mt-3">
+        <a
+          href={gmailComposeUrl(email.from, `Re: ${email.subject || ''}`, email.suggested_reply || '')}
+          target="_blank"
+          className="btn-teal text-sm"
+        >
+          ✉️ Reply ใน Gmail
+        </a>
+        {email.thread_url && (
+          <a href={email.thread_url} target="_blank" className="btn-ghost text-sm">
+            ↗ เปิด Thread
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmailList({ emails }) {
+  if (!emails || emails.length === 0) {
+    return (
+      <div className="glass rounded-2xl p-6 text-center">
+        <div className="text-3xl mb-2">📭</div>
+        <div className="text-white/70 text-sm">Inbox zero — ไม่มี email สำคัญที่ยังไม่อ่าน</div>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {emails.map((em, idx) => <EmailCard key={em.id || idx} email={em} idx={idx} />)}
+    </div>
+  );
+}
+
+function TaskGroup({ group, gi }) {
+  return (
+    <div className="glass rounded-2xl p-4 reveal" style={{animationDelay: `${gi * 80}ms`}}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-base font-semibold">{group.source_label || group.source || 'Tasks'}</span>
+          <span className="pill pill-emerald">{group.tasks.length}</span>
+        </div>
+        {group.source_url && (
+          <a href={group.source_url} target="_blank" className="text-[11px] text-cyan-300 hover:text-cyan-200">↗ เปิด DB</a>
+        )}
+      </div>
+      <div className="space-y-2">
+        {group.tasks.map((t, ti) => (
+          <a
+            key={ti}
+            href={t.url || '#'}
+            target={t.url ? '_blank' : '_self'}
+            className="block bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 hover:border-emerald-400/20 rounded-lg p-3 transition-all"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{t.title || '(no title)'}</div>
+                {t.notes && <div className="text-xs text-white/50 mt-0.5 line-clamp-1">{t.notes}</div>}
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                {t.status && (
+                  <span className={`pill text-[10px] ${
+                    t.status === 'In Progress' ? 'pill-amber' :
+                    t.status === 'Waiting' ? 'pill-violet' :
+                    'pill-emerald'
+                  }`}>{t.status}</span>
+                )}
+                {t.due && (
+                  <span className={`text-[10px] font-mono ${t.overdue ? 'text-red-300' : 'text-white/50'}`}>
+                    {t.overdue && '⚠️ '}{fmtDate(t.due)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NotionTasks({ groups }) {
+  if (!groups || groups.length === 0) {
+    return (
+      <div className="glass rounded-2xl p-6 text-center">
+        <div className="text-3xl mb-2">✨</div>
+        <div className="text-white/70 text-sm">Notion เคลียร์แล้ว — ไม่มี task ที่รอ action</div>
+      </div>
+    );
+  }
+  return (
+    <div className="grid md:grid-cols-2 gap-3">
+      {groups.map((g, gi) => <TaskGroup key={gi} group={g} gi={gi} />)}
+    </div>
+  );
+}
+
+function NewsItem({ news, idx }) {
+  return (
+    <a
+      href={news.url || '#'}
+      target="_blank"
+      className="glass rounded-xl p-4 card-h block reveal"
+      style={{animationDelay: `${idx * 60}ms`}}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className="pill pill-teal text-[10px]">{news.source}</span>
+        {news.published_at && <span className="text-[10px] text-white/40">{relTime(news.published_at)}</span>}
+      </div>
+      <div className="font-semibold text-sm mb-1 leading-snug">{news.title}</div>
+      {news.summary && <div className="text-xs text-white/60 leading-relaxed line-clamp-3">{news.summary}</div>}
+      {news.why_matters && (
+        <div className="text-[11px] text-amber-200/80 mt-2 italic">💡 {news.why_matters}</div>
+      )}
+    </a>
+  );
+}
+
+function NewsCategory({ title, icon, items, accent }) {
+  const headerColor = { ai: 'grad-aurora', health: 'grad-teal', world: 'grad-gold' }[accent] || 'grad-aurora';
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <div className="sec-icon glass-violet">{icon}</div>
+        <h3 className={`text-lg font-extrabold ${headerColor}`}>{title}</h3>
+        <span className="pill text-[10px]">{(items || []).length}</span>
+      </div>
+      {(!items || items.length === 0) ? (
+        <div className="text-sm text-white/50 italic glass rounded-xl p-4">ไม่มีข่าวเด่นในรอบ 24 ชม.</div>
+      ) : (
+        <div className="space-y-3">
+          {items.map((n, idx) => <NewsItem key={idx} news={n} idx={idx} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NewsSection({ news }) {
+  return (
+    <div className="grid md:grid-cols-3 gap-5">
+      <NewsCategory title="AI" icon="🤖" items={news?.ai || []} accent="ai" />
+      <NewsCategory title="Health & Longevity" icon="🧬" items={news?.health || []} accent="health" />
+      <NewsCategory title="สถานการณ์โลก" icon="🌍" items={news?.world || []} accent="world" />
+    </div>
+  );
+}
+
+// ============= Main Brief =============
+function Brief({ data, onLock }) {
+  const stats = data.stats || {};
+  return (
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-6">
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="text-3xl">🌅</div>
+          <div>
+            <div className="text-xs text-white/50 font-mono uppercase tracking-wider">Morning Brief · TONPALEARN</div>
+            <div className="text-2xl md:text-3xl font-extrabold grad-aurora leading-tight">
+              {meta.weekday_th || ''} · {fmtDate(meta.date)}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <a href="archive/" className="btn-ghost text-sm">📚 Archive</a>
+          <button onClick={onLock} className="btn-ghost text-sm" title="ออกจากระบบ">🔒</button>
+        </div>
+      </div>
+
+      {/* Hero greeting */}
+      {data.greeting && (
+        <div className="glass-strong rounded-3xl p-6 md:p-8 mb-6 reveal">
+          <div className="text-lg md:text-xl text-white/90 leading-relaxed">
+            {data.greeting}
+          </div>
+          {data.weather && (
+            <div className="text-sm text-white/60 mt-3 flex items-center gap-2">
+              <span>{data.weather.icon || '☀️'}</span>
+              <span>{data.weather.summary}</span>
+              {data.weather.temp && <span className="font-mono">{data.weather.temp}°C</span>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <StatTile icon="📅" label="นัดวันนี้" value={stats.events_today || 0} accent="gold" />
+        <StatTile icon="📧" label="Email สำคัญ" value={stats.important_emails || 0} accent="teal" />
+        <StatTile icon="✅" label="Tasks ค้าง" value={stats.pending_tasks || 0} accent="violet" />
+        <StatTile icon="📰" label="ข่าวเด่น" value={stats.news_count || 0} accent="rose" />
+      </div>
+
+      {/* Today */}
+      <section className="mb-8">
+        <div className="sec-h">
+          <span className="sec-icon glass-gold">📅</span>
+          <span>วันนี้</span>
+          {stats.first_leave_at && (
+            <span className="pill pill-gold ml-2">⏰ ออกแรก {stats.first_leave_at}</span>
+          )}
+        </div>
+        <TodaySchedule events={data.today_events || []} />
+      </section>
+
+      {/* Reminders */}
+      <section className="mb-8">
+        <div className="sec-h">
+          <span className="sec-icon glass-rose">⏰</span>
+          <span>Reminders (1-2 วันนี้)</span>
+        </div>
+        <ReminderList items={data.reminders || []} />
+      </section>
+
+      {/* Upcoming */}
+      <section className="mb-8">
+        <div className="sec-h">
+          <span className="sec-icon glass-teal">📆</span>
+          <span>นัดถัดไป (พรุ่งนี้ & มะรืน)</span>
+        </div>
+        <UpcomingSchedule days={data.next_days || []} />
+      </section>
+
+      {/* Emails */}
+      <section className="mb-8">
+        <div className="sec-h">
+          <span className="sec-icon glass-teal">📧</span>
+          <span>Email สำคัญที่ยังไม่อ่าน</span>
+          {(data.emails || []).length > 0 && (
+            <span className="pill pill-teal ml-2">{data.emails.length} ฉบับ</span>
+          )}
+        </div>
+        <EmailList emails={data.emails || []} />
+      </section>
+
+      {/* Tasks */}
+      <section className="mb-8">
+        <div className="sec-h">
+          <span className="sec-icon glass-violet">✅</span>
+          <span>Notion Tasks — รอ action</span>
+        </div>
+        <NotionTasks groups={data.task_groups || []} />
+      </section>
+
+      {/* News */}
+      <section className="mb-8">
+        <div className="sec-h">
+          <span className="sec-icon glass-rose">📰</span>
+          <span>News Brief</span>
+          <span className="text-xs text-white/40 ml-2 font-mono">trusted sources only</span>
+        </div>
+        <NewsSection news={data.news || {}} />
+      </section>
+
+      {/* Footer */}
+      <footer className="text-center text-xs text-white/40 mt-12 mb-6">
+        <div>Generated at {meta.generated_at} · v{meta.version || '1.0'}</div>
+        <div className="mt-1">🔐 Encrypted at rest · ปลอดภัยต่อให้ URL หลุด · localStorage 7 วัน</div>
+      </footer>
+    </div>
+  );
+}
+
+// ============= App =============
+function App() {
+  const [data, setData] = useState(null);
+  const [pwd, setPwd] = useState(null);
+
+  if (!meta.encrypted || meta.encrypted === '__BRIEF_ENCRYPTED_PAYLOAD__') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <div className="glass-strong rounded-3xl p-8 max-w-md text-center">
+          <div className="text-4xl mb-3">⚠️</div>
+          <div className="text-lg font-bold mb-2">Brief ยังไม่ถูก generate</div>
+          <div className="text-sm text-white/60 mb-4">
+            หน้านี้เป็น template — รัน generator script เพื่อใส่ข้อมูล หรือรอ 07:00 BKK สำหรับ auto-run ถัดไป
+          </div>
+          <div className="text-xs text-white/40 font-mono">
+            generate via: <span className="chip">claude --skill schedule</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <PasswordGate onUnlock={(d, p) => { setData(d); setPwd(p); }} />;
+  }
+
+  return <Brief data={data} onLock={() => { clearStoredPassword(); setData(null); setPwd(null); }} />;
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+</body>
+</html>
