@@ -31,9 +31,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ROOT = path.resolve(__dirname, '..');
-const TEMPLATE_PATH = path.join(ROOT, 'index.html');
+const SRC_DIR = path.join(ROOT, '_src');
+const SRC_INDEX_PATH = path.join(SRC_DIR, 'index.html');       // template with __BRIEF_* placeholders
+const SRC_ARCHIVE_PATH = path.join(SRC_DIR, 'archive.html');    // template with __MANIFEST_* placeholder
+const OUT_INDEX_PATH = path.join(ROOT, 'index.html');           // today's brief (written)
 const ARCHIVE_DIR = path.join(ROOT, 'archive');
-const ARCHIVE_INDEX_PATH = path.join(ARCHIVE_DIR, 'index.html');
+const ARCHIVE_INDEX_PATH = path.join(ARCHIVE_DIR, 'index.html'); // archive listing (written)
 
 // ====== Encryption (OpenSSL-compatible Salted__ format) ======
 function aesEncrypt(plaintext, password) {
@@ -127,8 +130,8 @@ async function main() {
   const plaintext = JSON.stringify(rawData);
   const encrypted = aesEncrypt(plaintext, adminPass);
 
-  // Read template
-  let template = readFileSync(TEMPLATE_PATH, 'utf8');
+  // Read template (always from _src/ — never from output)
+  let template = readFileSync(SRC_INDEX_PATH, 'utf8');
 
   // Inject metadata
   const generatedAt = bkkTimestamp();
@@ -139,8 +142,8 @@ async function main() {
     .replace('__BRIEF_GENERATED_AT__', escapeForJsonString(generatedAt))
     .replace('__BRIEF_ENCRYPTED_PAYLOAD__', escapeForJsonString(encrypted));
 
-  // Write today's brief
-  writeFileSync(TEMPLATE_PATH, template, 'utf8');
+  // Write today's brief (OUTPUT path — separate from template)
+  writeFileSync(OUT_INDEX_PATH, template, 'utf8');
 
   // Snapshot copy to archive
   const archivePath = path.join(ARCHIVE_DIR, `${date}.html`);
@@ -212,13 +215,13 @@ async function main() {
   writeFileSync(archivePath, patchedSnapshot, 'utf8');
 
   // Also patch the today (index.html) with the same plaintext stats
-  const todayIndex = readFileSync(TEMPLATE_PATH, 'utf8');
+  const todayIndex = readFileSync(OUT_INDEX_PATH, 'utf8');
   if (!todayIndex.includes('id="brief-stats-plain"')) {
     const patched = todayIndex.replace(
       '<script id="brief-meta"',
       `${statsBlock}\n<script id="brief-meta"`
     );
-    writeFileSync(TEMPLATE_PATH, patched, 'utf8');
+    writeFileSync(OUT_INDEX_PATH, patched, 'utf8');
   }
 
   // Rebuild archive/index.html manifest
@@ -228,8 +231,8 @@ async function main() {
     items
   };
 
-  // Read archive index template — keep all HTML/CSS/React, only swap the manifest <script>
-  let archiveIndex = readFileSync(ARCHIVE_INDEX_PATH, 'utf8');
+  // Read archive index template — read from _src/, write to public archive/index.html
+  let archiveIndex = readFileSync(SRC_ARCHIVE_PATH, 'utf8');
   const manifestJson = JSON.stringify(manifest, null, 2);
   archiveIndex = archiveIndex.replace(
     /<script id="archive-manifest"[^>]*>[\s\S]*?<\/script>/,

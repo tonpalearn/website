@@ -21,21 +21,28 @@ Plus: 🔐 AES-256 encryption · 📱 LINE Flex notification · 📚 archive of 
 - **AES-256-CBC encryption** — data baked into HTML, decrypted in browser with ADMIN_PASS
 - **Daily snapshot** copied to `archive/YYYY-MM-DD.html` after each generation
 - **Manifest** auto-rebuilt from `archive/*.html` for the archive index
+- **Theme system** — Auto (follow OS) · Light · Dark · cycle button in top bar, persists via localStorage, pre-paint script avoids FOUC
 
 ## File structure
 
 ```
 morning-brief/
-├── index.html              # Today's brief (gated)
+├── _src/                       # ★ SOURCE templates (never overwritten)
+│   ├── index.html              # Brief template — has __BRIEF_* placeholders + theme system
+│   └── archive.html            # Archive template — has __MANIFEST_* placeholder + theme
+├── index.html                  # OUTPUT — today's brief (regenerated each run)
 ├── archive/
-│   ├── index.html          # List of all past briefs (manifest baked in)
-│   └── YYYY-MM-DD.html     # Daily snapshots
+│   ├── index.html              # OUTPUT — list of past briefs (manifest baked in)
+│   └── YYYY-MM-DD.html         # OUTPUT — daily snapshots
 ├── lib/
-│   └── encrypt-and-inject.mjs  # Node helper — AES encrypts + writes files + rebuilds manifest
+│   └── encrypt-and-inject.mjs  # Node helper — reads _src/, writes outputs, rebuilds manifest
 ├── data/                       # gitignored — temp raw JSON
 ├── PROMPT.md                   # The scheduled task prompt
 └── README.md                   # This file
 ```
+
+**Important**: Always edit `_src/` files for layout/CSS/theme changes. The output files
+(`index.html`, `archive/*.html`) are regenerated each run and your edits would be lost.
 
 ## How it runs
 
