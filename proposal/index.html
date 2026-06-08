@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposals · TONPALEARN — Private AI</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="TONPALEARN — AI project proposals.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef2f7; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --brand:#4f46e5; --brand2:#0ea5e9; --brand-soft:#eef2ff;
+    --shadow:0 1px 2px rgba(15,23,42,.04),0 12px 34px rgba(15,23,42,.08);
+    --font:'Inter','Sarabun','Noto Sans Thai',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--font);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+    background:radial-gradient(1100px 560px at 100% -10%,#e0e7ff 0,transparent 55%),
+               radial-gradient(900px 480px at -10% 8%,#cffafe 0,transparent 50%),var(--bg);min-height:100vh}
+
+  .topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(255,255,255,.82);border-bottom:1px solid var(--line)}
+  .topbar-inner{max-width:1080px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+  .brand-dot{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px}
+  .brand b{font-size:15px;letter-spacing:-.01em}
+  .spacer{flex:1}
+  .toggle{display:inline-flex;background:#f1f5f9;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+  .toggle button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:.15s}
+  .toggle button.active{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.35)}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:34px 22px 80px}
+
+  .hero{margin-bottom:28px}
+  .hero .kicker{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:10px}
+  .hero h1{margin:0 0 10px;font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-.025em}
+  .hero p{margin:0;font-size:16px;color:var(--muted);max-width:640px}
+  .hero .count{display:inline-flex;align-items:center;gap:7px;margin-top:16px;font-size:13px;font-weight:600;color:var(--brand);background:var(--brand-soft);border:1px solid #c7d2fe;padding:6px 13px;border-radius:999px}
+  .hero .count .dot{width:7px;height:7px;border-radius:50%;background:var(--brand2)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+
+  .pcard{position:relative;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:.18s;text-decoration:none;color:inherit}
+  .pcard:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(15,23,42,.08),0 22px 48px rgba(15,23,42,.12);border-color:#c7d2fe}
+  .pcard .bar{height:6px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,#fff))}
+  .pcard .inner{padding:22px 22px 20px;display:flex;flex-direction:column;gap:11px;flex:1}
+  .pcard .cat{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+  .pcard h3{margin:0;font-size:19px;line-height:1.28;font-weight:700;letter-spacing:-.01em}
+  .pcard .desc{font-size:13.7px;color:var(--muted);line-height:1.55;flex:1}
+  .pcard .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:#f1f5f9;color:#475569;border:1px solid var(--line)}
+  .tag.lang{background:var(--brand-soft);color:var(--brand);border-color:#c7d2fe}
+  .tag.phase{background:#ecfeff;color:#0e7490;border-color:#a5f3fc}
+  .pcard .foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:14px;border-top:1px solid var(--line)}
+  .pcard .meta{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted)}
+  .status{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px}
+  .status.draft{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+  .status.sent{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+  .open{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--brand)}
+  .open .arrow{transition:.18s}
+  .pcard:hover .open .arrow{transform:translateX(3px)}
+
+  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px;border:2px dashed var(--line);border-radius:18px}
+
+  footer{max-width:1080px;margin:28px auto 0;padding:20px 22px 50px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  footer a{color:var(--brand);text-decoration:none}
+
+  @media(max-width:560px){.hero h1{font-size:26px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="https://tonpalearn.com"><span class="brand-dot">AI</span><b>TONPALEARN</b></a>
+    <div class="spacer"></div>
+    <div class="toggle" role="group" aria-label="language">
+      <button id="lb-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="lb-th" onclick="setLang('th')">ไทย</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker" id="h-kicker"></div>
+    <h1 id="h-title"></h1>
+    <p id="h-sub"></p>
+    <div class="count"><span class="dot"></span><span id="h-count"></span></div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<footer>
+  <span id="f-left"></span>
+  <span><a href="https://tonpalearn.com">tonpalearn.com</a></span>
+</footer>
+
+<script>
+/* =========================================================================
+   PROPOSALS — single source of truth.
+   ➕ To add a proposal: copy one { ... } block, edit fields, put NEWEST first.
+   Fields: file (relative .html), accent (hex), date 'YYYY-MM',
+           status 'draft'|'sent', langs [...], phases (number or 0 to hide),
+           cat/title/desc are {en, th}.
+   ========================================================================= */
+const PROPOSALS = [
+  {
+    file: "autodoc.html",
+    accent: "#4f46e5",
+    date: "2026-06",
+    status: "draft",
+    langs: ["EN", "RU", "TH"],
+    phases: 4,
+    cat:   { en: "Document Automation", th: "งานเอกสารอัตโนมัติ" },
+    title: { en: "Private AI Assistant for Document Automation",
+             th: "ผู้ช่วย AI ส่วนตัวสำหรับงานเอกสารอัตโนมัติ" },
+    desc:  { en: "On-device OCR (English / Russian) → automated Word & PDF, confidential data stays local, self-hosted AI. Phased delivery from proof-of-concept to handover.",
+             th: "OCR ในเครื่อง (อังกฤษ/รัสเซีย) → ทำงาน Word & PDF อัตโนมัติ ข้อมูลลับอยู่ในเครื่อง AI ติดตั้งเอง ส่งมอบเป็นเฟสตั้งแต่ PoC จนส่งมอบงาน" },
+  },
+  // ⬆️ add new proposals above this line (newest first)
+];
+
+const T = {
+  kicker: { en: "TONPALEARN · Private AI", th: "TONPALEARN · Private AI" },
+  title:  { en: "Proposals", th: "ข้อเสนอโครงการ" },
+  sub:    { en: "A growing collection of AI project proposals — document automation, private/local AI, and information systems.",
+            th: "คลังข้อเสนอโครงการงาน AI — งานเอกสารอัตโนมัติ, AI ส่วนตัว/ในเครื่อง และระบบจัดการข้อมูล" },
+  count:  { en: (n) => n + (n === 1 ? " proposal" : " proposals"),
+            th: (n) => n + " ข้อเสนอ" },
+  open:   { en: "Open proposal", th: "เปิดดูข้อเสนอ" },
+  phase:  { en: (n) => n + "-phase", th: (n) => n + " เฟส" },
+  status: { draft: { en: "Draft", th: "ฉบับร่าง" }, sent: { en: "Sent", th: "ส่งแล้ว" } },
+  empty:  { en: "No proposals yet.", th: "ยังไม่มีข้อเสนอ" },
+  foot:   { en: "Confidential — for intended recipients only.", th: "เอกสารลับ — สำหรับผู้รับที่ระบุเท่านั้น" },
+};
+
+let LANG = "en";
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c])); }
+function fmtDate(d){
+  const [y,m] = d.split("-");
+  const mon = { en:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+                th:["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."] };
+  return mon[LANG][parseInt(m,10)-1] + " " + y;
+}
+
+function render(){
+  document.documentElement.lang = LANG;
+  document.getElementById("h-kicker").textContent = T.kicker[LANG];
+  document.getElementById("h-title").textContent  = T.title[LANG];
+  document.getElementById("h-sub").textContent    = T.sub[LANG];
+  document.getElementById("h-count").textContent  = T.count[LANG](PROPOSALS.length);
+  document.getElementById("f-left").textContent   = T.foot[LANG];
+  document.getElementById("lb-en").classList.toggle("active", LANG==="en");
+  document.getElementById("lb-th").classList.toggle("active", LANG==="th");
+
+  const grid = document.getElementById("grid");
+  if(!PROPOSALS.length){ grid.innerHTML = '<div class="empty">'+esc(T.empty[LANG])+'</div>'; return; }
+
+  grid.innerHTML = PROPOSALS.map(p => {
+    const langTags  = p.langs.map(l => '<span class="tag lang">'+esc(l)+'</span>').join("");
+    const phaseTag  = p.phases ? '<span class="tag phase">'+esc(T.phase[LANG](p.phases))+'</span>' : "";
+    const st = T.status[p.status] ? T.status[p.status][LANG] : p.status;
+    return `
+    <a class="pcard" href="${esc(p.file)}" style="--accent:${esc(p.accent)}">
+      <div class="bar"></div>
+      <div class="inner">
+        <div class="cat">${esc(p.cat[LANG])}</div>
+        <h3>${esc(p.title[LANG])}</h3>
+        <div class="desc">${esc(p.desc[LANG])}</div>
+        <div class="tags">${phaseTag}${langTags}</div>
+        <div class="foot">
+          <div class="meta">
+            <span class="status ${esc(p.status)}">${esc(st)}</span>
+            <span>${esc(fmtDate(p.date))}</span>
+          </div>
+          <span class="open">${esc(T.open[LANG])} <span class="arrow">→</span></span>
+        </div>
+      </div>
+    </a>`;
+  }).join("");
+}
+
+function setLang(l){ LANG = l; render(); }
+render();
+</script>
+</body>
+</html>
