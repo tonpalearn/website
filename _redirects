@@ -1,0 +1,3 @@
+# Consolidated proposals — old paths redirect into /proposal/
+/brandboost/*   /proposal/brandboost.html   301
+/brandboost     /proposal/brandboost.html   301
