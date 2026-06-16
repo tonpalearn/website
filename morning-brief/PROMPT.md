@@ -17,10 +17,10 @@ This is the prompt the **scheduled Claude session** runs at **07:00 BKK** every 
 
 3. Compose greeting (1-2 sentences, situational)
 
-4. Write data JSON to /tmp/mb-data.json (schema below)
+4. Write data JSON to morning-brief/.runtime/mb-data.json (gitignored, inside working dir — no permission prompt; schema below)
 
 5. Run ONE allow-listed wrapper — does publish AND LINE in-process:
-   bash "/Users/ckawin/Documents/Claude/Projects/AI Business/06_Website/live/morning-brief/run-publish.sh" /tmp/mb-data.json
+   bash "/Users/ckawin/Documents/Claude/Projects/AI Business/06_Website/live/morning-brief/run-publish.sh" "/Users/ckawin/Documents/Claude/Projects/AI Business/06_Website/live/morning-brief/.runtime/mb-data.json"
    • encrypt+inject (lib/encrypt-and-inject.mjs) → commit → push as tonpalearn
    • build full-brief LINE carousel (lib/build-line-flex.mjs) from the SAME data JSON
    • send via send_line.py (token built in)
@@ -213,7 +213,7 @@ V2: integrate Google Maps Directions API for real traffic.
 ## LINE Flex notification (automated — do not hand-author)
 
 As of 2026-06-16 the LINE notification is a **full-brief Flex carousel** built
-deterministically by `lib/build-line-flex.mjs` from `/tmp/mb-data.json`, and sent
+deterministically by `lib/build-line-flex.mjs` from the runtime data JSON, and sent
 by `run-publish.sh` in the same step as publish. The model does NOT author the
 payload anymore — keeping the whole daily run to one pre-approved command.
 
@@ -223,7 +223,7 @@ News AI · News Health · News World (with the "เปิด Full Brief" web but
 Theme: header `#08080F`, gold `#F5D67A`, cyan `#67E8F9`, button `#E6B84B`.
 
 To preview the payload without sending:
-`node lib/build-line-flex.mjs /tmp/mb-data.json | python3 -m json.tool`
+`node lib/build-line-flex.mjs .runtime/mb-data.json | python3 -m json.tool`
 
 <details><summary>Legacy single-card payload (kept for reference only)</summary>
 
