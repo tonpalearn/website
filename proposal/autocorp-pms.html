@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PMS — Project Proposal (SOW · Plan · Pricing)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  /* ===== Theme foundation (dark/light follow system + manual + font scale) ===== */
+  :root{
+    --fs:1;
+    --bg:#07060f; --grad1:rgba(99,102,241,.30); --grad2:rgba(192,132,252,.22); --grad3:rgba(16,185,129,.16);
+    --surf:rgba(255,255,255,.05); --surf2:rgba(255,255,255,.075); --bd:rgba(255,255,255,.11); --bd2:rgba(255,255,255,.16);
+    --txt:#e9e8f2; --ts:#bcbbcb; --tf:#8a899e; --shadow:0 12px 34px -12px rgba(0,0,0,.55);
+    --ind:#a5b4fc; --emr:#6ee7b7; --sky:#7dd3fc; --vio:#c4b5fd; --amb:#fcd34d; --ros:#fda4af; --slate:#cbd5e1;
+  }
+  [data-theme=light]{
+    --bg:#f5f6fb; --grad1:rgba(99,102,241,.14); --grad2:rgba(168,85,247,.10); --grad3:rgba(16,185,129,.10);
+    --surf:rgba(20,22,55,.028); --surf2:#ffffff; --bd:rgba(20,22,55,.11); --bd2:rgba(20,22,55,.16);
+    --txt:#1a1d2b; --ts:#4d5266; --tf:#868ba0; --shadow:0 8px 26px -10px rgba(30,34,80,.18);
+    --ind:#4f46e5; --emr:#059669; --sky:#0284c7; --vio:#7c3aed; --amb:#b45309; --ros:#e11d48; --slate:#475569;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; font-size:calc(16px * var(--fs))}
+  body{margin:0; font-family:'IBM Plex Sans Thai',system-ui,sans-serif; background:var(--bg); color:var(--txt); -webkit-font-smoothing:antialiased; line-height:1.7; transition:background .3s,color .3s}
+  .aurora{position:fixed; inset:0; z-index:-1; background:
+     radial-gradient(55rem 55rem at 12% -10%, var(--grad1), transparent 60%),
+     radial-gradient(45rem 45rem at 92% 4%, var(--grad2), transparent 60%),
+     radial-gradient(50rem 50rem at 80% 98%, var(--grad3), transparent 60%); }
+  .disp{font-family:'Space Grotesk','IBM Plex Sans Thai',sans-serif}
+  .wrap{max-width:980px; margin:0 auto; padding:0 20px 100px}
+  .card{background:var(--surf2); border:1px solid var(--bd); border-radius:16px; box-shadow:var(--shadow); backdrop-filter:blur(12px)}
+  .panel{background:var(--surf); border:1px solid var(--bd); border-radius:12px}
+  .ts{color:var(--ts)} .tf{color:var(--tf)}
+  .chip{display:inline-flex; align-items:center; gap:5px; font-size:.72rem; font-weight:700; padding:3px 9px; border-radius:7px; background:color-mix(in srgb, var(--c) 15%, transparent); color:var(--c); border:1px solid color-mix(in srgb, var(--c) 34%, transparent)}
+  .sec{scroll-margin-top:76px}
+  .h2{font-size:1.3rem; font-weight:800; letter-spacing:-.01em}
+  .num{flex:none; width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; background:color-mix(in srgb,var(--ind) 18%,transparent); color:var(--ind); border:1px solid color-mix(in srgb,var(--ind) 30%,transparent)}
+  table{width:100%; border-collapse:collapse; font-size:.86rem}
+  th{ text-align:left; font-size:.7rem; text-transform:uppercase; letter-spacing:.04em; color:var(--tf); padding:9px 11px; border-bottom:1px solid var(--bd)}
+  td{padding:9px 11px; border-bottom:1px solid color-mix(in srgb,var(--bd) 55%,transparent); vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .tot td{font-weight:800; border-top:2px solid var(--bd2)}
+  /* nav */
+  nav{position:sticky; top:0; z-index:40; background:color-mix(in srgb,var(--bg) 86%,transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--bd)}
+  .navin{max-width:980px; margin:0 auto; padding:0 20px; display:flex; gap:2px; overflow-x:auto}
+  nav a{flex:none; padding:12px 10px; font-size:.78rem; font-weight:600; color:var(--ts); text-decoration:none; border-bottom:2px solid transparent; white-space:nowrap}
+  nav a:hover{color:var(--txt)} nav a.on{color:var(--ind); border-bottom-color:var(--ind)}
+  /* gantt */
+  .gantt-row{display:grid; grid-template-columns:130px 1fr 54px; gap:8px; align-items:center; margin-bottom:7px; font-size:.8rem}
+  .track{position:relative; height:22px; background:color-mix(in srgb,var(--bd) 40%,transparent); border-radius:6px; overflow:hidden}
+  .bar{position:absolute; top:0; height:100%; border-radius:6px; display:flex; align-items:center; padding-left:8px; font-size:.68rem; font-weight:700; color:#fff; white-space:nowrap}
+  .raci b{display:inline-block; width:20px; height:20px; line-height:20px; text-align:center; border-radius:5px; font-size:.7rem; font-weight:800}
+  .ctrlbtn{cursor:pointer; border:1px solid var(--bd); background:var(--surf2); color:var(--ts); border-radius:8px; padding:5px 9px; font-size:.78rem; font-weight:600; font-family:inherit}
+  .ctrlbtn:hover{color:var(--txt); border-color:var(--bd2)}
+  .ctrlbtn.on{background:var(--ind); color:#fff; border-color:var(--ind)}
+  ul.cl{list-style:none; padding:0; margin:8px 0}
+  ul.cl li{position:relative; padding-left:20px; margin-bottom:6px}
+  ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; height:6px; border-radius:2px; background:var(--ind)}
+  .ok::before{background:var(--emr)!important} .no::before{background:var(--ros)!important}
+  @media print{ nav,.ctrls,.noprint{display:none!important} .aurora{display:none} body{background:#fff;color:#000} .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid} html{font-size:13px} }
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+
+<div class="wrap">
+  <!-- header + controls -->
+  <header style="padding:28px 0 14px">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap">
+      <div>
+        <span class="chip" style="--c:var(--ind)">📄 PROJECT PROPOSAL</span>
+        <h1 class="disp" style="font-size:1.9rem; font-weight:800; margin:12px 0 4px; letter-spacing:-.02em">ระบบบริหารผลการปฏิบัติงาน (PMS)</h1>
+        <div class="ts" style="font-size:.92rem">ข้อเสนอโครงการพัฒนา · Phase 1 (MVP) · SOW · Project Plan · Pricing · Change Request</div>
+      </div>
+      <div class="ctrls noprint" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap">
+        <div style="display:flex; gap:3px; align-items:center" id="theme">
+          <span class="tf" style="font-size:.7rem; margin-right:2px">ธีม</span>
+          <button class="ctrlbtn" data-th="auto">Auto</button>
+          <button class="ctrlbtn" data-th="light">☀</button>
+          <button class="ctrlbtn" data-th="dark">🌙</button>
+        </div>
+        <div style="display:flex; gap:3px; align-items:center" id="font">
+          <span class="tf" style="font-size:.7rem; margin-right:2px">ฟอนต์</span>
+          <button class="ctrlbtn" data-fs="dn">A−</button>
+          <button class="ctrlbtn" data-fs="rs">A</button>
+          <button class="ctrlbtn" data-fs="up">A+</button>
+        </div>
+        <button class="ctrlbtn" onclick="window.print()">🖨 Print/PDF</button>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px; padding:12px 16px; display:flex; flex-wrap:wrap; gap:18px; font-size:.84rem">
+      <div><span class="tf">มูลค่า</span> <b style="color:var(--ind)">฿270,000</b></div>
+      <div><span class="tf">Effort</span> <b>15 man-day</b></div>
+      <div><span class="tf">เรต</span> <b>18,000 / md</b></div>
+      <div><span class="tf">ขอบเขต</span> <b>Phase 1 — MVP</b></div>
+      <div><span class="tf">วันที่</span> <b>20 มิ.ย. 2026</b></div>
+      <div><span class="tf">ยืนราคา</span> <b>30 วัน</b></div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="navin" id="nav">
+      <a href="#s1">1 · ภาพรวม</a>
+      <a href="#s2">2 · SOW</a>
+      <a href="#s3">3 · Deliverables</a>
+      <a href="#s4">4 · Project Plan</a>
+      <a href="#s5">5 · RACI</a>
+      <a href="#s6">6 · Pricing</a>
+      <a href="#s7">7 · Change Request</a>
+      <a href="#s8">8 · Assumptions</a>
+      <a href="#s9">9 · Terms</a>
+    </div>
+  </nav>
+
+  <!-- 1 Overview -->
+  <section id="s1" class="sec card" style="padding:24px; margin-top:20px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">1</div><div class="h2 disp">ภาพรวมโครงการ</div></div>
+    <p>ปัจจุบันการประเมินผลทำผ่าน Excel แบบ 1 คน/1 ไฟล์ สำหรับพนักงาน ~350 คน ใช้เวลารวบรวม ~2 เดือน ข้อมูลล้าสมัยและมีความลำเอียง โครงการนี้ส่งมอบระบบ PMS ดิจิทัล <b>Phase 1 (MVP)</b> ที่ขึ้นได้เร็ว ใช้งานง่ายบนมือถือ และวางสถาปัตยกรรมเผื่อต่อยอด Phase 2 (เชื่อม HumanSoft/ERP)</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:14px">
+      <div class="panel" style="padding:13px"><div style="font-weight:700; margin-bottom:3px">🎯 เป้าหมาย</div><div class="ts" style="font-size:.83rem">เลิก Excel · ลด bias ด้วย calibration · ขึ้นเร็วลดแรงต้าน</div></div>
+      <div class="panel" style="padding:13px"><div style="font-weight:700; margin-bottom:3px">📦 ส่งมอบ</div><div class="ts" style="font-size:.83rem">ระบบประเมิน 3 องค์ประกอบ + PM tool + dashboard ใช้ได้จริง 1 รอบ</div></div>
+      <div class="panel" style="padding:13px"><div style="font-weight:700; margin-bottom:3px">⚙️ Stack</div><div class="ts" style="font-size:.83rem">GitHub · Vercel · Supabase (portable → Google Cloud)</div></div>
+    </div>
+    <div class="panel" style="padding:12px 15px; margin-top:12px; font-size:.84rem"><b style="color:var(--amb)">หมายเหตุขอบเขต:</b> ข้อเสนอนี้ครอบคลุม <b>เฉพาะ Phase 1 (MVP)</b> — การเชื่อมต่อ HumanSoft/LMS/ERP, PM Tool แบบ Pro และ analytics ขั้นสูง เป็น <b>Phase 2 (แยกข้อเสนอ/สัญญา)</b></div>
+  </section>
+
+  <!-- 2 SOW -->
+  <section id="s2" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">2</div><div class="h2 disp">ขอบเขตงาน · Scope of Work</div></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px" class="sow-grid">
+      <div class="panel" style="padding:15px; border-left:3px solid var(--emr)">
+        <div style="font-weight:800; color:var(--emr); margin-bottom:6px">✅ In Scope (Phase 1)</div>
+        <ul class="cl" style="font-size:.84rem">
+          <li class="ok"><b>Access:</b> Admin login + ระบบสร้าง token link ให้พนักงาน + สิทธิ์ผู้บริหารดู dashboard</li>
+          <li class="ok"><b>Import พนักงาน:</b> นำเข้า Excel/CSV เข้า DB + ผังสายบังคับบัญชา (resource manager)</li>
+          <li class="ok"><b>Master data:</b> Master KPI, 5 แกน, กรอบ competency M/K/S, รอบประเมิน</li>
+          <li class="ok"><b>KPI:</b> กรอก target/actual + แนบหลักฐาน + คำนวณ/ตัดเกรดอัตโนมัติ</li>
+          <li class="ok"><b>PM tool (ง่าย):</b> สร้าง project + assign resource + ผูก resource↔project</li>
+          <li class="ok"><b>Competency:</b> M/K/S + sub + วัด output + แนบ evidence (link)</li>
+          <li class="ok"><b>Process:</b> Issue/Action log · workflow อนุมัติ (approver 1/2) · Calibration</li>
+          <li class="ok"><b>Dashboard:</b> สถานะการประเมิน + มุมมองผู้บริหาร</li>
+          <li class="ok"><b>Deploy:</b> ขึ้น Vercel + Supabase · ออกแบบเผื่อ Gateway สำหรับ Phase 2</li>
+        </ul>
+      </div>
+      <div class="panel" style="padding:15px; border-left:3px solid var(--ros)">
+        <div style="font-weight:800; color:var(--ros); margin-bottom:6px">⛔ Out of Scope (→ Phase 2 / แยกสัญญา)</div>
+        <ul class="cl" style="font-size:.84rem">
+          <li class="no">เชื่อม <b>HumanSoft SSO / API</b> (Phase 1 ใช้ import + token link)</li>
+          <li class="no">เชื่อม <b>LMS / ERP / RT</b> ดึง actual อัตโนมัติ</li>
+          <li class="no"><b>PM Tool แบบ Pro</b> (task, %progress, dependency, portal)</li>
+          <li class="no">Analytics ขั้นสูง / YoY / 360° Employee Data Platform</li>
+          <li class="no">Migration ข้อมูลเก่าย้อนหลัง (นอกจากไฟล์ import ที่ตกลง)</li>
+          <li class="no">งาน <b>change ตาม policy หลัง sign-off</b> (ผ่าน Change Request)</li>
+          <li class="no">Hardware / license ภายนอก / ค่าบริการ cloud (ลูกค้ารับผิดชอบ)</li>
+          <li class="no">Training นอกเหนือจาก handover session ที่ระบุ</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Deliverables -->
+  <section id="s3" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">3</div><div class="h2 disp">สิ่งที่ส่งมอบ · Deliverables</div></div>
+    <table><thead><tr><th>เฟส</th><th>ส่งมอบ</th><th>รูปแบบ</th></tr></thead><tbody>
+      <tr><td>Requirement</td><td>PRD (confirmed) + user story walkthrough result</td><td>.md / .html</td></tr>
+      <tr><td>System Design</td><td>ERD + Supabase schema (SQL+RLS) + architecture/Gateway spec</td><td>.html / SQL</td></tr>
+      <tr><td>Dev + Unit Test</td><td>ระบบ PMS Phase 1 (10 โมดูล) + unit test (source บน GitHub)</td><td>Web app / repo</td></tr>
+      <tr><td>Integration Test</td><td>Test cases + ผลทดสอบ end-to-end</td><td>Sheet/doc</td></tr>
+      <tr><td>UAT</td><td>ระบบบน production + UAT sign-off</td><td>URL</td></tr>
+      <tr><td>Hardening + Deploy</td><td>ระบบที่ผ่าน security/PDPA pass บน Vercel+Supabase</td><td>URL</td></tr>
+      <tr><td>Doc + Handover</td><td>คู่มือ admin + handover/training session</td><td>.md / session</td></tr>
+    </tbody></table>
+  </section>
+
+  <!-- 4 Project Plan -->
+  <section id="s4" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">4</div><div class="h2 disp">แผนงานโครงการ · Project Plan</div></div>
+    <p class="ts" style="font-size:.85rem; margin-top:0">ตามหลัก PM: 5 phase หลัก + testing 3 ชั้น (unit → integration → UAT) · iterative build-test loop · effort รวม <b>15 man-day</b></p>
+
+    <div style="font-weight:700; margin:14px 0 8px">🗂 5 Phase หลัก</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-bottom:6px">
+      <div class="panel" style="padding:11px; border-top:3px solid var(--vio)"><div style="font-weight:700; font-size:.82rem">1 · Discovery &amp; Planning</div><div class="tf" style="font-size:.72rem; margin-top:2px">2.5 md</div></div>
+      <div class="panel" style="padding:11px; border-top:3px solid var(--sky)"><div style="font-weight:700; font-size:.82rem">2 · Design</div><div class="tf" style="font-size:.72rem; margin-top:2px">1.5 md</div></div>
+      <div class="panel" style="padding:11px; border-top:3px solid var(--ind)"><div style="font-weight:700; font-size:.82rem">3 · Build</div><div class="tf" style="font-size:.72rem; margin-top:2px">5 md</div></div>
+      <div class="panel" style="padding:11px; border-top:3px solid var(--amb)"><div style="font-weight:700; font-size:.82rem">4 · Quality Assurance</div><div class="tf" style="font-size:.72rem; margin-top:2px">4 md (Integration + UAT)</div></div>
+      <div class="panel" style="padding:11px; border-top:3px solid var(--emr)"><div style="font-weight:700; font-size:.82rem">5 · Launch &amp; Handover</div><div class="tf" style="font-size:.72rem; margin-top:2px">2 md</div></div>
+    </div>
+
+    <div style="font-weight:700; margin:14px 0 8px">⏱ Effort &amp; Timeline (Gantt — สัดส่วนตาม man-day)</div>
+    <div id="gantt"></div>
+    <div class="tf" style="font-size:.72rem; margin-top:4px">* แถบยาวตามจำนวน man-day · คาดเวลาปฏิทินขึ้นกับโหมดงาน (full-time ~3–4 สัปดาห์ / part-time ~6–8 สัปดาห์)</div>
+
+    <div style="font-weight:700; margin:18px 0 8px">🚩 Milestones &amp; Gates</div>
+    <table><thead><tr><th>#</th><th>Milestone</th><th>เงื่อนไขผ่าน (Gate)</th></tr></thead><tbody>
+      <tr><td>M1</td><td>Requirement Sign-off</td><td>ลูกค้า confirm PRD/user story ครบ (ผ่าน walkthrough)</td></tr>
+      <tr><td>M2</td><td>Design Approved</td><td>อนุมัติ ERD/schema + architecture + เกณฑ์คะแนน/น้ำหนัก</td></tr>
+      <tr><td>M3</td><td>Code Complete (Unit)</td><td>10 โมดูล In-Scope ครบ ผ่าน unit test</td></tr>
+      <tr><td>M4</td><td>Integration Test Pass</td><td>ทดสอบ end-to-end ครบ flow · bug หลักปิด</td></tr>
+      <tr><td>M5</td><td>UAT Sign-off</td><td>ลูกค้าทดสอบผ่านตาม test cases</td></tr>
+      <tr><td>M6</td><td>Go-Live + Handover</td><td>ขึ้น production + คู่มือ + training session</td></tr>
+    </tbody></table>
+
+    <div style="font-weight:700; margin:18px 0 8px">🔗 Dependencies (สิ่งที่ต้องพร้อมก่อน — มิฉะนั้นกระทบ timeline)</div>
+    <ul class="cl" style="font-size:.84rem">
+      <li><b>D1</b> ไฟล์ข้อมูลพนักงาน (template) + ผังสายบังคับบัญชา จากลูกค้า → ก่อน Dev</li>
+      <li><b>D2</b> เกณฑ์คะแนน: ตาราง %achievement→คะแนน + น้ำหนัก 3 องค์ประกอบ (OD เคาะ) → ก่อน Dev KPI engine</li>
+      <li><b>D3</b> Master KPI list + กรอบ competency เริ่มต้น → ก่อน Dev</li>
+      <li><b>D4</b> ผู้ใช้ UAT + ช่วงเวลาทดสอบ จากลูกค้า → ก่อน UAT</li>
+    </ul>
+  </section>
+
+  <!-- 5 RACI -->
+  <section id="s5" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">5</div><div class="h2 disp">ความรับผิดชอบ · RACI</div></div>
+    <p class="ts" style="font-size:.82rem; margin-top:0">R=ลงมือทำ · A=รับผิดชอบ/อนุมัติ · C=ให้คำปรึกษา · I=รับทราบ</p>
+    <div style="overflow-x:auto"><table style="min-width:560px"><thead><tr>
+      <th>กิจกรรม</th><th>Vendor (ผู้พัฒนา)</th><th>OD / Sponsor</th><th>Client IT</th><th>Users</th>
+    </tr></thead><tbody class="raci">
+      <tr><td>เก็บ/ยืนยัน Requirement</td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R</b></td><td><b style="background:color-mix(in srgb,var(--ros) 22%,transparent);color:var(--ros)">A</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td></tr>
+      <tr><td>จัดเตรียมข้อมูลพนักงาน</td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td><b style="background:color-mix(in srgb,var(--ros) 22%,transparent);color:var(--ros)">A</b></td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">I</b></td></tr>
+      <tr><td>เคาะเกณฑ์คะแนน/น้ำหนัก</td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R/A</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">I</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td></tr>
+      <tr><td>System Design</td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R/A</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">I</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td>—</td></tr>
+      <tr><td>Development</td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R/A</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">I</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">I</b></td><td>—</td></tr>
+      <tr><td>UAT</td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R</b></td><td><b style="background:color-mix(in srgb,var(--ros) 22%,transparent);color:var(--ros)">A</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td><b style="background:color-mix(in srgb,var(--ind) 22%,transparent);color:var(--ind)">R</b></td></tr>
+      <tr><td>ตัดสินใจ Go-Live</td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td><b style="background:color-mix(in srgb,var(--ros) 22%,transparent);color:var(--ros)">A</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">C</b></td><td><b style="background:color-mix(in srgb,var(--slate) 22%,transparent);color:var(--slate)">I</b></td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- 6 Pricing -->
+  <section id="s6" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">6</div><div class="h2 disp">ราคา · Pricing</div></div>
+    <div class="ts" style="font-size:.84rem; margin-bottom:10px">แต่ละเฟสทำอะไรบ้าง + man-day + ราคา (เรต 18,000/md)</div>
+    <div style="overflow-x:auto"><table style="min-width:560px"><thead><tr><th>เฟส / กิจกรรมหลัก</th><th style="text-align:right">md</th><th style="text-align:right">฿</th></tr></thead><tbody>
+      <tr><td><b>1 · Project Planning</b><div class="tf" style="font-size:.76rem; margin-top:2px">Kickoff · align scope/timeline · setup environment (GitHub/Vercel/Supabase) · risk register</div></td><td style="text-align:right">0.5</td><td style="text-align:right">9,000</td></tr>
+      <tr><td><b>2 · Requirement</b><div class="tf" style="font-size:.76rem; margin-top:2px">Walkthrough requirement ทีละข้อ (33 items) · เคาะเกณฑ์คะแนน/น้ำหนัก · seed master KPI + competency · PRD sign-off</div></td><td style="text-align:right">2</td><td style="text-align:right">36,000</td></tr>
+      <tr><td><b>3 · System Design</b><div class="tf" style="font-size:.76rem; margin-top:2px">ERD + Supabase schema (SQL+RLS) · architecture + Access/Identity Gateway (เผื่อ Phase 2) · scoring engine logic · UX flow (mobile/admin/exec)</div></td><td style="text-align:right">1.5</td><td style="text-align:right">27,000</td></tr>
+      <tr><td><b>4 · Dev + Unit Test</b><div class="tf" style="font-size:.76rem; margin-top:2px">พัฒนา 10 โมดูล (access · import · master · KPI engine · PM tool · competency · issue/action · workflow · calibration · dashboard) + unit test ต่อโมดูล</div></td><td style="text-align:right">5</td><td style="text-align:right">90,000</td></tr>
+      <tr><td><b>5 · Integration Test</b><div class="tf" style="font-size:.76rem; margin-top:2px">ทดสอบ end-to-end: ตั้งเป้า→กรอก→คำนวณ→อนุมัติ→calibration→dashboard · regression · bug fix</div></td><td style="text-align:right">2</td><td style="text-align:right">36,000</td></tr>
+      <tr><td><b>6 · UAT</b><div class="tf" style="font-size:.76rem; margin-top:2px">เตรียม test cases · คุม UAT กับ user จริง · แก้ตาม feedback · UAT sign-off</div></td><td style="text-align:right">2</td><td style="text-align:right">36,000</td></tr>
+      <tr><td><b>7 · Hardening + Deploy</b><div class="tf" style="font-size:.76rem; margin-top:2px">Security/PDPA pass · performance · edge cases · deploy production (Vercel+Supabase) + smoke test</div></td><td style="text-align:right">1</td><td style="text-align:right">18,000</td></tr>
+      <tr><td><b>8 · Doc + Handover</b><div class="tf" style="font-size:.76rem; margin-top:2px">คู่มือ admin · เอกสารส่งมอบ · handover/training session ให้ทีม OD</div></td><td style="text-align:right">1</td><td style="text-align:right">18,000</td></tr>
+      <tr class="tot"><td>รวม (15 md × 18,000)</td><td style="text-align:right">15</td><td style="text-align:right; color:var(--ind)">270,000</td></tr>
+    </tbody></table></div>
+    <div class="ts" style="font-size:.78rem; margin-top:6px">ราคายังไม่รวม VAT 7% (ยืนยันรูปแบบภาษีอีกครั้ง) · ไม่รวมค่าบริการ cloud/โดเมนรายเดือน (ลูกค้ารับผิดชอบ) · งานนอก In-Scope = Change Request</div>
+
+    <div style="font-weight:700; margin:16px 0 8px">💳 เงื่อนไขการชำระ (ผูก Milestone)</div>
+    <table><thead><tr><th>งวด</th><th>เงื่อนไข</th><th style="text-align:right">%</th><th style="text-align:right">฿</th></tr></thead><tbody>
+      <tr><td>1</td><td>ลงนาม / Kick-off</td><td style="text-align:right">30%</td><td style="text-align:right">81,000</td></tr>
+      <tr><td>2</td><td>Design Approved (M2)</td><td style="text-align:right">30%</td><td style="text-align:right">81,000</td></tr>
+      <tr><td>3</td><td>UAT Sign-off (M5)</td><td style="text-align:right">25%</td><td style="text-align:right">67,500</td></tr>
+      <tr><td>4</td><td>Go-Live + Handover (M6)</td><td style="text-align:right">15%</td><td style="text-align:right">40,500</td></tr>
+    </tbody></table>
+  </section>
+
+  <!-- 7 Change Request -->
+  <section id="s7" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">7</div><div class="h2 disp">การเปลี่ยนแปลงงาน · Change Request (CR)</div></div>
+    <p style="font-size:.88rem">หลัง <b>Requirement Sign-off (M1)</b> ความต้องการที่เพิ่ม/เปลี่ยนจากที่ตกลง ถือเป็น Change Request และคิดค่าใช้จ่ายเพิ่มตามนี้:</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px" class="sow-grid">
+      <div class="panel" style="padding:14px">
+        <div style="font-weight:700; margin-bottom:5px">ขั้นตอน CR</div>
+        <ol style="margin:0; padding-left:18px; font-size:.83rem" class="ts">
+          <li>ลูกค้าแจ้งความต้องการเปลี่ยน (เป็นลายลักษณ์อักษร)</li>
+          <li>Vendor ประเมิน impact (man-day + timeline)</li>
+          <li>ลูกค้าอนุมัติ CR + ค่าใช้จ่าย</li>
+          <li>ปรับแผน/timeline แล้วลงมือ</li>
+        </ol>
+      </div>
+      <div class="panel" style="padding:14px">
+        <div style="font-weight:700; margin-bottom:5px">เกณฑ์คิดราคา CR</div>
+        <ul class="cl" style="font-size:.83rem">
+          <li>คิดที่เรตเดิม <b>18,000/md</b> (ปัดขึ้นครึ่งวัน)</li>
+          <li>CR ที่กระทบ timeline → เลื่อนกำหนดส่งตามสัดส่วน</li>
+          <li><b>Bug</b> (ทำงานไม่ตรง spec ที่ตกลง) = แก้ฟรีในประกัน ไม่ใช่ CR</li>
+          <li><b>Change</b> (เพิ่ม/เปลี่ยน spec) = CR คิดเงิน</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 Assumptions -->
+  <section id="s8" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">8</div><div class="h2 disp">ข้อสมมติ &amp; ความรับผิดชอบลูกค้า</div></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px" class="sow-grid">
+      <div>
+        <div style="font-weight:700; margin-bottom:5px">📋 Assumptions</div>
+        <ul class="cl" style="font-size:.84rem">
+          <li>Requirement ที่ confirm แล้วคงที่ระหว่าง Dev (เปลี่ยน = CR)</li>
+          <li>ใช้ stack Vercel + Supabase (ไม่นับ migration GCP ในเฟสนี้)</li>
+          <li>ข้อมูลพนักงานจัดเตรียมตาม template ที่กำหนด</li>
+          <li>1 รอบประเมิน / 1 โครงสร้างองค์กร ใน Phase 1</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-weight:700; margin-bottom:5px">🤝 ลูกค้ารับผิดชอบ</div>
+        <ul class="cl" style="font-size:.84rem">
+          <li>ผู้ตัดสินใจ (OD/Sponsor) ตอบ/อนุมัติภายใน SLA ที่ตกลง</li>
+          <li>จัดเตรียมข้อมูล + เกณฑ์คะแนน/น้ำหนัก ตรงเวลา</li>
+          <li>จัดผู้ใช้ + เวลาสำหรับ UAT</li>
+          <li>ค่าบริการ cloud / โดเมน / license ภายนอก</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 Terms -->
+  <section id="s9" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">9</div><div class="h2 disp">เงื่อนไข · Terms</div></div>
+    <ul class="cl" style="font-size:.85rem">
+      <li><b>การรับประกัน (Warranty):</b> แก้ bug ในขอบเขตที่ส่งมอบ ฟรี 30 วันหลัง Go-Live</li>
+      <li><b>ทรัพย์สินทางปัญญา:</b> โอนสิทธิ์ source code ให้ลูกค้าเมื่อชำระครบ (ยกเว้น component/library ทั่วไป)</li>
+      <li><b>การยืนราคา:</b> 30 วันนับจากวันที่เสนอ</li>
+      <li><b>ความล่าช้าฝั่งลูกค้า:</b> หาก dependency (ข้อมูล/การอนุมัติ/UAT) ล่าช้า กำหนดส่งเลื่อนตามสัดส่วน</li>
+      <li><b>ขอบเขตชัดเจน:</b> งานนอก In-Scope = CR หรือ Phase 2 (แยกสัญญา)</li>
+      <li class="tf" style="font-size:.78rem; margin-top:8px">* ร่างเชิงพาณิชย์เพื่อพิจารณา — เงื่อนไขทางกฎหมาย/ภาษี ควรตรวจกับฝ่ายที่เกี่ยวข้องก่อนลงนามจริง</li>
+    </ul>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:24px; font-size:.84rem">
+      <div style="border-top:1px solid var(--bd2); padding-top:8px">ผู้เสนอ (Vendor)<div class="tf" style="margin-top:30px">ลงชื่อ / วันที่</div></div>
+      <div style="border-top:1px solid var(--bd2); padding-top:8px">ผู้อนุมัติ (Client)<div class="tf" style="margin-top:30px">ลงชื่อ / วันที่</div></div>
+    </div>
+  </section>
+
+  <footer class="tf" style="text-align:center; font-size:.78rem; margin-top:28px">PMS Project Proposal · Phase 1 (MVP) · ฿270,000 / 15 md · ร่างเพื่อพิจารณา</footer>
+</div>
+
+<script>
+(function(){
+  // ----- Gantt -----
+  var phases=[['Project Planning',0.5,'var(--vio)'],['Requirement',2,'var(--vio)'],['System Design',1.5,'var(--sky)'],['Dev + Unit Test',5,'var(--ind)'],['Integration Test',2,'var(--amb)'],['UAT',2,'var(--amb)'],['Hardening + Deploy',1,'var(--emr)'],['Doc + Handover',1,'var(--emr)']];
+  var total=15, acc=0, html='';
+  phases.forEach(function(p){
+    var w=(p[1]/total*100), left=(acc/total*100); acc+=p[1];
+    html+='<div class="gantt-row"><div class="ts">'+p[0]+'</div><div class="track"><div class="bar" style="left:'+left+'%;width:'+w+'%;background:'+p[2]+'">'+p[1]+'</div></div><div class="tf" style="text-align:right">'+p[1]+' md</div></div>';
+  });
+  document.getElementById('gantt').innerHTML=html;
+
+  // ----- Theme -----
+  var root=document.documentElement;
+  function sysDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function applyTheme(mode){
+    var resolved = mode==='auto' ? (sysDark()?'dark':'light') : mode;
+    root.setAttribute('data-theme', resolved);
+    localStorage.setItem('pms_theme', mode);
+    document.querySelectorAll('#theme .ctrlbtn').forEach(function(b){ b.classList.toggle('on', b.dataset.th===mode); });
+  }
+  document.querySelectorAll('#theme .ctrlbtn').forEach(function(b){ b.onclick=function(){ applyTheme(b.dataset.th); }; });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){ if((localStorage.getItem('pms_theme')||'auto')==='auto') applyTheme('auto'); });
+  applyTheme(localStorage.getItem('pms_theme')||'auto');
+
+  // ----- Font scale -----
+  function applyFs(v){ v=Math.min(1.35,Math.max(0.85,v)); root.style.setProperty('--fs',v); localStorage.setItem('pms_fs',v); }
+  var fs=parseFloat(localStorage.getItem('pms_fs')||'1'); applyFs(fs);
+  document.querySelector('[data-fs=dn]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('pms_fs')||'1')-0.1); };
+  document.querySelector('[data-fs=up]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('pms_fs')||'1')+0.1); };
+  document.querySelector('[data-fs=rs]').onclick=function(){ applyFs(1); };
+
+  // ----- Nav scroll-spy -----
+  var links=[].slice.call(document.querySelectorAll('#nav a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){ var i=0; for(var k=0;k<secs.length;k++){ if(secs[k].getBoundingClientRect().top<=90) i=k; } links.forEach(function(l){l.classList.remove('on');}); if(links[i]){links[i].classList.add('on'); links[i].scrollIntoView({block:'nearest',inline:'center'});} }
+  document.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+<style>@media(max-width:640px){.sow-grid{grid-template-columns:1fr!important}}</style>
+</body>
+</html>
