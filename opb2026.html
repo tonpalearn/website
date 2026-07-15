@@ -1,0 +1,255 @@
+<title>Playbook — กอบกู้ระบบบัญชีด้วย AI Agent</title>
+<style>
+  :root{
+    --bg:#FFFFFF; --panel:#F5F8FD; --bord:#C9DAF3; --navy:#16325C; --blue:#2563EB;
+    --blueSoft:#E8F0FE; --green:#0E9F6E; --greenSoft:#E7F7F0; --orange:#D97706;
+    --red:#DC2626; --redSoft:#FEF2F2; --text:#3D5170; --muted:#7186A3;
+    --code:#122747; --codeInk:#D7E4F8;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0C1322; --panel:#131D31; --bord:#2A3A57; --navy:#E4EDFA; --blue:#7DA8F5;
+    --blueSoft:#182742; --green:#4CC9A3; --greenSoft:#122E26; --orange:#E9A54C;
+    --red:#F07575; --redSoft:#2E1516; --text:#B8C4D9; --muted:#7B89A3;
+    --code:#0A1626; --codeInk:#C6D6EF;
+  }}
+  :root[data-theme="light"]{
+    --bg:#FFFFFF; --panel:#F5F8FD; --bord:#C9DAF3; --navy:#16325C; --blue:#2563EB;
+    --blueSoft:#E8F0FE; --green:#0E9F6E; --greenSoft:#E7F7F0; --orange:#D97706;
+    --red:#DC2626; --redSoft:#FEF2F2; --text:#3D5170; --muted:#7186A3;
+    --code:#122747; --codeInk:#D7E4F8;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0C1322; --panel:#131D31; --bord:#2A3A57; --navy:#E4EDFA; --blue:#7DA8F5;
+    --blueSoft:#182742; --green:#4CC9A3; --greenSoft:#122E26; --orange:#E9A54C;
+    --red:#F07575; --redSoft:#2E1516; --text:#B8C4D9; --codeInk:#C6D6EF; --code:#0A1626; --muted:#7B89A3;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--text);font-family:"Sarabun","Noto Sans Thai","Leelawadee UI","Thonburi",system-ui,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  main{max-width:820px;margin:0 auto;padding:44px 22px 70px}
+  .eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);font-weight:700}
+  h1{font-size:clamp(28px,5.5vw,40px);color:var(--navy);font-weight:800;line-height:1.15;margin:10px 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  h1 em{font-style:normal;color:var(--blue)}
+  .lede{font-size:17px;color:var(--text)}
+  .lede b{color:var(--navy)}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-size:12.5px;font-weight:700;color:var(--navy);background:var(--blueSoft);border:1px solid var(--bord);border-radius:999px;padding:4px 12px}
+  .toc{margin:28px 0 8px;background:var(--panel);border:1.5px solid var(--bord);border-radius:14px;padding:16px 20px}
+  .toc b{color:var(--navy);font-size:14px}
+  .toc ol{margin:8px 0 0 20px;font-size:14.5px;display:flex;flex-direction:column;gap:4px}
+  .toc a{color:var(--blue);text-decoration:none;font-weight:600}
+  section{margin-top:44px}
+  .shead{display:flex;align-items:center;gap:13px;margin-bottom:6px}
+  .snum{width:42px;height:42px;border-radius:12px;background:var(--blue);color:#fff;display:grid;place-items:center;font-family:ui-monospace,Menlo,monospace;font-size:19px;font-weight:700;flex:none}
+  section h2{font-size:clamp(20px,3.4vw,25px);color:var(--navy);font-weight:800;line-height:1.2}
+  .goal{font-size:14px;color:var(--muted);margin:2px 0 14px 55px;font-weight:600}
+  section p{margin:10px 0}
+  .box{background:var(--panel);border:1.5px solid var(--bord);border-radius:14px;padding:16px 18px;margin:14px 0}
+  .box b{color:var(--navy)}
+  .doc-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .doc{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+  .doc .st{flex:none;font-size:13px;width:44px;font-weight:700;color:var(--orange);letter-spacing:.05em}
+  .doc div b{color:var(--navy)}
+  .warncb{background:var(--redSoft);border:1.5px solid var(--red);border-radius:12px;padding:12px 16px;font-size:14.5px;color:var(--red);font-weight:700;margin:14px 0}
+  .promptwrap{position:relative;margin:16px 0}
+  .plabel{position:absolute;top:-9px;left:14px;background:var(--blue);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;border-radius:5px;padding:2px 9px;z-index:1}
+  pre{background:var(--code);color:var(--codeInk);border-radius:12px;padding:22px 18px 16px;font-size:13.5px;line-height:1.6;overflow-x:auto;white-space:pre-wrap;word-break:break-word;font-family:"Sarabun","Noto Sans Thai",ui-monospace,monospace}
+  .copy{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer;font-family:inherit}
+  .copy:hover{background:rgba(255,255,255,.22)}
+  .copy:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .tip{display:flex;gap:10px;align-items:flex-start;background:var(--greenSoft);border:1.5px solid var(--green);border-radius:12px;padding:12px 15px;font-size:14.5px;margin:14px 0}
+  .tip b{color:var(--green)}
+  .agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+  .ag{border:1.5px solid var(--bord);border-radius:12px;padding:12px 14px;background:var(--bg)}
+  .ag b{display:block;color:var(--navy);font-size:15.5px;margin-bottom:3px}
+  .ag span{font-size:13.5px}
+  .rules{counter-reset:r;display:flex;flex-direction:column;gap:10px;margin-top:14px}
+  .rule{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1.5px solid var(--bord);border-radius:12px;padding:12px 15px}
+  .rule::before{counter-increment:r;content:counter(r);width:26px;height:26px;border-radius:50%;background:var(--navy);color:var(--bg);font-family:ui-monospace,monospace;font-size:13px;font-weight:700;display:grid;place-items:center;flex:none;margin-top:2px}
+  .rule b{color:var(--navy)}
+  .rule i{font-style:normal;color:var(--red);font-weight:700}
+  footer{margin-top:56px;border-top:1.5px solid var(--bord);padding-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+  .tagline{font-size:18px;font-weight:800;color:var(--navy)}
+  .tagline em{font-style:normal;color:var(--blue)}
+  .credit{font-size:13px;color:var(--muted);text-align:right}
+  .credit b{color:var(--blue);font-family:ui-monospace,monospace}
+</style>
+<main>
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">คู่มือ 6 ขั้นตอน ติดตั้งระบบบัญชีบริษัทด้วย AI Agent บน Claude Code พร้อมคำสั่งพร้อมใช้</h2>
+  <div class="eyebrow">PLAYBOOK · ONE PERSON BUSINESS 2026</div>
+  <h1>กอบกู้ระบบบัญชีบริษัท ด้วย <em>AI Agent</em> ใน 6 ขั้น</h1>
+  <p class="lede">คู่มือทำตามได้จริงทีละขั้น สำหรับเจ้าของธุรกิจ — <b>มีระบบของตัวเองใน 1 วัน</b> ทุกขั้นมี prompt ให้กดคัดลอกไปวางใน Claude Code ได้เลย</p>
+  <div class="meta"><span class="pill">ใช้ Claude Code</span><span class="pill">ไม่ต้องเขียนโค้ด</span><span class="pill">ภายใต้กฎหมายไทย</span><span class="pill">โดย ชัยวัฒน์ ภูวนนท์จิรกวิน</span></div>
+
+  <nav class="toc"><b>ทางลัด 6 ขั้น</b>
+    <ol>
+      <li><a href="#s1">รวมเอกสารทุกอย่างมากองรวมกัน</a></li>
+      <li><a href="#s2">สร้างกฎ + ทีม Agent 3 บทบาท</a></li>
+      <li><a href="#s3">วิเคราะห์ทั้งกอง หา Gap</a></li>
+      <li><a href="#s4">จัดโฟลเดอร์ให้เป็นระบบ</a></li>
+      <li><a href="#s5">งานประจำเดือน / ประจำปี</a></li>
+      <li><a href="#s6">ปฏิทินภาษี + การยื่นจริง</a></li>
+    </ol>
+  </nav>
+
+  <section id="s0">
+    <div class="shead"><div class="snum">0</div><h2>เตรียมเครื่องมือ (10 นาที)</h2></div>
+    <p class="goal">เป้าหมาย: มี "สำนักงานบัญชี AI" หนึ่งโฟลเดอร์</p>
+    <div class="box">
+      1. ติดตั้ง <b>Claude Code</b> จาก claude.com/claude-code (แบบ Desktop app ง่ายสุดสำหรับคนไม่คุ้น Terminal)<br>
+      2. สร้างโฟลเดอร์งาน เช่น <b>บัญชี-บริษัทเรา/</b><br>
+      3. เปิด Claude Code ชี้ที่โฟลเดอร์นี้ — จากนี้ทุกอย่างคือ "พิมพ์คุยกับ AI" ไม่ต้องเขียนโค้ดเองสักบรรทัด
+    </div>
+  </section>
+
+  <section id="s1">
+    <div class="shead"><div class="snum">1</div><h2>รวมเอกสารทุกอย่างมากองรวมกัน</h2></div>
+    <p class="goal">เป้าหมาย: เทของเข้า inbox เดียว — ไม่ต้องจัด ไม่ต้องเรียง</p>
+    <p>สร้างโฟลเดอร์ <b class="mono" style="color:var(--navy)">_กองเอกสาร/</b> แล้วเทไฟล์ทุกอย่างเท่าที่หาได้:</p>
+    <div class="doc-list">
+      <div class="doc"><span class="st">⭐⭐⭐</span><div><b>งบการเงินปีเก่า (ที่ผู้สอบบัญชีตรวจแล้ว) 2–3 ปี</b> — ยอดปิดปีล่าสุด = "ยอดยกมา" จุดตั้งต้นของทุกอย่าง</div></div>
+      <div class="doc"><span class="st">⭐⭐⭐</span><div><b>แบบภาษีที่เคยยื่น + ใบเสร็จ</b> (ภ.พ.30 · ภ.ง.ด.1/3/53 · ภ.ง.ด.50/51) — รู้ว่ายื่นถึงไหน ขาดตรงไหน</div></div>
+      <div class="doc"><span class="st">⭐⭐⭐</span><div><b>Statement ธนาคารทุกบัญชี</b> ย้อนถึงต้นปีบัญชี — เงินจริงไม่โกหก ใช้ยันกับสมุดบัญชี</div></div>
+      <div class="doc"><span class="st">⭐⭐</span><div>หนังสือรับรองหัก ณ ที่จ่าย (50 ทวิ) · ใบกำกับภาษีขาย-ซื้อ</div></div>
+      <div class="doc"><span class="st">⭐⭐</span><div>หนังสือรับรองบริษัท (DBD) · บอจ.5 · ทะเบียน VAT (ภ.พ.20)</div></div>
+      <div class="doc"><span class="st">⭐</span><div>สัญญาเช่าซื้อ/เงินกู้ · ทะเบียนทรัพย์สิน + ตารางค่าเสื่อม</div></div>
+    </div>
+    <div class="warncb">⚠️ อย่าลืม: บัญชีผู้ใช้ e-Filing สรรพากร + DBD — ถ้าผูกกับอีเมลนักบัญชีเดิม ให้รีบขอกู้สิทธิ์เข้าใช้เป็นอย่างแรก</div>
+  </section>
+
+  <section id="s2">
+    <div class="shead"><div class="snum">2</div><h2>สร้างกฎ + ทีม Agent 3 บทบาท</h2></div>
+    <p class="goal">เป้าหมาย: วางกติกาครั้งเดียว ใช้ตลอดไป + มีทีมที่คานกันเอง</p>
+    <div class="promptwrap"><span class="plabel">PROMPT 2.1 — สร้างกฎ (CLAUDE.md)</span>
+<pre>ช่วยสร้างไฟล์ CLAUDE.md ให้คุณทำหน้าที่เป็น "นักบัญชีประจำบริษัท" ของผม โดยมีกฎเหล็ก:
+1. ตัวเลขทุกตัวต้องอ่านจากเอกสารจริง (PDF/OCR) เท่านั้น ห้ามเดา ห้ามอ่านจากภาพด้วยสายตา
+2. คำแนะนำภาษีทุกครั้งต้องอ้างอิงกฎหมายไทย (มาตราในประมวลรัษฎากร)
+3. ก่อนแก้ไฟล์บัญชีใดๆ ต้อง backup ก่อนเสมอ และหลังแก้ต้องเปิดอ่านซ้ำ
+   เพื่อยืนยันว่ารายการยังอยู่ครบ และเดบิต = เครดิต
+4. บัญชีเงินฝากธนาคารในสมุดบัญชี ต้องเท่ากับ statement จริงเสมอ
+   รายจ่ายที่ไม่ได้ออกจากบัญชีธนาคาร ห้ามลงว่าออกจากธนาคาร
+5. ไม่แน่ใจให้บอกตรงๆ และแนะนำให้ถามผู้สอบบัญชี — ห้ามมั่ว
+6. AI เตรียมงานได้ทุกอย่าง แต่การกดยื่นภาษีและการเซ็นเป็นหน้าที่มนุษย์
+ใส่ข้อมูลบริษัทผมด้วย: [ชื่อบริษัท / เลขผู้เสียภาษี / รอบบัญชี / จด VAT หรือไม่ / ธนาคารที่ใช้]</pre></div>
+    <div class="promptwrap"><span class="plabel">PROMPT 2.2 — สร้าง Agent 3 บทบาท</span>
+<pre>ช่วยสร้าง subagent 3 ตัวในโฟลเดอร์ .claude/agents/ ดังนี้
+
+1) "นักบัญชี" — ทำงานบัญชีทั้งหมด: อ่านเอกสาร ลงสมุดรายวัน (Dr/Cr)
+   คำนวณ VAT และภาษีหัก ณ ที่จ่าย ทำงบ ภายใต้กฎหมายไทยและกฎใน CLAUDE.md
+
+2) "ผู้ตรวจสอบ" — นิสัยขี้สงสัย หน้าที่คือแย้งและจับผิดงานของนักบัญชี:
+   ตัวเลขตรงเอกสารจริงไหม เดบิตเท่าเครดิตไหม ผิดกฎหมายข้อไหน มีความเสี่ยงอะไร
+   ห้ามเกรงใจ ให้รายงานทุกจุดที่สงสัยแม้จะเล็กน้อย
+
+3) "อาจารย์บัญชี" — รับงานที่นักบัญชีทำเสร็จแล้ว มาแปลเป็นภาษาคนธรรมดา
+   สอนผมว่ารายการนี้คืออะไร ทำไมต้องทำ ครั้งหน้าผมทำเองยังไง ทีละขั้นแบบง่ายที่สุด</pre></div>
+    <div class="agents">
+      <div class="ag"><b>🔵 นักบัญชี</b><span>ลงมือทำ — ใต้กฎหมายไทย</span></div>
+      <div class="ag"><b>🔴 ผู้ตรวจสอบ</b><span>แย้ง-จับผิด ก่อนถึงสรรพากร</span></div>
+      <div class="ag"><b>🟢 อาจารย์บัญชี</b><span>สอนเราให้เก่งขึ้นทุกเดือน</span></div>
+    </div>
+    <div class="tip"><div><b>หัวใจคือการคานกัน:</b> นักบัญชีทำ → ผู้ตรวจสอบแย้ง → งานผ่านการตรวจ 2 ชั้น ส่วนอาจารย์ทำให้เรา "เก่งขึ้นทุกเดือน" ไม่ใช่พึ่ง AI ตลอดชีวิต</div></div>
+  </section>
+
+  <section id="s3">
+    <div class="shead"><div class="snum">3</div><h2>วิเคราะห์ทั้งกอง หา Gap</h2></div>
+    <p class="goal">เป้าหมาย: จากกองเอกสารมั่วๆ → แผนที่สถานการณ์ 1 ไฟล์</p>
+    <div class="promptwrap"><span class="plabel">PROMPT 3 — วิเคราะห์ + หา Gap</span>
+<pre>ให้ agent นักบัญชี อ่านเอกสารทุกไฟล์ใน _กองเอกสาร/ (PDF อ่านจาก text จริง,
+รูปภาพให้ใช้ OCR) แล้วสรุปเป็นไฟล์ STATUS.md ตอบคำถามเหล่านี้:
+
+1. บริษัทยื่นภาษีอะไรไปแล้วถึงเดือนไหน (ภ.พ.30 / ภ.ง.ด.1,3,53 / ภ.ง.ด.50,51)
+2. อะไร "ค้าง" หรือ "ใกล้ครบกำหนด" บ้าง — เรียงตามความเร่งด่วน พร้อมวันตาย
+3. งบปีล่าสุดปิดถึงปีไหน ยอดยกมาสำคัญมีอะไรบ้าง (เงินฝาก ลูกหนี้ เจ้าหนี้ เงินกู้กรรมการ)
+4. เอกสารอะไร "หายไป" ที่ผมต้องตามหา เช่น statement เดือนไหนขาด บิลเดือนไหนไม่มี
+5. ความเสี่ยงที่เห็นแล้วต้องบอกทันที (เช่น ค่าปรับ ยื่นล่าช้า ยอดไม่ตรง)
+
+เสร็จแล้วให้ agent ผู้ตรวจสอบ ตรวจรายงานนี้ซ้ำ ว่าสรุปตรงกับเอกสารจริงไหม</pre></div>
+    <div class="tip"><div><b>ผลที่ได้:</b> STATUS.md — รู้ทันทีว่าต้องทำอะไรก่อน-หลัง อะไรด่วน อะไรหาย</div></div>
+  </section>
+
+  <section id="s4">
+    <div class="shead"><div class="snum">4</div><h2>จัดโฟลเดอร์ให้เป็นระบบ</h2></div>
+    <p class="goal">เป้าหมาย: ทุกไฟล์มีบ้าน — ของใหม่รู้ทันทีว่าเข้าช่องไหน</p>
+    <div class="promptwrap"><span class="plabel">PROMPT 4 — จัดโครงสร้าง 00–06</span>
+<pre>จัดไฟล์ทั้งหมดจาก _กองเอกสาร/ เข้าโครงสร้างโฟลเดอร์มาตรฐานนี้
+(ย้ายจริง + เปลี่ยนชื่อไฟล์ให้สื่อความหมาย):
+
+00_ข้อมูลบริษัท/       หนังสือรับรอง ทะเบียน VAT บอจ.5
+01_งบการเงิน/          งบที่ตรวจแล้วแยกรายปี
+02_ภาษีที่ยื่นแล้ว/     แยกชนิดแบบ → แยกปี → เก็บแบบ+ใบเสร็จคู่กัน
+03_รายได้-ใบกำกับขาย/   ใบกำกับขาย + 50ทวิ ที่ถูกหัก
+04_ภาษีซื้อ-รายจ่าย/    ใบกำกับซื้อแยกรายเดือน
+05_ทรัพย์สิน-ค่าเสื่อม/  ทะเบียนทรัพย์สิน ตารางค่าเสื่อม
+06_ระบบบัญชี/          สมุดบัญชี (Excel) + statement ธนาคาร + SOP
+
+แล้วเขียน README.md อธิบายว่า "เอกสารใหม่แต่ละชนิด เข้าโฟลเดอร์ไหน"
+เพื่อที่เดือนหน้าผมได้เอกสารมา จะรู้ทันทีว่าวางตรงไหน</pre></div>
+    <div class="tip"><div><b>กติกาถาวร:</b> _กองเอกสาร/ = inbox เทของใหม่เข้าไปก่อนได้เสมอ แล้วสั่ง AI "จัดเข้าระบบ" — เราไม่ต้องจำอะไรเลย</div></div>
+  </section>
+
+  <section id="s5">
+    <div class="shead"><div class="snum">5</div><h2>งานประจำเดือน / ประจำปี</h2></div>
+    <p class="goal">เป้าหมาย: เดือนแรกสร้าง SOP → เดือนต่อไปสั่งประโยคเดียว</p>
+    <div class="promptwrap"><span class="plabel">PROMPT 5.1 — เดือนแรก: สร้าง SOP + สมุดบัญชี</span>
+<pre>สร้างไฟล์ SOP_ปิดเดือน.md เป็นขั้นตอนปิดบัญชีรายเดือนของบริษัทผม:
+รวบเอกสาร → อ่านตัวเลขจริง → ลงสมุดรายวัน → คำนวณภาษี → กระทบยอดธนาคาร → สรุปให้ผมยื่น
+พร้อมสร้างสมุดบัญชี Excel: ผังบัญชี + ยอดยกมา (จากงบปีล่าสุดที่ตรวจแล้ว) + สมุดรายวัน</pre></div>
+    <div class="promptwrap"><span class="plabel">PROMPT 5.2 — ทุกเดือน: ประโยคเดียวจบ</span>
+<pre>ปิดเดือน [มิถุนายน] ตาม SOP: ผมวางเอกสารใหม่ไว้ใน _กองเอกสาร/ แล้ว
+(บิลซื้อ-ขาย, 50ทวิ, statement) ให้นักบัญชีจัดเข้าโฟลเดอร์ ลงบันทึกรายการ (JE)
+คำนวณ ภ.พ.30 และภาษีหัก ณ ที่จ่าย กระทบยอดธนาคารให้ตรง statement
+เสร็จแล้วให้ผู้ตรวจสอบตรวจซ้ำ แล้วให้อาจารย์สรุปสอนผม 5 บรรทัดว่าเดือนนี้เกิดอะไรขึ้น</pre></div>
+    <div class="promptwrap"><span class="plabel">PROMPT 5.3 — ประจำปี (สั่งช่วง ม.ค.–พ.ค.)</span>
+<pre>เตรียมปิดงบประจำปี [2569]: สรุปงบทดลองทั้งปี ตรวจว่าทุกเดือนกระทบยอดแล้ว
+รวมประเด็นที่ต้องให้ผู้ทำบัญชี/ผู้สอบบัญชี (CPA) ตัดสิน เป็น checklist พร้อมเอกสารแนบ
+เพื่อส่งต่อสำนักงานบัญชีให้ปิดงบ + ยื่น ภ.ง.ด.50 + ส่งงบ DBD ได้ง่ายที่สุด</pre></div>
+    <div class="warncb">⚠️ กฎหมายไทย: งบประจำปีต้องมี "ผู้ทำบัญชี" (ขึ้นทะเบียน) + "ผู้สอบบัญชี (CPA)" — AI แทนสองตำแหน่งนี้ไม่ได้ แต่เตรียมงานให้จนเขาแค่ตรวจ+เซ็น</div>
+  </section>
+
+  <section id="s6">
+    <div class="shead"><div class="snum">6</div><h2>ปฏิทินภาษี + การยื่นจริง</h2></div>
+    <p class="goal">เป้าหมาย: ไม่มีลืมยื่น — และมนุษย์เป็นคนกดเสมอ</p>
+    <div class="promptwrap"><span class="plabel">PROMPT 6.1 — สร้างปฏิทินครั้งเดียว</span>
+<pre>เพิ่ม "ปฏิทินภาษี" ของบริษัทผมลงใน CLAUDE.md:
+- ภ.ง.ด.1/3/53 (หัก ณ ที่จ่าย) → ยื่น e-Filing ภายในวันที่ 15 ของเดือนถัดไป
+- ภ.พ.30 (VAT) → ภายในวันที่ 23 ของเดือนถัดไป
+- ภ.ง.ด.51 (ครึ่งปี) → 31 ส.ค.  |  ภ.ง.ด.50 (ทั้งปี) → ภายใน 150 วันหลังสิ้นรอบ
+- ประชุมผู้ถือหุ้น (AGM) → ภายใน 4 เดือน  |  ส่งงบ DBD → ภายใน 1 เดือนหลัง AGM
+และกำหนดว่า: ทุกครั้งที่ผมเปิดคุยเรื่องบัญชี ให้เช็คก่อนว่ามีอะไรใกล้ครบกำหนด
+ใน 14 วัน แล้วเตือนผมเป็นอย่างแรก</pre></div>
+    <div class="promptwrap"><span class="plabel">PROMPT 6.2 — ต้นเดือน: ถามประโยคเดียว</span>
+<pre>เดือนนี้ผมต้องยื่นแบบอะไรบ้าง ภายในวันไหน ตัวเลขแต่ละแบบเท่าไร
+เตรียมสรุปตัวเลขให้ผมกรอก e-Filing ทีละช่องเลย</pre></div>
+    <div class="tip"><div><b>จบ loop รายเดือน:</b> AI สรุปตัวเลขทีละช่อง → เราเปิด efiling.rd.go.th กดยื่นเอง จ่ายเอง → โหลดใบเสร็จวางใน _กองเอกสาร/ → สั่ง "เก็บใบเสร็จเข้าระบบ + ลงบันทึกจ่ายภาษี" ✅</div></div>
+  </section>
+
+  <section id="rules">
+    <div class="shead"><div class="snum" style="background:var(--red)">!</div><h2>กฎเหล็ก 5 ข้อ — ใส่ไว้ในระบบตั้งแต่วันแรก</h2></div>
+    <div class="rules">
+      <div class="rule"><div><b>ตัวเลขต้องมาจากเอกสารจริง</b> — สั่งให้ AI อ่านจาก PDF text หรือ OCR เท่านั้น ไม่อ่านตัวเลขจากภาพด้วยสายตา</div></div>
+      <div class="rule"><div><b>บัญชีธนาคารในสมุด = statement เสมอ</b> — รายจ่ายที่จ่ายผ่านบัตรเครดิตหรือกรรมการ ห้ามลงว่าออกจากบัญชีธนาคาร</div></div>
+      <div class="rule"><div><b>Backup ก่อนแก้ + เปิดอ่านซ้ำหลังแก้</b> — ทำกับไฟล์บัญชีสำคัญทุกครั้ง และยืนยันว่าเดบิต = เครดิต</div></div>
+      <div class="rule"><div><b>ยอดต้องกระทบครบถึงสตางค์</b> — ผลต่างที่อธิบายไม่ได้ = ระเบิดเวลา พักไว้ใน "บัญชีพักรอผู้สอบบัญชี" ห้ามมั่ว</div></div>
+      <div class="rule"><div><b>AI ไม่เซ็น ไม่กดยื่นแทน</b> — ผู้ทำบัญชี + CPA + เจ้าของกดยื่นเอง คือ 3 มนุษย์ที่ระบบนี้ยังต้องมี</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="tagline">AI ทำงานเร็วได้ แต่ <em>ความรับผิดชอบ</em> ต้องมีคนคุม</div>
+    <div class="credit">จากเคสจริง <a href="http://tonpalearn.com" target="_blank" rel="noopener" style="color:var(--blue);font-weight:800;text-decoration:none">TONPALEARN</a> · <a href="http://tonpalearn.com" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none">tonpalearn.com</a> · <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" style="color:var(--green);font-weight:700;text-decoration:none">LINE @tonpalearn</a> · สร้างด้วย <b>Claude Code</b><br>ชัยวัฒน์ ภูวนนท์จิรกวิน · One Person Business 2026</div>
+  </footer>
+</main>
+<script>
+document.querySelectorAll('pre').forEach(function(pre){
+  var wrap=pre.parentElement;
+  var btn=document.createElement('button');
+  btn.className='copy';btn.textContent='คัดลอก';btn.setAttribute('aria-label','คัดลอก prompt');
+  btn.addEventListener('click',function(){
+    navigator.clipboard.writeText(pre.textContent).then(function(){
+      btn.textContent='คัดลอกแล้ว ✓';setTimeout(function(){btn.textContent='คัดลอก'},1600);
+    });
+  });
+  wrap.appendChild(btn);
+});
+</script>
