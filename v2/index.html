@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TONPALEARN · Studio Monograph — AI ง่ายขึ้น เมื่อมีต้นพาไป</title>
+  <meta name="description" content="AI สอนโดยต้น — วิศวกรคอมพิวเตอร์ PM 15 ปี · 12 คอร์ส · Private / Group / VDO / Onsite" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Trirong:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            hero:    ['Chonburi', 'Trirong', 'serif'],
+            display: ['Trirong', 'serif'],
+            body:    ['Sarabun', 'sans-serif'],
+            mono:    ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            ink:   { 950: '#0A0A11', 900: '#12121A', 800: '#1B1B25', 700: '#2A2A38', 600: '#3E3E4E' },
+            paper: { 50:  '#FBF7EA', 100: '#F5EFDD', 200: '#EBE3CE' },
+            gold:  { 400: '#F0CC72', 500: '#E6B84B', 600: '#B8912D' },
+            warm:  { 500: '#8A8072', 600: '#6D655A', 700: '#4F4A43' },
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: #0A0A11;
+      color: #E8E3D5;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+    *::selection { background: rgba(230,184,75,0.28); color: #FFF; }
+
+    /* Paper texture — grain, not noise-swirl */
+    .paper-grain {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.94 0 0 0 0 0.86 0 0 0 0 0.62 0 0 0 0.7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+    .paper-grain-light {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.30 0 0 0 0 0.22 0 0 0 0.4 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.08;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+    }
+
+    /* Rules and dividers */
+    .rule-hair { height: 1px; background: rgba(232,227,213,0.14); }
+    .rule-double {
+      height: 5px;
+      border-top: 1px solid rgba(232,227,213,0.24);
+      border-bottom: 1px solid rgba(232,227,213,0.24);
+    }
+    .rule-gold-hair { height: 1px; background: rgba(230,184,75,0.35); }
+
+    /* Drop cap */
+    .dropcap::first-letter {
+      font-family: 'Trirong', serif;
+      float: left;
+      font-size: 4.5em;
+      line-height: 0.85;
+      padding: 8px 12px 0 0;
+      font-weight: 600;
+      color: #E6B84B;
+    }
+
+    /* Small caps utility */
+    .smallcaps {
+      font-variant: all-small-caps;
+      letter-spacing: 0.14em;
+    }
+
+    /* Marquee (news ticker) */
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .ticker-track {
+      animation: ticker 55s linear infinite;
+      will-change: transform;
+    }
+    .ticker-mask {
+      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+
+    /* Portrait treatment — desaturated warm sepia w/ hover restore */
+    .portrait-treat {
+      filter: grayscale(15%) sepia(12%) contrast(1.02) brightness(0.92);
+      transition: filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .portrait-treat:hover { filter: none; }
+
+    /* Reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.9s ease-out, transform 0.9s ease-out; }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    /* Table of contents (course listing) */
+    .toc-row {
+      display: grid;
+      grid-template-columns: 42px 1fr auto auto;
+      align-items: baseline;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(232,227,213,0.10);
+      transition: background 0.25s ease;
+      cursor: pointer;
+    }
+    .toc-row:hover {
+      background: linear-gradient(90deg, rgba(230,184,75,0.06), transparent 60%);
+    }
+    .toc-row:hover .toc-title { color: #F0CC72; }
+    .toc-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #6D655A;
+      font-variant-numeric: tabular-nums;
+    }
+    .toc-title {
+      font-family: 'Trirong', serif;
+      font-size: 18px;
+      font-weight: 500;
+      color: #E8E3D5;
+      transition: color 0.25s;
+    }
+    .toc-title-en {
+      color: #8A8072;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      display: block;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+    .toc-hrs { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8A8072; }
+    .toc-price { font-family: 'Trirong', serif; font-size: 15px; color: #F0CC72; font-weight: 500; }
+    @media (max-width: 720px) {
+      .toc-row { grid-template-columns: 32px 1fr auto; gap: 12px; }
+      .toc-hrs { display: none; }
+    }
+
+    /* Expand row */
+    .toc-detail {
+      padding: 0 0 22px 62px;
+      display: none;
+      color: #B8AE9A;
+      font-size: 14px;
+      line-height: 1.75;
+      border-bottom: 1px solid rgba(232,227,213,0.10);
+    }
+    .toc-detail.open { display: block; }
+    @media (max-width: 720px) { .toc-detail { padding-left: 44px; } }
+
+    /* Pull quote */
+    .pull-quote {
+      font-family: 'Trirong', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(24px, 3.6vw, 40px);
+      line-height: 1.35;
+      color: #F5EFDD;
+      text-wrap: balance;
+    }
+    .quote-mark {
+      font-family: 'Trirong', serif;
+      font-size: 5.5rem;
+      line-height: 0.7;
+      color: #E6B84B;
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 400;
+    }
+
+    /* Byline */
+    .byline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8A8072;
+    }
+
+    /* Nav link */
+    .nav-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #B8AE9A;
+      padding-bottom: 3px;
+      border-bottom: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover { color: #F0CC72; border-bottom-color: #E6B84B; }
+
+    /* Editorial link */
+    .ed-link {
+      color: #F0CC72;
+      border-bottom: 1px solid rgba(230,184,75,0.4);
+      padding-bottom: 1px;
+      transition: all 0.2s;
+    }
+    .ed-link:hover { color: #F5D67A; border-bottom-color: #F5D67A; }
+
+    /* Course category tag */
+    .cat-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #8A8072;
+      padding: 2px 8px;
+      border: 1px solid rgba(138,128,114,0.35);
+      border-radius: 2px;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    .cat-featured {
+      color: #E6B84B;
+      border-color: rgba(230,184,75,0.5);
+      background: rgba(230,184,75,0.06);
+    }
+
+    /* Photo band caption */
+    .photo-cap {
+      font-family: 'Trirong', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: #8A8072;
+      margin-top: 6px;
+    }
+
+    /* Invitation card — the CTA */
+    .invitation {
+      background: #F5EFDD;
+      color: #1B1B25;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+    .invitation .paper-grain-light { position: absolute; inset: 0; z-index: 0; }
+
+    /* Signature */
+    .signature {
+      max-width: 220px;
+      opacity: 0.85;
+      filter: brightness(0.35) contrast(1.4);
+    }
+
+    /* Focus states */
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid #F0CC72;
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .ticker-track { animation: none; }
+    }
+
+    /* Progress rule */
+    .progress-rule {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(230,184,75,0.15);
+      z-index: 60;
+    }
+    .progress-rule::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; height: 100%;
+      width: var(--progress, 0%);
+      background: #E6B84B;
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-rule" id="prog"></div>
+  <div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ─── Data ──────────────────────────────────────
+const COURSES = [
+  { num: '01', name: 'AI Basic',            en: 'FUNDAMENTALS',      hrs: '2h', cat: 'builder',  cover: '01', price: '990',
+    tag: 'สำหรับผู้เริ่มต้น · ไม่ต้องพื้นฐาน IT',
+    desc: 'จาก 0 ถึง AI ที่ใช้ได้จริง — เข้าใจ AI ครบภาพรวมและเขียน Prompt ให้ได้ผลจริงในหนึ่งบ่าย',
+    features: ['AI คืออะไร (ภาพรวมครบ)', 'Prompt ใช้ได้จริงกับงานคุณ', 'Hands-on ทุก session'] },
+  { num: '02', name: 'AI Agentic',          en: 'BUILDER',           hrs: '5h', cat: 'builder',  cover: '02', price: '2,500', featured: true,
+    tag: 'คอร์สหลัก · จาก AI User → Builder',
+    desc: 'ก้าวจาก AI User ไป Builder — Setup Claude, ต่อ Connector และสร้าง Skill ของตัวเองใช้งานจริง',
+    features: ['ต่อยอด 01 · เพิ่มอีก 3 ชม.', 'Claude + Connector setup', 'สร้าง Skill / Build Agent'] },
+  { num: '03', name: 'MCP Connector',       en: 'INTEGRATION',       hrs: '5h', cat: 'builder',  cover: '03', price: '2,500',
+    tag: 'ต่อยอด 02 · ระบบ MCP + Automation',
+    desc: 'เชื่อม AI เข้ากับ App ที่ใช้อยู่ทุกวัน — ไม่ใช่ AI ใน vacuum แต่อยู่ในระบบงานจริง',
+    features: ['MCP Server lab', 'Claude × Notion / Gmail / Slack', 'Automation workflow'] },
+  { num: '04', name: 'LINE ChatBot',        en: 'MESSAGING',         hrs: '3h', cat: 'line',     cover: '04', price: '2,500',
+    tag: 'ต่อยอด 02 · Bot ใช้งานจริง 24/7',
+    desc: 'ChatBot LINE ของคุณเอง ใน 3 ชม. — Bot ตอบลูกค้าแทนคุณตลอด 24 ชม.',
+    features: ['LINE OA × AI integration', 'Webhook + logic', 'Deploy production'] },
+  { num: '05', name: 'AI for Kids',         en: 'YOUTH',             hrs: '3h', cat: 'special',  cover: '05', price: '990',
+    tag: 'ม.1 – ม.6',
+    desc: 'AI สำหรับเด็ก — AI เป็นของคนที่กล้าลอง ไม่ใช่แค่ผู้ใหญ่',
+    features: ['Kid-safe prompt design', 'ใช้ AI ค้นคว้า/สร้างงาน', 'Creative hands-on'] },
+  { num: '06', name: 'AI for Personal Assistant', en: 'ASSISTANT',   hrs: '3h', cat: 'special',  cover: '06', price: '1,500',
+    tag: 'PA · Executive Assistant',
+    desc: 'PA ที่ใช้ AI เป็น จะไม่ถูก AI แทน — ติดอาวุธด้วย Agentic workflow',
+    features: ['PA workflow + AI automation', 'ออกแบบเฉพาะงาน', 'ทำงานเร็วขึ้น 10x'] },
+  { num: '07', name: 'AI for ABOs',         en: 'BUSINESS · MLM',    hrs: '3h', cat: 'special',  cover: '07', price: 'Quote', priceNote: 'เริ่ม 5,000',
+    tag: 'สำหรับธุรกิจเครือข่าย · 5+ คน',
+    desc: 'AI ช่วยธุรกิจเครือข่ายวันแรก — Content / ตอบลูกค้า AI ทำแทน',
+    features: ['AI + Tools + Prompt', 'Content สำเร็จรูปเชิงธุรกิจ', 'Quote-based'] },
+  { num: '08', name: 'AI Agentic Web Builder', en: 'VIBE CODING',    hrs: '5h', cat: 'vibe',     cover: '08', price: '2,500',
+    tag: 'Code ไม่เป็นก็ทำ Web ได้',
+    desc: 'Vibe Coding ครบใน 5 ชม. — Static Web ของตัวเองพร้อม deploy',
+    features: ['Static Web จบใน 1 session', 'Cowork + Claude Code', 'Deploy production'] },
+  { num: '09', name: 'AI Agentic App Builder', en: 'FULL-STACK',      hrs: '5h', cat: 'vibe',     cover: '09', price: '2,500',
+    tag: 'ต่อยอด 08 · Full-Stack App',
+    desc: 'Web App ที่รับ Form / Login / เก็บข้อมูลลูกค้า — ต่อยอดจาก Web Builder',
+    features: ['Database + Auth', 'Production-ready', 'ใช้งานจริงกับลูกค้าได้'] },
+  { num: '10', name: 'AI Agentic Orchestra', en: 'MULTI-AGENT',      hrs: '4h', cat: 'advanced', cover: '10', price: '3,500', isNew: true,
+    tag: 'ระบบ Multi-Agent + Persona Panel',
+    desc: 'ให้ AI หลายตัวทำงานเป็นทีม Cowork + Persona + Auto Deploy',
+    features: ['Cowork + Claude Code', 'Persona + Panel Review', 'Auto deploy pipeline'] },
+  { num: '11', name: 'AI Content Creator System', en: 'CONTENT OS',  hrs: '4h', cat: 'advanced', cover: '11', price: '3,500', isNew: true,
+    tag: 'YouTube · TikTok pipeline',
+    desc: 'ระบบสร้าง Content ด้วย AI — Content OS Artifact + Multi-Agent preview',
+    features: ['AI Agentic workflow', 'Content OS Artifact', 'YT + TikTok pipeline'] },
+  { num: '12', name: 'AI for IT Audit & Consult', en: 'CORPORATE',    hrs: '4h', cat: 'advanced', cover: '10', price: 'Quote', isNew: true,
+    tag: 'สำหรับ Auditor / Consultant',
+    desc: 'AI Agent + Skill + Live App + Dashboard สำหรับสาย IT Audit / Consult',
+    features: ['Custom Agent + Skill', 'Live App + Dashboard', 'Corporate quote-based'] },
+];
+
+const REVIEWS = [
+  { name: 'คุณแบงค์',     role: 'Financial Trader',       photo: '01',
+    quote: 'สอนแบบไม่หน่าย เข้าใจง่าย พาลงมือทำจริง จบคอร์สแรกก็ต่อคอร์ส 2 ต่อทันที' },
+  { name: 'คุณตอง',       role: 'Executive · Corporate',  photo: '02',
+    quote: 'สอนละเอียด ปรับตามความเข้าใจแต่ละคน ได้ใช้ Claude เป็นเครื่องมือทำงานหลักหลังจบคอร์ส' },
+  { name: 'คุณผักขม',     role: 'Business Owner',         photo: '03',
+    quote: 'ลง Course 01 ก่อน แล้วต่อ 02 · ใช้กับงานทันที ตอบ ROI ในเดือนเดียว' },
+  { name: 'คุณเหน่ง',     role: 'Consultant',             photo: '04',
+    quote: 'ต้นเป็นครูที่ patient มาก อธิบายซ้ำได้เรื่อยๆ ไม่ทำให้รู้สึกถามโง่' },
+  { name: 'คุณเอ็ม',      role: 'Product Manager',        photo: '05',
+    quote: 'สอนแบบ practitioner จริง ไม่ใช่แค่คนอ่านตำรามาสอน — ใช้ AI ในงานจริงทุกวัน' },
+];
+
+const FAQS = [
+  { q: 'ต้องมีพื้นฐาน IT ก่อนไหม?',
+    a: 'ไม่ต้องเลย · Course 01 (AI Basic) ออกแบบมาสำหรับผู้เริ่มต้น ไม่ต้องพื้นฐานคอมพิวเตอร์ ไม่ต้องพื้นฐาน AI มาก่อน' },
+  { q: 'มีรูปแบบการเรียนแบบไหน?',
+    a: '4 รูปแบบ · Private 1:1 (ตัวต่อตัว เข้มข้นสุด) · Group Workshop (ตั้งแต่ 2 คนขึ้นไป) · Onsite ที่บริษัท (Corporate) · VDO เรียนตามเวลาสะดวก' },
+  { q: 'ต้องเรียงลำดับคอร์สไหม?',
+    a: 'บางคอร์สมี prerequisite (03/04 ต้องผ่าน 02 ก่อน · 09 ต้องผ่าน 08) · แต่หลายคอร์สเรียนได้อิสระ โดยเฉพาะ 01 / 05 / 06 / 07 / 11' },
+  { q: 'ราคาที่แสดงเป็นราคาต่อคน หรือต่อกลุ่ม?',
+    a: 'Private = ต่อ session (1:1) · Group = ต่อคน (2+ คน) · Corporate ให้ quote ตาม scope · ทุก session ยังอยู่ในเรทนี้จนกว่าจะปรับ' },
+  { q: 'จ่ายอย่างไร? มีใบเสร็จ/ใบกำกับภาษีไหม?',
+    a: 'โอนผ่าน PromptPay หรือบัญชีธนาคาร · มีใบเสร็จให้ทุกคน · ใบกำกับภาษีขอได้กรณีบริษัทเบิก · หัก ณ ที่จ่าย 3% ตกลงได้' },
+];
+
+// ─── Progress rule ──────────────────────────────
+function useScrollProgress() {
+  useEffect(() => {
+    const el = document.getElementById('prog');
+    if (!el) return;
+    const handle = () => {
+      const h = document.documentElement;
+      const scrolled = h.scrollTop;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (scrolled / max) * 100 : 0;
+      el.style.setProperty('--progress', pct + '%');
+    };
+    handle();
+    window.addEventListener('scroll', handle, { passive: true });
+    return () => window.removeEventListener('scroll', handle);
+  }, []);
+}
+
+// ─── Reveal on scroll ─────────────────────────
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.14 });
+    els.forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
+
+// ─── Nav (text-only, non-sticky) ─────────────────
+function Masthead() {
+  return (
+    <header className="max-w-6xl mx-auto px-6 md:px-10 pt-8 pb-6">
+      <div className="flex items-center justify-between">
+        <a href="#" className="group flex flex-col leading-none">
+          <span className="font-mono text-[10px] tracking-[0.28em] text-warm-500 mb-1">STUDIO NO. 01</span>
+          <span className="font-hero text-2xl md:text-3xl tracking-tight text-paper-50 group-hover:text-gold-400 transition-colors">TONPALEARN</span>
+        </a>
+        <nav className="hidden md:flex items-center gap-7">
+          <a href="#contents"      className="nav-link">Contents</a>
+          <a href="#position"      className="nav-link">Position</a>
+          <a href="#interview"     className="nav-link">Interview</a>
+          <a href="#voices"        className="nav-link">Voices</a>
+          <a href="#invitation"    className="nav-link">Invitation</a>
+        </nav>
+        <a href="#invitation" className="md:hidden nav-link">Contact</a>
+      </div>
+    </header>
+  );
+}
+
+// ─── HERO — editorial masthead spread ─────────────
+function Hero() {
+  return (
+    <section className="relative">
+      <div className="paper-grain absolute inset-0"/>
+      <div className="relative max-w-6xl mx-auto px-6 md:px-10 pt-6 pb-16 md:pt-10 md:pb-24">
+
+        <div className="flex items-center gap-4 mb-8">
+          <span className="byline">Issue 01 · June 2026</span>
+          <span className="rule-hair flex-1"/>
+          <span className="byline">A Studio Monograph</span>
+        </div>
+
+        <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-start">
+
+          {/* HEADLINE — 7 cols */}
+          <div className="md:col-span-7 order-2 md:order-1">
+            <h1 className="font-hero text-[clamp(38px,7.5vw,88px)] leading-[0.98] tracking-tight text-paper-50" style={{textWrap:'balance'}}>
+              AI ง่ายขึ้น<br/>
+              เมื่อมี <span className="text-gold-500">ต้น</span> พาไป
+            </h1>
+
+            <div className="mt-8 mb-6 flex items-center gap-4">
+              <span className="rule-gold-hair w-16"/>
+              <span className="byline">Standfirst</span>
+            </div>
+
+            <p className="font-display text-xl md:text-2xl leading-relaxed text-paper-100" style={{textWrap:'balance'}}>
+              เรียน <em className="text-gold-400 not-italic">AI ที่ใช้ได้จริง</em> กับงานและชีวิตคุณ — สอนโดยคนที่ใช้ AI ทำงานจริงทุกวัน ไม่ใช่แค่รู้ทฤษฎี
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
+              <a href="#invitation" className="ed-link font-display text-lg">
+                → จองเรียนกับต้น
+              </a>
+              <a href="#contents" className="ed-link font-display text-lg">
+                → เปิดสารบัญคอร์ส
+              </a>
+            </div>
+
+            <div className="mt-12 flex items-baseline gap-8 flex-wrap">
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.18em] text-warm-500 uppercase">Taught by</div>
+                <div className="font-display text-lg text-paper-100 mt-1">ต้น · Chaiwat Phuwanonjirakawin</div>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.18em] text-warm-500 uppercase">Practice</div>
+                <div className="font-display text-lg text-paper-100 mt-1">Product Management, 15 Years</div>
+              </div>
+            </div>
+          </div>
+
+          {/* PORTRAIT — 5 cols */}
+          <figure className="md:col-span-5 order-1 md:order-2 relative">
+            <div className="relative aspect-[4/5] overflow-hidden bg-ink-800">
+              <img
+                src="../assets/ton-london.jpg"
+                alt="Chaiwat Phuwanonjirakawin — the instructor"
+                className="portrait-treat absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
+            <figcaption className="mt-3 flex items-baseline justify-between gap-4">
+              <span className="photo-cap">ต้น — London, 2024. Photograph by the studio.</span>
+              <span className="font-mono text-[10px] text-warm-500 tracking-widest">FIG. 01</span>
+            </figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Byline strip (news ticker) ───────────────────
+function ByLineTicker() {
+  const items = [
+    'Private 1:1',
+    'Group Workshop',
+    'Onsite Training',
+    'VDO On-Demand',
+    'Claude · Cursor · MCP',
+    'Real Business Use-Cases',
+    '15 Years of Product Management',
+    'Featured in Speaker Circuits',
+    'Since 2024',
+  ];
+  const doubled = [...items, ...items];
+  return (
+    <div className="border-y border-ink-700/60 bg-ink-900/50">
+      <div className="ticker-mask overflow-hidden">
+        <div className="ticker-track flex gap-12 py-4 whitespace-nowrap font-mono text-[11px] tracking-[0.28em] uppercase text-warm-500">
+          {doubled.map((item, i) => (
+            <span key={i} className="flex items-center gap-12">
+              <span className="text-gold-500">§</span>
+              <span>{item}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Photo band ────────────────────────────────
+function PhotoBand({ photos, caption }) {
+  return (
+    <section className="max-w-6xl mx-auto px-6 md:px-10 py-16 reveal">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-1.5">
+        {photos.map((p, i) => (
+          <div key={i} className={`aspect-square overflow-hidden bg-ink-800 ${i === 0 ? 'col-span-2 md:col-span-2 md:row-span-2 aspect-auto md:aspect-[1/1]' : ''}`}>
+            <img src={`../assets/reviews/class-${p}.jpg`} alt="" loading="lazy" className="w-full h-full object-cover portrait-treat"/>
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 photo-cap">{caption}</p>
+    </section>
+  );
+}
+
+// ─── Course Contents — as Table of Contents ─────
+function Contents() {
+  const [openIdx, setOpenIdx] = useState(null);
+
+  return (
+    <section id="contents" className="relative">
+      <div className="max-w-4xl mx-auto px-6 md:px-10 py-20 md:py-28 reveal">
+
+        <div className="flex items-baseline gap-6 mb-3">
+          <span className="font-mono text-sm tracking-[0.3em] text-gold-500">I.</span>
+          <span className="byline">Contents</span>
+        </div>
+        <h2 className="font-hero text-4xl md:text-6xl text-paper-50 mb-4" style={{textWrap:'balance'}}>สารบัญคอร์ส</h2>
+        <p className="font-display text-lg text-paper-100 max-w-2xl leading-relaxed mb-10">
+          คอร์สทั้ง 12 เรียงจากพื้นฐานไปยัง advanced · แต่ละคอร์สยืนได้ด้วยตัวเอง ยกเว้นที่บอกไว้ว่า <span className="italic text-gold-400">ต้องต่อยอด</span>
+        </p>
+
+        <div className="rule-double mb-2"/>
+
+        <div>
+          {COURSES.map((c, i) => (
+            <React.Fragment key={c.num}>
+              <div className="toc-row" onClick={() => setOpenIdx(openIdx === i ? null : i)}>
+                <span className="toc-num">{c.num}</span>
+                <div>
+                  <div>
+                    {c.featured && <span className="cat-tag cat-featured">FEATURED</span>}
+                    {c.isNew && <span className="cat-tag cat-featured">NEW</span>}
+                    <span className="toc-title">{c.name}</span>
+                  </div>
+                  <span className="toc-title-en">{c.en} · {c.tag}</span>
+                </div>
+                <span className="toc-hrs">{c.hrs}</span>
+                <span className="toc-price">
+                  ฿{c.price}
+                  {c.priceNote && <span className="text-warm-500 font-mono text-[10px] block text-right mt-0.5">{c.priceNote}</span>}
+                </span>
+              </div>
+              <div className={`toc-detail ${openIdx === i ? 'open' : ''}`}>
+                <p className="mb-3 text-paper-100 leading-relaxed">{c.desc}</p>
+                <ul className="space-y-1 text-warm-500 text-[13px] leading-relaxed">
+                  {c.features.map((f, fi) => <li key={fi}>· {f}</li>)}
+                </ul>
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div className="rule-double mt-2"/>
+
+        <div className="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3">
+          <div className="byline">Formats</div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 font-display text-paper-100">
+            <span>Private 1:1</span>
+            <span className="text-warm-500">·</span>
+            <span>Group Workshop (2+)</span>
+            <span className="text-warm-500">·</span>
+            <span>Onsite (Corporate)</span>
+            <span className="text-warm-500">·</span>
+            <span>VDO On-Demand</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Position — the "why choose" reimagined ─────
+function Position() {
+  const points = [
+    { n: 'i',   title: 'สอนโดย Practitioner',
+      body: 'ผมใช้ AI ในงานจริงทุกวัน — Product Management 15 ปี, สร้างเว็บ / บอท / ระบบ Automation จริงบน Claude · ไม่ใช่คนที่อ่านตำรามาสอน' },
+    { n: 'ii',  title: 'ไม่ต้องเขียนโค้ด',
+      body: 'ทุกคอร์สออกแบบให้คนที่ไม่มีพื้นฐาน dev เข้าใจและใช้ต่อได้ · Vibe Coding ทำ Web + App โดย Claude เขียนโค้ดให้ — คุณกำกับ' },
+    { n: 'iii', title: 'ปรับให้เข้ากับงานคุณ',
+      body: 'Private 1:1 = ตัวเนื้อหาปรับตามอาชีพ + เคสงานจริงของคุณ · Corporate = onsite ที่บริษัท ปรับเข้ากับ workflow เดิม' },
+    { n: 'iv',  title: 'จบไปใช้ได้ทันที',
+      body: 'ทุก session จบด้วย Skill / Bot / Web ที่คุณเอากลับไปใช้ได้เลย · ไม่ใช่แค่ demo ให้ดู — ของจริงที่ deploy แล้ว' },
+  ];
+  return (
+    <section id="position" className="relative">
+      <div className="paper-grain absolute inset-0"/>
+      <div className="relative max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28 reveal">
+
+        <div className="flex items-baseline gap-6 mb-3">
+          <span className="font-mono text-sm tracking-[0.3em] text-gold-500">II.</span>
+          <span className="byline">Position</span>
+        </div>
+        <h2 className="font-hero text-4xl md:text-6xl text-paper-50 mb-14" style={{textWrap:'balance'}}>จุดยืนของ Studio</h2>
+
+        <div className="grid md:grid-cols-2 gap-x-16 gap-y-14">
+          {points.map(p => (
+            <div key={p.n} className="border-t border-ink-600 pt-6">
+              <div className="font-mono text-[11px] tracking-[0.24em] text-gold-500 mb-2 uppercase">{p.n}</div>
+              <h3 className="font-display text-2xl text-paper-50 mb-3">{p.title}</h3>
+              <p className="text-warm-500 leading-relaxed" style={{textWrap:'pretty'}}>{p.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Interview — About as Q&A ──────────────────
+function Interview() {
+  return (
+    <section id="interview" className="relative bg-ink-900/40">
+      <div className="paper-grain absolute inset-0"/>
+      <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-20 md:py-28 reveal">
+
+        <div className="flex items-baseline gap-6 mb-3">
+          <span className="font-mono text-sm tracking-[0.3em] text-gold-500">III.</span>
+          <span className="byline">Interview</span>
+        </div>
+        <h2 className="font-hero text-4xl md:text-6xl text-paper-50 mb-3" style={{textWrap:'balance'}}>บทสัมภาษณ์ต้น</h2>
+        <p className="byline mb-14">Recorded at the studio, 2026</p>
+
+        <div className="space-y-10">
+
+          <div>
+            <div className="font-mono text-[11px] tracking-[0.22em] text-warm-500 uppercase mb-2">Q · เกี่ยวกับตัวเอง</div>
+            <p className="font-display text-lg text-paper-100 leading-relaxed" style={{textWrap:'pretty'}}>
+              ต้นชื่อ ไชยวัฒน์ ภูวนนท์จิรกวินธ์ · Product Manager มา 15 ปี · เขียนโค้ดเป็น เข้าใจ engineering · แต่มองว่าเทคโนโลยีคือเครื่องมือ ไม่ใช่จุดหมาย — จุดหมายคือการที่มัน "ทำให้ชีวิตคนดีขึ้น" ได้จริง
+            </p>
+          </div>
+
+          <div className="pl-6 border-l-2 border-gold-500/50">
+            <span className="quote-mark">"</span>
+            <p className="pull-quote">AI ไม่ใช่ของยาก — แต่คนสอน AI ส่วนใหญ่ทำให้มันดูยาก · เพราะเขาไม่ได้ใช้ AI จริงในงานทุกวัน</p>
+          </div>
+
+          <div>
+            <div className="font-mono text-[11px] tracking-[0.22em] text-warm-500 uppercase mb-2">Q · ทำไมเริ่มสอน AI?</div>
+            <p className="font-display text-lg text-paper-100 leading-relaxed" style={{textWrap:'pretty'}}>
+              ผมเจอคนที่ทำงานหนักและถูก AI แซง · เจอคนที่ถูกบอกว่า "ต้องใช้ AI" แต่ไม่มีใครสอนว่าจะใช้ยังไง · เลยตั้ง Studio นี้ขึ้นมา — สอนแบบที่ผมอยากได้ตอนเริ่มต้นเอง
+            </p>
+          </div>
+
+          <div>
+            <div className="font-mono text-[11px] tracking-[0.22em] text-warm-500 uppercase mb-2">Q · สอนกับใคร?</div>
+            <p className="font-display text-lg text-paper-100 leading-relaxed" style={{textWrap:'pretty'}}>
+              Financial Traders, Executives, Business Owners, Consultants, Product Managers, PA, นักเรียนม.ปลาย — ทุกคนที่ไม่อยากถูกทิ้งไว้ข้างหลัง · ส่วนใหญ่จบคอร์สแรกแล้วต่อคอร์สที่สองทันที
+            </p>
+          </div>
+
+          <div className="pt-6 border-t border-ink-600 flex items-center gap-4">
+            <img src="../assets/signature-ton.png" alt="Signature" className="signature invert opacity-70"/>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Pull quotes (testimonials) ─────────────────
+function Voices() {
+  return (
+    <section id="voices" className="relative">
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28 reveal">
+
+        <div className="flex items-baseline gap-6 mb-3">
+          <span className="font-mono text-sm tracking-[0.3em] text-gold-500">IV.</span>
+          <span className="byline">Voices</span>
+        </div>
+        <h2 className="font-hero text-4xl md:text-6xl text-paper-50 mb-14" style={{textWrap:'balance'}}>เสียงจากผู้เรียน</h2>
+
+        <div className="space-y-24">
+          {REVIEWS.map((r, i) => {
+            const flip = i % 2 === 1;
+            return (
+              <div key={i} className={`grid md:grid-cols-12 gap-8 md:gap-12 items-center ${flip ? 'md:[&>*:first-child]:col-start-6' : ''}`}>
+                <figure className={`md:col-span-6 ${flip ? 'md:order-2' : ''}`}>
+                  <div className="aspect-[5/4] overflow-hidden bg-ink-800">
+                    <img src={`../assets/reviews/class-${r.photo}.jpg`} alt="" loading="lazy" className="w-full h-full object-cover portrait-treat"/>
+                  </div>
+                  <figcaption className="mt-3 flex items-baseline justify-between gap-4">
+                    <span className="photo-cap">{r.name}, {r.role}</span>
+                    <span className="font-mono text-[10px] text-warm-500 tracking-widest">FIG. {String(i + 2).padStart(2, '0')}</span>
+                  </figcaption>
+                </figure>
+                <div className={`md:col-span-6 ${flip ? 'md:order-1 md:pr-8' : 'md:pl-8'}`}>
+                  <span className="quote-mark">"</span>
+                  <p className="pull-quote">{r.quote}</p>
+                  <div className="mt-6 font-mono text-[11px] tracking-[0.22em] text-warm-500 uppercase">
+                    — {r.name} · <span className="text-warm-600">{r.role}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── FAQ ────────────────────────────────────────
+function FAQ() {
+  const [open, setOpen] = useState(0);
+  return (
+    <section id="faq" className="relative bg-ink-900/40">
+      <div className="paper-grain absolute inset-0"/>
+      <div className="relative max-w-4xl mx-auto px-6 md:px-10 py-20 md:py-28 reveal">
+
+        <div className="flex items-baseline gap-6 mb-3">
+          <span className="font-mono text-sm tracking-[0.3em] text-gold-500">V.</span>
+          <span className="byline">Q &amp; A</span>
+        </div>
+        <h2 className="font-hero text-4xl md:text-6xl text-paper-50 mb-14" style={{textWrap:'balance'}}>คำถามที่พบบ่อย</h2>
+
+        <div>
+          {FAQS.map((f, i) => (
+            <div key={i} className="border-t border-ink-600">
+              <button
+                onClick={() => setOpen(open === i ? -1 : i)}
+                className="w-full text-left py-6 flex items-baseline justify-between gap-6 group"
+              >
+                <div className="flex items-baseline gap-5">
+                  <span className="font-mono text-[11px] text-warm-500 tracking-widest pt-1">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="font-display text-xl text-paper-50 group-hover:text-gold-400 transition-colors">{f.q}</span>
+                </div>
+                <span className={`font-mono text-lg text-gold-500 transition-transform ${open === i ? 'rotate-45' : ''}`}>+</span>
+              </button>
+              {open === i && (
+                <div className="pb-6 pl-12 pr-10">
+                  <p className="text-paper-100 leading-relaxed font-display" style={{textWrap:'pretty'}}>{f.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
+          <div className="border-t border-ink-600"/>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Invitation (CTA) ──────────────────────────
+function Invitation() {
+  return (
+    <section id="invitation" className="relative">
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-20 md:py-28 reveal">
+        <div className="invitation p-10 md:p-16">
+          <div className="paper-grain-light"/>
+          <div className="relative z-10">
+            <div className="flex items-baseline gap-6 mb-3">
+              <span className="font-mono text-sm tracking-[0.3em] text-gold-600">VI.</span>
+              <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-warm-700">Invitation</span>
+            </div>
+
+            <h2 className="font-hero text-4xl md:text-6xl text-ink-950 mb-8 max-w-3xl" style={{textWrap:'balance'}}>
+              จองเรียนกับต้น
+            </h2>
+
+            <div className="max-w-2xl space-y-5 text-ink-800 font-display text-lg leading-relaxed" style={{textWrap:'pretty'}}>
+              <p>
+                ถ้าคุณอ่านมาถึงตรงนี้แล้ว — แปลว่าคุณสนใจจริง · ผมเปิด Private 1:1 · Group Workshop · Onsite · หรือ VDO ก็ได้
+              </p>
+              <p>
+                <strong>บอกผมสามข้อ</strong> — <em>คุณทำอาชีพอะไร · อยากใช้ AI แก้ปัญหาอะไร · ว่างช่วงไหน</em> — ผมจะแนะนำคอร์สและรูปแบบที่เหมาะกับคุณ · ไม่ขายเกินความจำเป็น
+              </p>
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-x-10 gap-y-6 items-start">
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-warm-700 mb-1.5">LINE Official</div>
+                <a href="https://line.me/R/ti/p/@tonpalearn" className="font-hero text-xl text-ink-950 hover:text-gold-600 transition-colors">@tonpalearn</a>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-warm-700 mb-1.5">Email</div>
+                <a href="mailto:ton@tonpalearn.com" className="font-hero text-xl text-ink-950 hover:text-gold-600 transition-colors">ton@tonpalearn.com</a>
+              </div>
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-warm-700 mb-1.5">Booking</div>
+                <a href="/booking/" className="font-hero text-xl text-ink-950 hover:text-gold-600 transition-colors">/booking</a>
+              </div>
+            </div>
+
+            <div className="mt-14 pt-10 border-t border-ink-950/15 flex items-end justify-between gap-6 flex-wrap">
+              <div>
+                <img src="../assets/signature-ton.png" alt="Chaiwat's signature" className="signature"/>
+                <div className="mt-2 font-mono text-[10px] tracking-[0.18em] uppercase text-warm-700">
+                  Chaiwat Phuwanonjirakawin · Studio TONPALEARN
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-warm-700">Written from</div>
+                <div className="font-display text-ink-950 mt-1">Bangkok, 2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Colophon (footer) ────────────────────────
+function Colophon() {
+  return (
+    <footer className="border-t border-ink-700">
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-16">
+
+        <div className="grid md:grid-cols-4 gap-10">
+          <div className="md:col-span-2">
+            <div className="font-mono text-[10px] tracking-[0.28em] text-warm-500 mb-2">STUDIO NO. 01</div>
+            <div className="font-hero text-3xl text-paper-50 mb-4">TONPALEARN</div>
+            <p className="text-warm-500 font-display leading-relaxed max-w-md">
+              AI ง่ายขึ้น เมื่อมีต้นพาไป · Studio สอน AI แบบใช้งานจริง · ตั้งอยู่ที่ Bangkok ตั้งแต่ 2024
+            </p>
+          </div>
+          <div>
+            <div className="byline mb-4">Navigate</div>
+            <ul className="space-y-2 font-display text-paper-100">
+              <li><a href="#contents"    className="hover:text-gold-400 transition-colors">Contents</a></li>
+              <li><a href="#position"    className="hover:text-gold-400 transition-colors">Position</a></li>
+              <li><a href="#interview"   className="hover:text-gold-400 transition-colors">Interview</a></li>
+              <li><a href="#voices"      className="hover:text-gold-400 transition-colors">Voices</a></li>
+              <li><a href="#faq"         className="hover:text-gold-400 transition-colors">Q &amp; A</a></li>
+              <li><a href="#invitation"  className="hover:text-gold-400 transition-colors">Invitation</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="byline mb-4">Elsewhere</div>
+            <ul className="space-y-2 font-display text-paper-100">
+              <li><a href="/"                     className="hover:text-gold-400 transition-colors">Original site (v1)</a></li>
+              <li><a href="/booking/"             className="hover:text-gold-400 transition-colors">Book a session</a></li>
+              <li><a href="/vdo/"                 className="hover:text-gold-400 transition-colors">VDO courses</a></li>
+              <li><a href="/arsenal/"             className="hover:text-gold-400 transition-colors">Arsenal (Prompt packs)</a></li>
+              <li><a href="/certificate/"         className="hover:text-gold-400 transition-colors">Verify certificate</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-ink-700 flex flex-wrap items-baseline justify-between gap-4">
+          <div className="byline">
+            © 2026 TONPALEARN. All rights reserved.
+          </div>
+          <div className="byline">
+            Set in Chonburi, Trirong, Sarabun &amp; JetBrains Mono
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── App ────────────────────────────────────────
+function App() {
+  useScrollProgress();
+  useReveal();
+  return (
+    <>
+      <Masthead/>
+      <div className="rule-hair max-w-6xl mx-auto"/>
+      <Hero/>
+      <ByLineTicker/>
+      <PhotoBand
+        photos={['01', '02', '03', '04', '05']}
+        caption="From the studio archive — Private &amp; Group sessions, 2024–2026."
+      />
+      <Contents/>
+      <Position/>
+      <Interview/>
+      <PhotoBand
+        photos={['06', '07', '08', '09', '01']}
+        caption="More sessions from the archive — Corporate onsite &amp; Private."
+      />
+      <Voices/>
+      <FAQ/>
+      <Invitation/>
+      <Colophon/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
