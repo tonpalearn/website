@@ -14,149 +14,189 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="/assets/liquid.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-  .seat-bar { height: 6px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,0.06); }
-  .seat-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #F5D67A, #E6B84B);
-    transition: width 0.6s var(--ease-liquid);
+  /* ─────────────────────────────────────────────────────────
+     THEME TOKENS — light = warm paper · dark = deep ink
+     auto ตามระบบ · [data-theme] = ผู้ใช้เลือกเอง (ปุ่มบน nav)
+  ───────────────────────────────────────────────────────── */
+  :root{
+    color-scheme: light;
+    --bg:#F7F6F2; --bg2:#F0EEE8;
+    --card:#FFFFFF; --card2:#FAF9F6;
+    --line:#E6E3DA; --line2:#D8D4C8;
+    --tx:#1D1B16; --tx2:#54514A; --tx3:#8D897F;
+    --gold:#9A7A10; --gold-soft:rgba(154,122,16,.09); --gold-line:rgba(154,122,16,.34);
+    --g1:#E9B833; --g2:#D99F1B; --gold-ink:#231A02;
+    --halo:rgba(217,159,27,.20);
+    --teal:#0E7A6D; --teal-soft:rgba(14,122,109,.09); --teal-line:rgba(14,122,109,.32);
+    --red:#B3261E; --red-soft:rgba(179,38,30,.08); --red-line:rgba(179,38,30,.28);
+    --scrim:rgba(30,27,20,.46);
+    --shadow-s:0 1px 2px rgba(29,27,22,.05);
+    --shadow-m:0 10px 30px -12px rgba(29,27,22,.16);
+    --shadow-l:0 24px 60px -20px rgba(29,27,22,.25);
   }
-  .seat-bar-confirmed .seat-bar-fill {
-    background: linear-gradient(90deg, #67E8F9, #14B8A6);
+  :root[data-theme="dark"]{ color-scheme: dark;
+    --bg:#0C0E13; --bg2:#10131A;
+    --card:#161A23; --card2:#12161E;
+    --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.17);
+    --tx:#EDEFF4; --tx2:#A8B0BF; --tx3:#6D7789;
+    --gold:#F1C557; --gold-soft:rgba(241,197,87,.10); --gold-line:rgba(241,197,87,.36);
+    --g1:#F5D67A; --g2:#E0A82E; --gold-ink:#1E1500;
+    --halo:rgba(224,168,46,.16);
+    --teal:#2FD4BE; --teal-soft:rgba(47,212,190,.10); --teal-line:rgba(47,212,190,.34);
+    --red:#F58F88; --red-soft:rgba(245,143,136,.10); --red-line:rgba(245,143,136,.30);
+    --scrim:rgba(4,5,8,.62);
+    --shadow-s:0 1px 2px rgba(0,0,0,.4);
+    --shadow-m:0 12px 32px -12px rgba(0,0,0,.55);
+    --shadow-l:0 28px 70px -22px rgba(0,0,0,.7);
   }
-  .cohort-cover {
-    aspect-ratio: 16/9;
-    background: linear-gradient(135deg, #1A1A2A, #0D0D14);
-    background-size: cover;
-    background-position: center;
-    position: relative;
-  }
-  .placeholder-icon {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 64px; opacity: 0.2;
-  }
-  .slot-pill {
-    padding: 10px 14px;
-    border-radius: 12px;
-    text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.10);
-    color: #E5E7EB;
-    cursor: pointer;
-    transition: all var(--dur-snap) var(--ease-liquid);
-  }
-  .slot-pill:hover { border-color: rgba(245,214,122,0.50); background: rgba(245,214,122,0.08); }
-  .slot-pill.selected {
-    background: linear-gradient(135deg, #F5D67A, #E6B84B);
-    color: #08080F;
-    border-color: transparent;
-  }
-  .slot-pill.disabled { opacity: 0.3; cursor: not-allowed; }
-  .slot-pill.disabled:hover { border-color: rgba(255,255,255,0.10); background: rgba(255,255,255,0.04); }
-
-  /* ─── Classroom Marquee ────────────────────────────── */
-  .marquee-strip {
-    position: relative;
-    overflow: hidden;
-    padding: 8px 0;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-  }
-  .marquee-track {
-    display: flex; gap: 14px;
-    width: max-content;
-    will-change: transform;
-  }
-  .marquee-left  { animation: marquee-left  64s linear infinite; }
-  .marquee-right { animation: marquee-right 80s linear infinite; }
-  .marquee-strip:hover .marquee-track { animation-play-state: paused; }
-  @keyframes marquee-left  { from { transform: translateX(0); }     to { transform: translateX(-50%); } }
-  @keyframes marquee-right { from { transform: translateX(-50%); }  to { transform: translateX(0); } }
-  @media (prefers-reduced-motion: reduce) {
-    .marquee-left, .marquee-right { animation: none; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ color-scheme: dark;
+      --bg:#0C0E13; --bg2:#10131A;
+      --card:#161A23; --card2:#12161E;
+      --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.17);
+      --tx:#EDEFF4; --tx2:#A8B0BF; --tx3:#6D7789;
+      --gold:#F1C557; --gold-soft:rgba(241,197,87,.10); --gold-line:rgba(241,197,87,.36);
+      --g1:#F5D67A; --g2:#E0A82E; --gold-ink:#1E1500;
+      --halo:rgba(224,168,46,.16);
+      --teal:#2FD4BE; --teal-soft:rgba(47,212,190,.10); --teal-line:rgba(47,212,190,.34);
+      --red:#F58F88; --red-soft:rgba(245,143,136,.10); --red-line:rgba(245,143,136,.30);
+      --scrim:rgba(4,5,8,.62);
+      --shadow-s:0 1px 2px rgba(0,0,0,.4);
+      --shadow-m:0 12px 32px -12px rgba(0,0,0,.55);
+      --shadow-l:0 28px 70px -22px rgba(0,0,0,.7);
+    }
   }
 
-  .mq-card {
-    position: relative;
-    flex-shrink: 0;
-    width: 220px; height: 132px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: linear-gradient(135deg, #1A1A2A, #0D0D14);
-    background-size: cover; background-position: center;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 6px 16px -6px rgba(0,0,0,0.5);
-    transition: transform 0.4s var(--ease-liquid);
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg); color:var(--tx);
+    font-family:'IBM Plex Sans Thai',system-ui,sans-serif;
+    font-size:15.5px; line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    transition:background .3s ease, color .3s ease;
   }
-  .mq-card:hover { transform: translateY(-3px) scale(1.02); }
-  .mq-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(180deg, transparent 35%, rgba(0,0,0,0.85) 100%);
-    pointer-events: none;
+  .f-head{ font-family:'Anuphan','IBM Plex Sans Thai',sans-serif; letter-spacing:-0.01em; }
+  .f-latin{ font-family:'Space Grotesk','Anuphan',sans-serif; }
+  .f-mono{ font-family:'JetBrains Mono',monospace; }
+
+  .tx{color:var(--tx)} .tx2{color:var(--tx2)} .tx3{color:var(--tx3)}
+  .gold{color:var(--gold)} .teal{color:var(--teal)}
+
+  /* surfaces */
+  .panel{ background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow-s); }
+  .panel2{ background:var(--card2); border:1px solid var(--line); border-radius:14px; }
+  .hairline{ border-top:1px solid var(--line); }
+
+  /* nav */
+  .navbar{ background:color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+
+  /* buttons */
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border-radius:12px; padding:11px 18px; font-weight:600; font-size:14.5px;
+    border:1px solid transparent; cursor:pointer; transition:all .18s ease;
+    font-family:'IBM Plex Sans Thai',sans-serif; }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary{ background:linear-gradient(135deg,var(--g1),var(--g2)); color:var(--gold-ink);
+    box-shadow:0 6px 18px -8px var(--g2); }
+  .btn-primary:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 10px 24px -8px var(--g2); }
+  .btn-quiet{ background:transparent; color:var(--tx2); border-color:var(--line2); }
+  .btn-quiet:hover{ color:var(--tx); border-color:var(--tx3); background:var(--card2); }
+
+  /* chips */
+  .chip{ display:inline-flex; align-items:center; gap:6px; border-radius:999px;
+    padding:4px 12px; font-size:12px; font-weight:600; border:1px solid var(--line); background:var(--card); color:var(--tx2); }
+  .chip-gold{ background:var(--gold-soft); border-color:var(--gold-line); color:var(--gold); }
+  .chip-teal{ background:var(--teal-soft); border-color:var(--teal-line); color:var(--teal); }
+  .chip-red{ background:var(--red-soft); border-color:var(--red-line); color:var(--red); }
+  .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+  @keyframes softpulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
+  .dot-live{ animation:softpulse 2.2s ease-in-out infinite; }
+
+  .eyebrow{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--tx3); font-weight:600; }
+
+  /* logo gradient */
+  .lg-gold{ background:linear-gradient(120deg,var(--g1),var(--g2)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .lg-teal{ background:linear-gradient(120deg,var(--teal),color-mix(in srgb,var(--teal) 55%, var(--tx))); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  /* ── GOLDEN TICKET — แสงเดียวของหน้า: รอบที่ยังจองได้ ── */
+  .card-open{ border:1.5px solid var(--gold-line);
+    box-shadow:0 0 0 4px var(--gold-soft), 0 18px 44px -18px var(--halo), var(--shadow-s); }
+  @media (prefers-reduced-motion: no-preference){
+    .card-open{ animation:halo 3.6s ease-in-out infinite; }
+    @keyframes halo{
+      0%,100%{ box-shadow:0 0 0 4px var(--gold-soft), 0 18px 44px -18px var(--halo), var(--shadow-s); }
+      50%{ box-shadow:0 0 0 7px var(--gold-soft), 0 22px 54px -16px var(--halo), var(--shadow-s); }
+    }
   }
-  .mq-caption {
-    position: absolute; bottom: 8px; left: 10px; right: 10px;
-    color: #F5F5F5;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    z-index: 1;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .mq-badge {
-    position: absolute; top: 8px; right: 8px;
-    background: rgba(8, 8, 15, 0.72);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(245, 214, 122, 0.30);
-    color: #F5D67A;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    padding: 2px 6px;
-    border-radius: 6px;
-    z-index: 2;
-  }
-  .marquee-live {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(8, 8, 15, 0.72);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(74, 222, 128, 0.35);
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    color: #4ADE80;
-    letter-spacing: 0.04em;
-  }
-  .marquee-live::before {
-    content: ''; width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #4ADE80;
-    box-shadow: 0 0 8px #4ADE80;
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: 0.5; transform: scale(1.3); }
+  .card-hover{ transition:transform .22s ease, box-shadow .22s ease; }
+  .card-hover:hover{ transform:translateY(-3px); }
+  .card-dim{ opacity:.58; }
+  .card-dim .cover{ filter:grayscale(1); }
+  .card-dim:hover{ opacity:.8; }
+
+  .cover{ aspect-ratio:16/9; background:var(--bg2); background-size:cover; background-position:center 22%; position:relative; }
+
+  /* seat bar */
+  .seat-bar{ height:6px; border-radius:999px; overflow:hidden; background:var(--bg2); border:1px solid var(--line); }
+  .seat-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg,var(--g1),var(--g2)); transition:width .6s ease; }
+  .seat-ok .seat-fill{ background:linear-gradient(90deg,var(--teal),color-mix(in srgb,var(--teal) 60%, #67E8F9)); }
+
+  /* inputs */
+  .lbl{ display:block; font-size:12.5px; font-weight:600; color:var(--tx2); margin-bottom:6px; }
+  .inp{ width:100%; background:var(--card2); border:1px solid var(--line2); border-radius:11px;
+    padding:10px 13px; font-size:14.5px; color:var(--tx); font-family:'IBM Plex Sans Thai',sans-serif;
+    transition:border-color .15s ease, box-shadow .15s ease; }
+  .inp:focus{ outline:none; border-color:var(--gold-line); box-shadow:0 0 0 3px var(--gold-soft); }
+  .inp::file-selector-button{ background:var(--bg2); border:1px solid var(--line2); border-radius:8px;
+    padding:6px 12px; margin-right:10px; color:var(--tx2); font-family:inherit; font-size:13px; cursor:pointer; }
+
+  /* slot pills */
+  .slot{ padding:10px 8px; border-radius:11px; text-align:center; font-family:'JetBrains Mono',monospace;
+    font-size:13px; font-weight:600; background:var(--card2); border:1px solid var(--line2);
+    color:var(--tx2); cursor:pointer; transition:all .15s ease; }
+  .slot:hover{ border-color:var(--gold-line); background:var(--gold-soft); color:var(--tx); }
+  .slot.on{ background:linear-gradient(135deg,var(--g1),var(--g2)); color:var(--gold-ink); border-color:transparent; }
+  .slot.off{ opacity:.32; cursor:not-allowed; text-decoration:line-through; }
+  .slot.off:hover{ border-color:var(--line2); background:var(--card2); color:var(--tx2); }
+
+  /* segmented mode switch */
+  .seg{ display:inline-flex; padding:4px; gap:4px; background:var(--bg2); border:1px solid var(--line); border-radius:14px; }
+  .seg button{ padding:10px 22px; border-radius:10px; font-size:14.5px; font-weight:600; color:var(--tx3);
+    transition:all .18s ease; font-family:'Anuphan','IBM Plex Sans Thai',sans-serif; }
+  .seg button.on{ background:var(--card); color:var(--tx); box-shadow:var(--shadow-s); border:1px solid var(--line); }
+
+  /* modal */
+  .scrim{ background:var(--scrim); backdrop-filter:blur(6px); }
+  .modal{ background:var(--card); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow-l); }
+  .sticky-bar{ background:color-mix(in srgb, var(--card) 92%, transparent); backdrop-filter:blur(12px); }
+
+  .scrollable{ scrollbar-width:thin; scrollbar-color:var(--line2) transparent; }
+  .scrollable::-webkit-scrollbar{ width:8px; height:8px; }
+  .scrollable::-webkit-scrollbar-thumb{ background:var(--line2); border-radius:99px; }
+
+  .clamp2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* readable long-form (detail modal) */
+  .prose-th{ font-size:15.5px; line-height:1.95; color:var(--tx); white-space:pre-wrap; max-width:66ch; }
+
+  /* photo strip — ภาพนิ่ง เลื่อนเอง ไม่มี animation */
+  .strip{ display:flex; gap:12px; overflow-x:auto; padding:4px 2px 12px; scroll-snap-type:x mandatory; }
+  .strip::-webkit-scrollbar{ height:6px; }
+  .strip img{ height:118px; width:auto; border-radius:12px; border:1px solid var(--line);
+    scroll-snap-align:start; flex:none; object-fit:cover; }
+
+  /* entrance — จังหวะเดียวตอนโหลด แล้วหน้าอยู่นิ่ง */
+  @media (prefers-reduced-motion: no-preference){
+    .rise{ opacity:0; transform:translateY(10px); animation:rise .5s ease forwards; }
+    @keyframes rise{ to{ opacity:1; transform:none; } }
   }
 </style>
 </head>
-<body class="mesh-bg min-h-screen">
+<body>
 
 <div id="root"></div>
 
@@ -189,6 +229,41 @@ const FORMATS = [
 ];
 
 const fmtTHB = (n) => Number(n||0).toLocaleString('th-TH');
+
+// ──────────────────────────────────────────────
+// Theme — auto (ตามระบบ) → light → dark · จำค่าใน localStorage
+// ──────────────────────────────────────────────
+const THEME_KEY = 'tpl-theme';
+const getTheme = () => localStorage.getItem(THEME_KEY) || 'auto';
+const applyTheme = (mode) => {
+  const root = document.documentElement;
+  if (mode === 'auto') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', mode);
+};
+applyTheme(getTheme());
+
+function ThemeToggle() {
+  const [mode, setMode] = useState(getTheme());
+  const next = { auto:'light', light:'dark', dark:'auto' };
+  const meta = {
+    auto:  { icon:'🖥️', label:'ตามระบบ' },
+    light: { icon:'☀️', label:'สว่าง' },
+    dark:  { icon:'🌙', label:'มืด' },
+  };
+  const cycle = () => {
+    const m = next[mode];
+    setMode(m);
+    localStorage.setItem(THEME_KEY, m);
+    applyTheme(m);
+  };
+  return (
+    <button onClick={cycle} className="btn btn-quiet" style={{padding:'8px 14px', fontSize:13}}
+            title={'ธีม: ' + meta[mode].label + ' (กดเพื่อสลับ)'}>
+      <span>{meta[mode].icon}</span>
+      <span className="hidden sm:inline">{meta[mode].label}</span>
+    </button>
+  );
+}
 
 // ──────────────────────────────────────────────
 // Analytics tracker — anon-safe via log_event RPC
@@ -242,12 +317,8 @@ const track = async (eventType, eventData = {}) => {
   } catch (e) { /* silent — analytics never breaks UX */ }
 };
 
-
 // ──────────────────────────────────────────────
 // PromptPay QR payload generator (EMV-compliant)
-// id: phone (10 digits) or national ID (13 digits)
-// amount: optional THB float
-// Returns EMV payload string → render with qrcode lib
 // ──────────────────────────────────────────────
 const PROMPTPAY_ID = '0939149397'; // ต้น's PromptPay (ชัยวัฒน์)
 
@@ -270,7 +341,6 @@ function generatePromptPayPayload(id, amount) {
   if (amount) payload += tlv('54', Number(amount).toFixed(2));
   payload += tlv('58', 'TH');
   payload += '6304';
-  // CRC16-CCITT-FALSE
   let crc = 0xFFFF;
   for (let i = 0; i < payload.length; i++) {
     crc ^= (payload.charCodeAt(i) << 8);
@@ -309,9 +379,7 @@ const fmtDateShort = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { 
 const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString('th-TH', { weekday:'long' }) : '—';
 const daysLeft = (iso) => iso ? Math.max(0, Math.ceil((new Date(iso) - new Date()) / 86400000)) : 0;
 
-// ──────────────────────────────────────────────
-// CLASSROOM MARQUEE — Row 1 = real class photos · Row 2 = course covers
-// ──────────────────────────────────────────────
+// รูปห้องเรียนจริง — แถบภาพนิ่ง (เลื่อนเอง ไม่วิ่ง)
 const CLASS_PHOTOS = [
   { src:'/assets/reviews/class-01.jpg', caption:'Agentic AI Masterclass · Bangkok' },
   { src:'/assets/reviews/class-02.jpg', caption:'Workshop · Coworking Space' },
@@ -324,120 +392,85 @@ const CLASS_PHOTOS = [
   { src:'/assets/reviews/class-09.jpg', caption:'The 7 Levels of AI Use' },
 ];
 
-const COURSE_TILES = [
-  { num:'02', cover:'/assets/covers/coursepub-02.png', name:'AI Agentic · Workflow' },
-  { num:'01', cover:'/assets/covers/course-01.png',    name:'AI Basic · เริ่มต้น' },
-  { num:'03', cover:'/assets/covers/course-03.png',    name:'MCP Connector' },
-  { num:'04', cover:'/assets/covers/course-04.png',    name:'LINE ChatBot' },
-  { num:'09', cover:'/assets/covers/coursepub-09.png', name:'AI App Builder' },
-  { num:'08', cover:'/assets/covers/course-08.png',    name:'AI Web Builder' },
-  { num:'10', cover:'/assets/covers/course-10.png',    name:'AI Agentic Orchestra' },
-  { num:'11', cover:'/assets/covers/course-11.png',    name:'AI Content Creator' },
-  { num:'06', cover:'/assets/covers/course-06.png',    name:'AI for Personal Assistant' },
-  { num:'12', cover:'/assets/covers/course-12.png',    name:'AI for IT Audit' },
-];
+// ──────────────────────────────────────────────
+// สถานะรอบเรียน — ใช้ร่วมกันทั้งการ์ด/รายละเอียด
+// ──────────────────────────────────────────────
+function cohortState(c) {
+  const seats = c.seats_taken || 0;
+  const minConfirm = c.min_to_confirm || 4;
+  const maxSeats = c.max_seats || 10;
+  const isConfirmed = c.status === 'confirmed' || c.status === 'full' || seats >= minConfirm;
+  const isFull = seats >= maxSeats;
+  const isCancelled = c.status === 'cancelled';
+  const bookable = !isFull && !isCancelled;
+  const ebActive = !!(c.early_bird_price_thb && c.early_bird_deadline && daysLeft(c.early_bird_deadline) > 0);
+  const displayPrice = ebActive ? c.early_bird_price_thb : c.price_thb;
+  return {
+    seats, minConfirm, maxSeats, isConfirmed, isFull, isCancelled, bookable, ebActive, displayPrice,
+    seatsToConfirm: Math.max(0, minConfirm - seats),
+    seatsRemaining: Math.max(0, maxSeats - seats),
+    progressPct: Math.min(100, (seats / minConfirm) * 100),
+  };
+}
 
-function ClassroomMarquee() {
-  const PhotoCard = ({ p }) => (
-    <div className="mq-card" style={{ backgroundImage: `url(${p.src})` }}>
-      <span className="mq-badge" style={{borderColor:'rgba(74,222,128,0.40)', color:'#4ADE80'}}>● LIVE</span>
-      <div className="mq-caption">{p.caption}</div>
-    </div>
-  );
-  const CourseCard = ({ t }) => (
-    <div className="mq-card" style={{ backgroundImage: `url(${t.cover})` }}>
-      <span className="mq-badge">C{t.num}</span>
-      <div className="mq-caption">{t.name}</div>
-    </div>
-  );
-
-  return (
-    <section className="relative pt-20 pb-2" style={{minHeight: 'auto'}}>
-      <div className="max-w-7xl mx-auto px-6 mb-3 flex items-center justify-between">
-        <span className="marquee-live">● บรรยากาศการเรียน · LIVE FROM CLASS</span>
-        <span className="text-[10px] eyebrow text-slate-500" style={{color:'#94a3b8'}}>— จากห้องเรียนจริง</span>
-      </div>
-
-      {/* Row 1 — real class photos */}
-      <div className="marquee-strip">
-        <div className="marquee-track marquee-left">
-          {[...CLASS_PHOTOS, ...CLASS_PHOTOS].map((p, i) => <PhotoCard key={'p'+i} p={p}/>)}
-        </div>
-      </div>
-
-      {/* Row 2 — course covers */}
-      <div className="marquee-strip mt-3">
-        <div className="marquee-track marquee-right">
-          {[...COURSE_TILES, ...COURSE_TILES].map((t, i) => <CourseCard key={'c'+i} t={t}/>)}
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-6 mt-3 text-center">
-        <div className="text-[10px] eyebrow text-slate-500" style={{color:'#94a3b8'}}>
-          — สอนสด ตัวต่อตัว · ทำโจทย์จริง · ออกใบรับรอง
-        </div>
-      </div>
-    </section>
-  );
+function StatusChip({ st }) {
+  if (st.isCancelled) return <span className="chip chip-red">ยกเลิกรอบ</span>;
+  if (st.isFull)      return <span className="chip">เต็มแล้ว</span>;
+  if (st.isConfirmed) return <span className="chip chip-teal"><span className="dot"/>เปิดสอนแน่นอน</span>;
+  return <span className="chip chip-gold"><span className="dot dot-live"/>เปิดรับสมัคร</span>;
 }
 
 function Nav() {
   return (
-    <nav className="fixed top-0 inset-x-0 z-40 glass-strong" style={{borderRadius:0, borderLeft:'none', borderRight:'none', borderTop:'none'}}>
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        <a href="/" className="font-display font-bold text-lg flex items-baseline gap-1">
-          <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+    <nav className="fixed top-0 inset-x-0 z-40 navbar">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <a href="/" className="f-latin font-bold text-lg flex items-baseline gap-0.5">
+          <span className="tx">TON</span><span className="lg-gold">PA</span><span className="lg-teal">LEARN</span>
         </a>
-        <div className="flex items-center gap-2 sm:gap-4 text-xs text-slate-300">
-          <a href="/" className="hover:text-white transition">Home</a>
-          <a href="/vdo/" className="hover:text-white transition">VDO</a>
-          <a href="/services/" className="hover:text-white transition">Services</a>
-          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs">LINE</a>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden md:flex items-center gap-5 text-sm tx2 mr-2">
+            <a href="/" className="hover:opacity-70 transition">Home</a>
+            <a href="/vdo/" className="hover:opacity-70 transition">VDO</a>
+            <a href="/services/" className="hover:opacity-70 transition">Services</a>
+          </div>
+          <ThemeToggle/>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener"
+             className="btn btn-primary" style={{padding:'8px 16px', fontSize:13}}>LINE</a>
         </div>
       </div>
     </nav>
   );
 }
 
-function Hero({ mode, setMode }) {
+function Header({ mode, setMode, openCount }) {
   return (
-    <section className="relative pt-8 pb-8 overflow-hidden">
-      <div className="blob-field">
-        <div className="blob blob-gold blob-drift-1" style={{ width: 400, height: 400, top: '10%', left: '8%' }}/>
-        <div className="blob blob-teal blob-drift-2" style={{ width: 350, height: 350, top: '20%', right: '8%' }}/>
-      </div>
-      <div className="relative max-w-5xl mx-auto px-6 text-center">
-        <div className="eyebrow mb-3">— จองเรียน</div>
-        <h1 className="font-display font-bold text-4xl sm:text-5xl text-white leading-tight">
-          เลือกแบบที่<span className="grad-aurora">เหมาะกับคุณ</span>
-        </h1>
-        <p className="text-slate-300 mt-3 max-w-xl mx-auto text-sm">
-          🎓 Public Class — รอบเปิดประจำ · เรียนเป็นกลุ่ม · ราคาคุ้ม<br/>
-          👤 Private 1:1 — เลือกวันเวลาเอง · เน้นโจทย์เฉพาะ
-        </p>
-
-        <div className="mt-7 inline-flex p-1 rounded-2xl glass-soft">
-          <button onClick={() => setMode('public')}
-            className={`px-5 sm:px-8 py-3 rounded-xl text-sm font-display font-semibold transition-all ${mode === 'public' ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
-            style={mode === 'public' ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)', color:'#08080F'} : {}}>
-            🎓 Public Class
-          </button>
-          <button onClick={() => setMode('private')}
-            className={`px-5 sm:px-8 py-3 rounded-xl text-sm font-display font-semibold transition-all ${mode === 'private' ? 'text-ink-950' : 'text-slate-400 hover:text-white'}`}
-            style={mode === 'private' ? {background:'linear-gradient(135deg,#67E8F9,#14B8A6)', color:'#08080F'} : {}}>
-            👤 Private 1:1
-          </button>
+    <header className="pt-24 pb-8 text-center px-4">
+      <div className="eyebrow mb-3">TONPALEARN · BOOKING</div>
+      <h1 className="f-head font-bold text-3xl sm:text-4xl tx leading-snug">จองรอบเรียนสดกับต้น</h1>
+      <p className="tx2 mt-2 text-[15px] max-w-lg mx-auto">
+        Public Class เรียนเป็นกลุ่ม ราคาคุ้ม · Private 1:1 เลือกวันเวลาเอง
+      </p>
+      {openCount > 0 && (
+        <div className="mt-3">
+          <span className="chip chip-gold"><span className="dot dot-live"/>ตอนนี้เปิดรับสมัคร {openCount} รอบ</span>
         </div>
+      )}
+      <div className="seg mt-6">
+        <button className={mode==='public' ? 'on' : ''} onClick={() => setMode('public')}>🎓 Public Class</button>
+        <button className={mode==='private' ? 'on' : ''} onClick={() => setMode('private')}>👤 Private 1:1</button>
       </div>
-    </section>
+    </header>
   );
 }
 
-function CohortCard({ cohort, onBook, onDetail }) {
+// ──────────────────────────────────────────────
+// COHORT CARD — ปก → ชื่อ → วัน → ราคา → ที่นั่ง → ปุ่ม
+// รายละเอียดทั้งหมดย้ายไปหน้า detail (กดปก/ชื่อ/ลิงก์)
+// ──────────────────────────────────────────────
+function CohortCard({ cohort, onBook, onDetail, index }) {
   const cardRef = React.useRef(null);
   const viewedRef = React.useRef(false);
 
-  // Track view once when card enters viewport
   useEffect(() => {
     if (!cardRef.current) return;
     const io = new IntersectionObserver((entries) => {
@@ -453,118 +486,75 @@ function CohortCard({ cohort, onBook, onDetail }) {
     return () => io.disconnect();
   }, [cohort.id]);
 
-  const seats = cohort.seats_taken || 0;
-  const minConfirm = cohort.min_to_confirm || 4;
-  const maxSeats = cohort.max_seats || 10;
-  const isConfirmed = cohort.status === 'confirmed' || cohort.status === 'full' || seats >= minConfirm;
-  const isFull = seats >= maxSeats;
-  const isCancelled = cohort.status === 'cancelled';
-
-  const ebActive = !!(cohort.early_bird_price_thb && cohort.early_bird_deadline && daysLeft(cohort.early_bird_deadline) > 0);
-  const displayPrice = ebActive ? cohort.early_bird_price_thb : cohort.price_thb;
-
-  const seatsToConfirm = Math.max(0, minConfirm - seats);
-  const seatsRemaining = Math.max(0, maxSeats - seats);
-  const progressPct = Math.min(100, (seats / minConfirm) * 100);
+  const st = cohortState(cohort);
 
   return (
-    <div ref={cardRef} className="glass glass-hover overflow-hidden flex flex-col">
-      <div className="cohort-cover" onClick={() => onDetail(cohort)} style={{cursor:'pointer', ...(cohort.cover_url ? { backgroundImage: `url(${cohort.cover_url})` } : {})}}>
-        {!cohort.cover_url && <div className="placeholder-icon">🎓</div>}
-        {cohort.is_featured && (
-          <div className="absolute top-3 left-3 pill text-[10px]" style={{background:'rgba(230,184,75,0.20)', borderColor:'rgba(245,214,122,0.50)', color:'#F5D67A', zIndex:1}}>
-            ⭐ ยอดนิยม
+    <div ref={cardRef}
+         className={`panel overflow-hidden flex flex-col rise card-hover ${st.bookable ? 'card-open' : 'card-dim'}`}
+         style={{animationDelay: `${Math.min(index,6)*70}ms`}}>
+      <div className="cover cursor-pointer" onClick={() => onDetail(cohort)}
+           style={cohort.cover_url ? { backgroundImage: `url(${cohort.cover_url})` } : {}}>
+        {!cohort.cover_url && <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-20">🎓</div>}
+        <div className="absolute top-3 right-3"><StatusChip st={st}/></div>
+        {st.ebActive && (
+          <div className="absolute bottom-3 left-3">
+            <span className="chip chip-red">🔥 Early Bird · เหลือ {daysLeft(cohort.early_bird_deadline)} วัน</span>
           </div>
         )}
-        <div className="absolute top-3 right-3" style={{zIndex:1}}>
-          {isCancelled && <span className="pill-status st-declined">❌ ยกเลิก</span>}
-          {!isCancelled && isFull && <span className="pill-status st-expired">🔒 เต็มแล้ว</span>}
-          {!isCancelled && !isFull && isConfirmed && <span className="pill-status st-paid">✅ Confirmed</span>}
-          {!isCancelled && !isFull && !isConfirmed && <span className="pill-status st-pending">⏳ Pre-booking</span>}
-        </div>
-        <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%)', pointerEvents:'none'}}/>
       </div>
 
       <div className="p-5 flex-1 flex flex-col">
-        <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{cohort.format_label} · {cohort.duration_hours} ชม.</div>
-        <div onClick={() => onDetail(cohort)} className="font-display font-bold text-lg text-white mt-0.5 line-clamp-2" style={{cursor:'pointer'}}>{cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}</div>
+        <div className="eyebrow" style={{fontSize:10}}>{cohort.format_label} · {cohort.duration_hours} ชม.</div>
+        <h3 onClick={() => onDetail(cohort)}
+            className="f-head font-bold text-[17px] tx mt-1.5 leading-snug clamp2 cursor-pointer">
+          {cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}
+        </h3>
 
-        <div className="mt-3 flex items-center gap-2 text-xs text-slate-300">
+        <div className="mt-3 text-[13.5px] tx2 flex items-center gap-2">
           <span>📅</span>
-          <span className="font-semibold">{fmtDate(cohort.start_date)}</span>
-          <span className="text-slate-500">({fmtDay(cohort.start_date)})</span>
+          <span className="font-semibold tx">{fmtDate(cohort.start_date)}</span>
+          <span className="tx3">· {cohort.start_time} น.</span>
         </div>
-        <div className="text-xs text-slate-400 ml-5">⏰ {cohort.start_time} · {cohort.duration_hours} ชม.</div>
 
-        {cohort.what_you_learn && cohort.what_you_learn.length > 0 && (
-          <div className="mt-3">
-            <div className="text-[10px] font-mono uppercase tracking-widest mb-1" style={{color:'#E6B84B'}}>— จะได้เรียน</div>
-            <ul className="space-y-1">
-              {(cohort.what_you_learn || []).slice(0, 3).map((b, i) => (
-                <li key={i} className="text-[11px] text-slate-300 flex items-start gap-1.5">
-                  <span style={{color:'#E6B84B', marginTop:1}}>▸</span>
-                  <span className="line-clamp-2">{b}</span>
-                </li>
-              ))}
-              {cohort.what_you_learn.length > 3 && (
-                <li><button onClick={() => onDetail(cohort)} className="text-[10px] italic underline underline-offset-2" style={{color:'#E6B84B'}}>
-                  + อีก {cohort.what_you_learn.length - 3} หัวข้อ · ดูรายละเอียดทั้งหมด
-                </button></li>
-              )}
-            </ul>
-          </div>
-        )}
-
-        <div className="mt-4">
-          <div className="flex items-baseline gap-2">
-            {ebActive && cohort.early_bird_price_thb !== cohort.price_thb && (
-              <span className="text-xs text-slate-500 line-through">฿{fmtTHB(cohort.price_thb)}</span>
-            )}
-            <span className="font-display font-bold text-2xl grad-gold">฿{fmtTHB(displayPrice)}</span>
-            {ebActive && (
-              <span className="pill text-[9px]" style={{background:'rgba(239,68,68,0.15)', borderColor:'rgba(239,68,68,0.40)', color:'#FCA5A5'}}>
-                🔥 Early Bird
-              </span>
-            )}
-          </div>
-          {ebActive && (
-            <div className="text-[10px] text-red-300 mt-0.5">หมดเขต Early Bird · {fmtDateShort(cohort.early_bird_deadline)} · เหลือ {daysLeft(cohort.early_bird_deadline)} วัน</div>
+        <div className="mt-4 flex items-baseline gap-2">
+          {st.ebActive && cohort.early_bird_price_thb !== cohort.price_thb && (
+            <span className="text-[13px] tx3 line-through">฿{fmtTHB(cohort.price_thb)}</span>
           )}
+          <span className="f-head font-bold text-[26px] gold">฿{fmtTHB(st.displayPrice)}</span>
+          {st.ebActive && <span className="text-[11.5px]" style={{color:'var(--red)'}}>ถึง {fmtDateShort(cohort.early_bird_deadline)}</span>}
         </div>
 
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-[11px] mb-1.5">
-            <span className="text-slate-400">👥 ที่นั่ง</span>
-            <span className={isConfirmed ? 'text-teal-300' : 'text-slate-300'}>
-              {seats} / {maxSeats}
-              {!isConfirmed && seatsToConfirm > 0 && (
-                <span className="ml-1" style={{color:'#F5D67A'}}>· ขาดอีก {seatsToConfirm} คน</span>
-              )}
-              {isConfirmed && seatsRemaining > 0 && (
-                <span className="text-teal-300 ml-1">· เหลือ {seatsRemaining} ที่</span>
-              )}
+        <div className="mt-3">
+          <div className="flex items-center justify-between text-[12px] mb-1.5">
+            <span className="tx3">ที่นั่ง {st.seats}/{st.maxSeats}</span>
+            <span className={st.isConfirmed ? 'teal font-semibold' : 'tx2'}>
+              {st.isConfirmed
+                ? (st.seatsRemaining > 0 ? `เหลือ ${st.seatsRemaining} ที่` : 'เต็ม')
+                : `อีก ${st.seatsToConfirm} คน เปิดสอนแน่นอน`}
             </span>
           </div>
-          <div className={`seat-bar ${isConfirmed ? 'seat-bar-confirmed' : ''}`}>
-            <div className="seat-bar-fill" style={{ width: `${progressPct}%` }}/>
+          <div className={`seat-bar ${st.isConfirmed ? 'seat-ok' : ''}`}>
+            <div className="seat-fill" style={{ width: `${st.progressPct}%` }}/>
           </div>
         </div>
 
-        <button onClick={() => onBook(cohort, displayPrice, ebActive)}
-                disabled={isFull || isCancelled}
-                className="btn btn-gold w-full justify-center mt-5"
-                style={isFull || isCancelled ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
-          {isFull ? '🔒 เต็มแล้ว' : isCancelled ? '❌ ยกเลิก' : isConfirmed ? '🎫 จองที่นั่ง · ฿' + fmtTHB(displayPrice) : '⏳ Pre-Book · ฿' + fmtTHB(displayPrice)}
+        <button onClick={() => onBook(cohort, st.displayPrice, st.ebActive)}
+                disabled={!st.bookable}
+                className="btn btn-primary w-full mt-5">
+          {st.isFull ? 'เต็มแล้ว' : st.isCancelled ? 'ยกเลิกรอบ' : `จองที่นั่ง · ฿${fmtTHB(st.displayPrice)}`}
         </button>
-        <button onClick={() => onDetail(cohort)} className="btn btn-ghost w-full justify-center mt-2 text-xs">📋 ดูรายละเอียดคอร์สแบบเต็ม</button>
-        {!isConfirmed && !isCancelled && !isFull && (
-          <div className="text-[9px] text-slate-500 text-center mt-1.5">💛 ครบ {minConfirm} คน → ยืนยันเปิดเรียน · ถ้าไม่ครบ คืนเงินเต็ม</div>
-        )}
+        <button onClick={() => onDetail(cohort)}
+                className="mt-2.5 text-[13px] tx2 hover:opacity-70 transition underline underline-offset-4 decoration-dotted">
+          ดูรายละเอียดคอร์สแบบเต็ม
+        </button>
       </div>
     </div>
   );
 }
 
+// ──────────────────────────────────────────────
+// DETAIL — โปสเตอร์ซ้าย เนื้อหาขวา · ตัวหนังสือใหญ่อ่านสบาย
+// ──────────────────────────────────────────────
 function CohortDetailModal({ cohort, onBook, onClose }) {
   useEffect(() => {
     track('cohort_detail_open', { cohort_id: cohort.id, course_num: cohort.course_num });
@@ -575,33 +565,16 @@ function CohortDetailModal({ cohort, onBook, onClose }) {
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', esc); };
   }, []);
 
-  const seats = cohort.seats_taken || 0;
-  const minConfirm = cohort.min_to_confirm || 4;
-  const maxSeats = cohort.max_seats || 10;
-  const isConfirmed = cohort.status === 'confirmed' || cohort.status === 'full' || seats >= minConfirm;
-  const isFull = seats >= maxSeats;
-  const isCancelled = cohort.status === 'cancelled';
-  const ebActive = !!(cohort.early_bird_price_thb && cohort.early_bird_deadline && daysLeft(cohort.early_bird_deadline) > 0);
-  const displayPrice = ebActive ? cohort.early_bird_price_thb : cohort.price_thb;
-  const seatsToConfirm = Math.max(0, minConfirm - seats);
-  const seatsRemaining = Math.max(0, maxSeats - seats);
-  const progressPct = Math.min(100, (seats / minConfirm) * 100);
+  const st = cohortState(cohort);
 
-  const Meta = ({ icon, label, value }) => (
-    <div className="glass-soft px-4 py-3">
-      <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{label}</div>
-      <div className="text-sm text-white font-semibold mt-0.5">{icon} {value}</div>
-    </div>
-  );
-
-  const Bullets = ({ title, items, color, mark }) => (
+  const Bullets = ({ title, items, accent, mark }) => (
     (items && items.length > 0) ? (
-      <div className="mt-6">
-        <div className="text-[11px] font-mono uppercase tracking-widest mb-2" style={{color}}>— {title}</div>
-        <ul className="space-y-2">
+      <div className="mt-8">
+        <div className="f-head font-bold text-[15px] mb-3" style={{color:accent}}>{title}</div>
+        <ul className="space-y-2.5">
           {items.map((b, i) => (
-            <li key={i} className="text-sm text-slate-300 flex items-start gap-2.5 leading-relaxed">
-              <span style={{color, marginTop:2, flex:'none'}}>{mark}</span>
+            <li key={i} className="text-[15px] tx flex items-start gap-3" style={{lineHeight:1.75}}>
+              <span style={{color:accent, marginTop:2, flex:'none', fontWeight:700}}>{mark}</span>
               <span>{b}</span>
             </li>
           ))}
@@ -611,92 +584,89 @@ function CohortDetailModal({ cohort, onBook, onClose }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center px-3 sm:px-4 overflow-y-auto" onClick={onClose}>
-      <div className="glass-strong max-w-3xl w-full my-6 overflow-hidden" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 scrim flex items-start justify-center px-3 sm:px-5 py-5 overflow-y-auto" onClick={onClose}>
+      <div className="modal max-w-4xl w-full overflow-hidden" onClick={e => e.stopPropagation()}>
 
-        <div className="relative border-b border-white/10" style={{background:'rgba(8,8,15,0.6)'}}>
-          <button onClick={onClose} aria-label="ปิด"
-                  className="btn btn-ghost absolute top-3 right-3 text-sm"
-                  style={{zIndex:3, background:'rgba(8,8,15,0.85)', backdropFilter:'blur(10px)'}}>✕</button>
-          <div className="absolute top-3 left-3 flex gap-2" style={{zIndex:3}}>
-            {isCancelled && <span className="pill-status st-declined">❌ ยกเลิก</span>}
-            {!isCancelled && isFull && <span className="pill-status st-expired">🔒 เต็มแล้ว</span>}
-            {!isCancelled && !isFull && isConfirmed && <span className="pill-status st-paid">✅ Confirmed</span>}
-            {!isCancelled && !isFull && !isConfirmed && <span className="pill-status st-pending">⏳ Pre-booking</span>}
+        {/* header bar */}
+        <div className="px-5 sm:px-7 py-3.5 flex items-center justify-between gap-3 border-b" style={{borderColor:'var(--line)'}}>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <StatusChip st={st}/>
+            <span className="f-mono text-[11px] tx3">{cohort.cohort_no || ''}</span>
           </div>
-          {cohort.cover_url ? (
-            // โชว์ปกเต็มใบ ไม่ครอป — ปกบางคอร์สเป็นโปสเตอร์แนวตั้งที่มีข้อมูลครบอยู่ในภาพ
-            <img src={cohort.cover_url} alt={cohort.title || cohort.course_name}
-                 style={{display:'block', width:'100%', height:'auto'}}/>
-          ) : (
-            <div className="cohort-cover" style={{height:200}}><div className="placeholder-icon">🎓</div></div>
-          )}
+          <button onClick={onClose} aria-label="ปิด" className="btn btn-quiet" style={{padding:'6px 12px'}}>✕</button>
         </div>
 
-        <div className="px-5 sm:px-7 py-6 max-h-[62vh] overflow-y-auto scrollable">
+        {/* body */}
+        <div className="scrollable overflow-y-auto" style={{maxHeight:'calc(88vh - 128px)'}}>
+          <div className="grid md:grid-cols-[320px,1fr] gap-6 sm:gap-8 p-5 sm:p-7">
 
-          <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
-            {cohort.cohort_no ? cohort.cohort_no + ' · ' : ''}{cohort.format_label} · {cohort.duration_hours} ชม.
-          </div>
-          <h2 className="font-display font-bold text-xl sm:text-2xl text-white mt-1 mb-5 leading-snug">
-            {cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}
-          </h2>
-
-          <div className="grid sm:grid-cols-3 gap-2.5">
-            <Meta icon="📅" label="วันเรียน" value={`${fmtDate(cohort.start_date)} (${fmtDay(cohort.start_date)})`}/>
-            <Meta icon="⏰" label="เวลา" value={`${cohort.start_time} · ${cohort.duration_hours} ชม.`}/>
-            <Meta icon="📍" label="รูปแบบ" value={cohort.format_label}/>
-          </div>
-
-          {cohort.description && (
-            <div className="mt-6 text-sm text-slate-300 leading-relaxed" style={{whiteSpace:'pre-wrap'}}>
-              {cohort.description}
+            {/* poster — เต็มใบ ไม่ครอป */}
+            <div className="md:sticky md:top-0 self-start">
+              {cohort.cover_url ? (
+                <img src={cohort.cover_url} alt={cohort.title || cohort.course_name}
+                     className="w-full h-auto rounded-xl border" style={{borderColor:'var(--line)'}}/>
+              ) : (
+                <div className="cover rounded-xl border" style={{borderColor:'var(--line)'}}>
+                  <div className="absolute inset-0 flex items-center justify-center text-6xl opacity-20">🎓</div>
+                </div>
+              )}
             </div>
-          )}
 
-          <Bullets title="จะได้เรียนอะไร" items={cohort.what_you_learn} color="#E6B84B" mark="▸"/>
-          <Bullets title="จะได้อะไรกลับ" items={cohort.what_you_get} color="#5EEAD4" mark="✓"/>
+            {/* content */}
+            <div className="min-w-0">
+              <div className="eyebrow">{cohort.format_label} · {cohort.duration_hours} ชม.</div>
+              <h2 className="f-head font-bold text-[22px] sm:text-[25px] tx mt-1.5" style={{lineHeight:1.45}}>
+                {cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}
+              </h2>
 
-          <div className="glass-soft p-4 mt-7">
-            <div className="flex items-center justify-between text-xs mb-2">
-              <span className="text-slate-400">👥 ที่นั่ง</span>
-              <span className={isConfirmed ? 'text-teal-300' : 'text-slate-300'}>
-                {seats} / {maxSeats}
-                {!isConfirmed && seatsToConfirm > 0 && <span className="ml-1" style={{color:'#F5D67A'}}>· ขาดอีก {seatsToConfirm} คน จึงเปิดเรียน</span>}
-                {isConfirmed && seatsRemaining > 0 && <span className="text-teal-300 ml-1">· เหลือ {seatsRemaining} ที่</span>}
-              </span>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <span className="chip">📅 {fmtDate(cohort.start_date)} ({fmtDay(cohort.start_date)})</span>
+                <span className="chip">⏰ {cohort.start_time} น. · {cohort.duration_hours} ชม.</span>
+                <span className="chip">📍 {cohort.format_label}</span>
+              </div>
+
+              {cohort.description && (
+                <div className="prose-th mt-6">{cohort.description}</div>
+              )}
+
+              <Bullets title="✦ จะได้เรียนอะไร" items={cohort.what_you_learn} accent="var(--gold)" mark="▸"/>
+              <Bullets title="✦ จะได้อะไรกลับ"  items={cohort.what_you_get}  accent="var(--teal)" mark="✓"/>
+
+              <div className="panel2 p-4 mt-8">
+                <div className="flex items-center justify-between text-[13px] mb-2">
+                  <span className="tx2 font-semibold">ที่นั่ง {st.seats}/{st.maxSeats}</span>
+                  <span className={st.isConfirmed ? 'teal font-semibold' : 'tx2'}>
+                    {st.isConfirmed
+                      ? (st.seatsRemaining > 0 ? `เหลือ ${st.seatsRemaining} ที่` : 'เต็มแล้ว')
+                      : `ครบ ${st.minConfirm} คน เปิดสอนแน่นอน · ตอนนี้ขาดอีก ${st.seatsToConfirm}`}
+                  </span>
+                </div>
+                <div className={`seat-bar ${st.isConfirmed ? 'seat-ok' : ''}`}>
+                  <div className="seat-fill" style={{ width: `${st.progressPct}%` }}/>
+                </div>
+                {!st.isConfirmed && st.bookable && (
+                  <div className="text-[12.5px] tx3 mt-2.5">จองก่อนได้เลย — ถ้ารอบไม่เปิดตามกำหนด คืนเงินเต็ม 100%</div>
+                )}
+              </div>
             </div>
-            <div className={`seat-bar ${isConfirmed ? 'seat-bar-confirmed' : ''}`}>
-              <div className="seat-bar-fill" style={{ width: `${progressPct}%` }}/>
-            </div>
-            {!isConfirmed && !isCancelled && !isFull && (
-              <div className="text-[11px] text-slate-400 mt-2.5">💛 ครบ {minConfirm} คน → ยืนยันเปิดเรียน · ถ้าไม่ครบถึงกำหนด คืนเงินเต็ม 100%</div>
-            )}
           </div>
-
         </div>
 
-        <div className="px-5 sm:px-7 py-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3"
-             style={{background:'rgba(8,8,15,0.95)', backdropFilter:'blur(20px)'}}>
+        {/* sticky price footer */}
+        <div className="sticky-bar px-5 sm:px-7 py-4 border-t flex flex-wrap items-center justify-between gap-3" style={{borderColor:'var(--line)'}}>
           <div>
-            <div className="flex items-baseline gap-2">
-              {ebActive && cohort.early_bird_price_thb !== cohort.price_thb && (
-                <span className="text-sm text-slate-500 line-through">฿{fmtTHB(cohort.price_thb)}</span>
+            <div className="flex items-baseline gap-2.5">
+              {st.ebActive && cohort.early_bird_price_thb !== cohort.price_thb && (
+                <span className="text-[14px] tx3 line-through">฿{fmtTHB(cohort.price_thb)}</span>
               )}
-              <span className="font-display font-bold text-3xl grad-gold">฿{fmtTHB(displayPrice)}</span>
-              {ebActive && (
-                <span className="pill text-[9px]" style={{background:'rgba(239,68,68,0.15)', borderColor:'rgba(239,68,68,0.40)', color:'#FCA5A5'}}>🔥 Early Bird</span>
-              )}
+              <span className="f-head font-bold text-[30px] gold">฿{fmtTHB(st.displayPrice)}</span>
+              {st.ebActive && <span className="chip chip-red">🔥 Early Bird ถึง {fmtDateShort(cohort.early_bird_deadline)}</span>}
             </div>
-            {ebActive && (
-              <div className="text-[11px] text-red-300 mt-0.5">หมดเขต {fmtDateShort(cohort.early_bird_deadline)} · เหลือ {daysLeft(cohort.early_bird_deadline)} วัน</div>
-            )}
           </div>
-          <button onClick={() => { onClose(); onBook(cohort, displayPrice, ebActive); }}
-                  disabled={isFull || isCancelled}
-                  className="btn btn-gold justify-center"
-                  style={isFull || isCancelled ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
-            {isFull ? '🔒 เต็มแล้ว' : isCancelled ? '❌ ยกเลิก' : isConfirmed ? '🎫 จองที่นั่ง' : '⏳ Pre-Book เลย'}
+          <button onClick={() => { onClose(); onBook(cohort, st.displayPrice, st.ebActive); }}
+                  disabled={!st.bookable}
+                  className="btn btn-primary" style={{padding:'12px 28px'}}>
+            {st.isFull ? 'เต็มแล้ว' : st.isCancelled ? 'ยกเลิกรอบ' : 'จองที่นั่งเลย'}
           </button>
         </div>
 
@@ -705,57 +675,73 @@ function CohortDetailModal({ cohort, onBook, onClose }) {
   );
 }
 
+// ──────────────────────────────────────────────
+// PUBLIC TAB — รอบที่จองได้ขึ้นก่อนเสมอ
+// ──────────────────────────────────────────────
 function PublicTab({ cohorts, loading, onBook }) {
   const [filter, setFilter] = useState('all');
   const [detail, setDetail] = useState(null);
+
+  const sorted = useMemo(() => {
+    const weight = (c) => {
+      const st = cohortState(c);
+      if (st.bookable) return 0;
+      if (st.isFull) return 1;
+      return 2; // cancelled
+    };
+    return [...cohorts].sort((a,b) => weight(a) - weight(b) || new Date(a.start_date) - new Date(b.start_date));
+  }, [cohorts]);
+
   const filtered = useMemo(() => {
-    let f = cohorts;
-    if (filter === 'open') f = f.filter(c => ['open','confirmed'].includes(c.status) && (c.seats_taken||0) < (c.max_seats||10));
+    let f = sorted;
+    if (filter === 'open') f = f.filter(c => cohortState(c).bookable);
     if (filter === 'confirmed') f = f.filter(c => c.status === 'confirmed');
     return f;
-  }, [cohorts, filter]);
+  }, [sorted, filter]);
 
   return (
-    <section className="relative pb-16">
+    <section className="pb-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
           <div>
-            <h2 className="font-display font-bold text-xl text-white">🎓 รอบเรียนที่กำลังเปิด</h2>
-            <p className="text-xs text-slate-400 mt-0.5">เลือกรอบที่สะดวก · จองได้แม้ยังไม่ครบ · ครบ 4 คน เปิดสอน</p>
+            <h2 className="f-head font-bold text-xl tx">รอบเรียนที่กำลังเปิด</h2>
+            <p className="text-[13px] tx3 mt-0.5">จองก่อนได้เลย · ครบขั้นต่ำแล้วเปิดสอนแน่นอน · ไม่ครบคืนเงินเต็ม</p>
           </div>
-          <div className="flex gap-1 p-0.5 rounded-lg glass-soft">
+          <div className="seg" style={{padding:3}}>
             {[
               {k:'all', label:'ทั้งหมด'},
               {k:'open', label:'ยังจองได้'},
-              {k:'confirmed', label:'Confirmed'},
+              {k:'confirmed', label:'เปิดสอนแน่นอน'},
             ].map(o => (
-              <button key={o.k} onClick={() => setFilter(o.k)} className={`pill text-[11px] ${filter === o.k ? 'active' : ''}`}>{o.label}</button>
+              <button key={o.k} onClick={() => setFilter(o.k)}
+                      className={filter === o.k ? 'on' : ''}
+                      style={{padding:'7px 14px', fontSize:12.5}}>{o.label}</button>
             ))}
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-slate-500">⏳ กำลังโหลด...</div>
+          <div className="text-center py-14 tx3">กำลังโหลด…</div>
         ) : filtered.length === 0 ? (
-          <div className="glass-strong p-10 text-center">
+          <div className="panel p-10 text-center">
             <div className="text-5xl mb-3">📭</div>
-            <div className="font-display font-bold text-white text-lg">ยังไม่มีรอบเปิด</div>
-            <p className="text-sm text-slate-400 mt-2 max-w-md mx-auto">ทักไลน์เพื่อแจ้งความสนใจ — มีคน 4+ คน ต้นจะเปิดรอบใหม่ให้ครับ</p>
-            <a href="https://line.me/R/ti/p/@tonpalearn?msg=สนใจคอร์ส%20Public%20Class%20แจ้งเปิดรอบใหม่ด้วย" target="_blank" rel="noopener" className="btn btn-gold mt-5 inline-flex">💬 ทักไลน์แจ้งความสนใจ</a>
+            <div className="f-head font-bold tx text-lg">ยังไม่มีรอบเปิดตอนนี้</div>
+            <p className="text-sm tx2 mt-2 max-w-md mx-auto">ทักไลน์แจ้งความสนใจไว้ได้ — มีคนสนใจครบกลุ่ม ต้นจะเปิดรอบใหม่ให้ครับ</p>
+            <a href="https://line.me/R/ti/p/@tonpalearn?msg=สนใจคอร์ส%20Public%20Class%20แจ้งเปิดรอบใหม่ด้วย"
+               target="_blank" rel="noopener" className="btn btn-primary mt-5">💬 ทักไลน์แจ้งความสนใจ</a>
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map(c => <CohortCard key={c.id} cohort={c} onBook={onBook} onDetail={setDetail}/>)}
+            {filtered.map((c, i) => <CohortCard key={c.id} cohort={c} onBook={onBook} onDetail={setDetail} index={i}/>)}
           </div>
         )}
 
         {detail && <CohortDetailModal cohort={detail} onBook={onBook} onClose={() => setDetail(null)}/>}
 
-        <div className="glass-soft p-4 mt-8 text-xs text-slate-300 flex items-center gap-3">
+        <div className="panel2 p-4 mt-8 text-[13px] tx2 flex items-center gap-3">
           <span className="text-2xl">🛡️</span>
           <div>
-            <div className="font-semibold text-white">Refund Guarantee</div>
-            <div className="text-[11px] text-slate-400 mt-0.5">ถ้ารอบไม่ครบจนถึง refund deadline (default 3 วันก่อนเรียน) — คืนเงินเต็ม 100% ทันที</div>
+            <span className="font-semibold tx">การันตีคืนเงิน</span> — ถ้ารอบไม่ครบขั้นต่ำจนถึงกำหนด คืนเงินเต็ม 100% ทันที
           </div>
         </div>
       </div>
@@ -763,6 +749,9 @@ function PublicTab({ cohorts, loading, onBook }) {
   );
 }
 
+// ──────────────────────────────────────────────
+// PRIVATE 1:1 TAB
+// ──────────────────────────────────────────────
 function PrivateTab({ onBook }) {
   const [courseNum, setCourseNum] = useState('02');
   const [format, setFormat] = useState('private');
@@ -806,31 +795,33 @@ function PrivateTab({ onBook }) {
   };
 
   return (
-    <section className="relative pb-16">
+    <section className="pb-14">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="mb-6">
-          <h2 className="font-display font-bold text-xl text-white">👤 จอง Private 1:1</h2>
-          <p className="text-xs text-slate-400 mt-0.5">เลือกคอร์ส · format · ระยะเวลา · วัน · เวลา · slots ห่างกัน ≥ 1 ชม. เสมอ</p>
+        <div className="mb-5">
+          <h2 className="f-head font-bold text-xl tx">จอง Private 1:1</h2>
+          <p className="text-[13px] tx3 mt-0.5">เลือกคอร์ส · รูปแบบ · ระยะเวลา · วันและเวลา — เรียนเดี่ยว เน้นโจทย์ของคุณ</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          <div className="glass-strong p-5 space-y-4">
+        <div className="grid lg:grid-cols-2 gap-5">
+          <div className="panel p-5 space-y-4">
             <div>
               <label className="lbl">เลือกคอร์ส</label>
               <select className="inp" value={courseNum} onChange={e => setCourseNum(e.target.value)}>
-                {COURSES.map(c => <option key={c.num} value={c.num} className="bg-ink-900">{c.num} · {c.name} ({c.hrs} ชม.)</option>)}
+                {COURSES.map(c => <option key={c.num} value={c.num}>{c.num} · {c.name} ({c.hrs} ชม.)</option>)}
               </select>
             </div>
 
             <div>
-              <label className="lbl">Format</label>
-              <div className="grid grid-cols-3 gap-1 p-0.5 rounded-lg glass-soft">
+              <label className="lbl">รูปแบบ</label>
+              <div className="grid grid-cols-3 gap-2">
                 {FORMATS.map(f => (
                   <button key={f.key} onClick={() => setFormat(f.key)}
-                    className="px-2 py-2 rounded-md text-xs font-semibold transition"
-                    style={format === f.key ? {background:'linear-gradient(135deg,#67E8F9,#14B8A6)', color:'#08080F'} : {color:'#94a3b8'}}>
+                    className="rounded-xl px-2 py-2.5 text-[13px] font-semibold transition border"
+                    style={format === f.key
+                      ? {background:'var(--teal-soft)', borderColor:'var(--teal-line)', color:'var(--teal)'}
+                      : {background:'var(--card2)', borderColor:'var(--line)', color:'var(--tx3)'}}>
                     <div>{f.label}</div>
-                    <div className="text-[9px] opacity-70 font-normal">{f.sub}</div>
+                    <div className="text-[10px] font-normal opacity-80">{f.sub}</div>
                   </button>
                 ))}
               </div>
@@ -838,11 +829,13 @@ function PrivateTab({ onBook }) {
 
             <div>
               <label className="lbl">ระยะเวลา (ชั่วโมง)</label>
-              <div className="grid grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-4 gap-2">
                 {[1, 2, 3, 4].map(h => (
                   <button key={h} onClick={() => setDuration(h)}
-                    className="px-3 py-2 rounded-md text-sm font-semibold transition"
-                    style={duration === h ? {background:'linear-gradient(135deg,#F5D67A,#E6B84B)', color:'#08080F'} : {background:'rgba(255,255,255,0.04)', color:'#94a3b8', border:'1px solid rgba(255,255,255,0.10)'}}>
+                    className="rounded-xl px-3 py-2.5 text-sm font-semibold transition border"
+                    style={duration === h
+                      ? {background:'var(--gold-soft)', borderColor:'var(--gold-line)', color:'var(--gold)'}
+                      : {background:'var(--card2)', borderColor:'var(--line)', color:'var(--tx3)'}}>
                     {h} ชม.
                   </button>
                 ))}
@@ -854,57 +847,54 @@ function PrivateTab({ onBook }) {
               <input type="date" className="inp" value={date} onChange={e => setDate(e.target.value)} min={new Date().toISOString().slice(0,10)}/>
             </div>
 
-            <div className="glass-gold p-3 text-sm">
+            <div className="panel2 p-4">
               <div className="flex items-center justify-between">
-                <span className="text-slate-300">ราคา</span>
-                <span className="font-display font-bold text-xl grad-gold">฿{fmtTHB(price)}</span>
+                <span className="tx2 text-sm">ราคา</span>
+                <span className="f-head font-bold text-2xl gold">฿{fmtTHB(price)}</span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-1">{course?.name} · {FORMATS.find(f => f.key === format)?.label} · {duration} ชม.</div>
+              <div className="text-[12px] tx3 mt-1">{course?.name} · {FORMATS.find(f => f.key === format)?.label} · {duration} ชม.</div>
             </div>
           </div>
 
-          <div className="glass-strong p-5">
+          <div className="panel p-5">
             <div className="flex items-center justify-between mb-3">
-              <div className="font-display font-bold text-white">เลือกเวลาเริ่ม</div>
-              <div className="text-[10px] text-slate-500">วันที่ {fmtDateShort(date)}</div>
+              <div className="f-head font-bold tx">เลือกเวลาเริ่ม</div>
+              <div className="text-[12px] tx3">วันที่ {fmtDateShort(date)}</div>
             </div>
             {loading ? (
-              <div className="text-center py-10 text-slate-500">⏳ กำลังโหลด slots...</div>
+              <div className="text-center py-12 tx3">กำลังโหลดเวลาว่าง…</div>
             ) : slots.length === 0 ? (
-              <div className="text-center py-10 text-slate-500">
+              <div className="text-center py-12 tx3">
                 <div className="text-4xl mb-2">📅</div>
-                <div className="text-sm">ไม่มี slot ในวันนี้</div>
-                <div className="text-[10px] mt-1">ลองเลือกวันอื่น (จันทร์-เสาร์ เท่านั้น)</div>
+                <div className="text-sm">ไม่มีเวลาว่างในวันนี้</div>
+                <div className="text-[12px] mt-1">ลองเลือกวันอื่น (จันทร์–เสาร์)</div>
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {slots.map(s => (
                     <button key={s.time} onClick={() => s.available && setPickedSlot(s)}
-                      className={`slot-pill ${pickedSlot?.time === s.time ? 'selected' : ''} ${!s.available ? 'disabled' : ''}`}
-                      title={s.reason ? `Blocked: ${s.reason}` : 'Available'}>
+                      className={`slot ${pickedSlot?.time === s.time ? 'on' : ''} ${!s.available ? 'off' : ''}`}
+                      title={s.reason ? `ไม่ว่าง: ${s.reason}` : 'ว่าง'}>
                       {s.time}
                     </button>
                   ))}
                 </div>
-                <div className="mt-3 text-[10px] text-slate-500">
-                  💡 แต่ละ slot ห่างกันอย่างน้อย 1 ชม. (เผื่อ buffer ระหว่างนัด)
-                </div>
+                <div className="mt-3 text-[12px] tx3">แต่ละช่วงเว้นห่างกันอย่างน้อย 1 ชม. เผื่อเวลาระหว่างนัด</div>
               </>
             )}
 
             {pickedSlot && (
-              <div className="mt-4 glass-soft p-3 text-xs">
-                <div className="text-slate-400">เลือกแล้ว</div>
-                <div className="text-white font-semibold mt-0.5">
+              <div className="panel2 p-3.5 mt-4 text-[13px]">
+                <div className="tx3">เลือกแล้ว</div>
+                <div className="tx font-semibold mt-0.5">
                   {fmtDate(date)} ({fmtDay(date)}) · {pickedSlot.time} – {new Date(pickedSlot.end).toLocaleTimeString('th-TH', {hour:'2-digit',minute:'2-digit'})}
                 </div>
               </div>
             )}
 
-            <button onClick={proceed} disabled={!pickedSlot} className="btn btn-gold w-full justify-center mt-4"
-              style={!pickedSlot ? {opacity:0.5, cursor:'not-allowed'} : {}}>
-              ดำเนินการต่อ → ฿{fmtTHB(price)}
+            <button onClick={proceed} disabled={!pickedSlot} className="btn btn-primary w-full mt-4">
+              ดำเนินการต่อ · ฿{fmtTHB(price)}
             </button>
           </div>
         </div>
@@ -913,6 +903,9 @@ function PrivateTab({ onBook }) {
   );
 }
 
+// ──────────────────────────────────────────────
+// BOOKING MODAL — 4 ขั้น (ข้อมูล → จ่าย → สลิป → สำเร็จ)
+// ──────────────────────────────────────────────
 function BookingModal({ payload, onClose }) {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
@@ -922,10 +915,9 @@ function BookingModal({ payload, onClose }) {
   const [slipFile, setSlipFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [bookingNo, setBookingNo] = useState(null);
-  const [slipStatus, setSlipStatus] = useState('none'); // 'none' | 'uploaded' | 'storage_not_ready' | 'upload_failed'
+  const [slipStatus, setSlipStatus] = useState('none');
   const [error, setError] = useState('');
 
-  // Track modal open + step advances
   useEffect(() => { track('modal_open', { mode: payload.mode, cohort_id: payload.cohort_id, course_num: payload.course_num }); }, []);
   useEffect(() => {
     if (step > 1) track('step_advance', { step, mode: payload.mode, cohort_id: payload.cohort_id, course_num: payload.course_num });
@@ -945,7 +937,6 @@ function BookingModal({ payload, onClose }) {
         const fileName = `${booking_no}-${Date.now()}.${slipFile.name.split('.').pop()}`;
         const { error: upErr } = await sb.storage.from('slips').upload(fileName, slipFile);
         if (upErr) {
-          // Graceful fallback — booking still saves, slip can be sent via LINE
           console.warn('Slip upload failed:', upErr.message);
           if (upErr.message?.toLowerCase().includes('bucket')) {
             slipWarning = 'storage_not_ready';
@@ -953,8 +944,6 @@ function BookingModal({ payload, onClose }) {
             slipWarning = 'upload_failed';
           }
         } else {
-          // Store filename (not full URL) — admin generates signed URL on demand.
-          // Works for both private and public buckets · slip stays private.
           slip_url = fileName;
         }
       }
@@ -999,111 +988,114 @@ function BookingModal({ payload, onClose }) {
     }
   };
 
+  const STEPS = ['ข้อมูลผู้จอง','ชำระเงิน','แนบสลิป','สำเร็จ'];
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-12 px-4 overflow-y-auto" onClick={onClose}>
-      <div className="glass-strong max-w-2xl w-full my-8" onClick={e => e.stopPropagation()}>
-        <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between" style={{background:'rgba(8,8,15,0.95)', backdropFilter:'blur(20px)', borderTopLeftRadius:24, borderTopRightRadius:24}}>
-          <h2 className="font-display font-bold text-lg grad-gold">
-            {step === 1 && 'ข้อมูลผู้จอง'}
-            {step === 2 && 'ชำระเงิน'}
-            {step === 3 && 'อัพโหลดสลิป'}
-            {step === 4 && '✓ จองสำเร็จ'}
-          </h2>
-          <button onClick={onClose} className="btn btn-ghost text-sm">✕</button>
+    <div className="fixed inset-0 z-50 scrim flex items-start justify-center pt-10 px-4 pb-8 overflow-y-auto" onClick={onClose}>
+      <div className="modal max-w-xl w-full" onClick={e => e.stopPropagation()}>
+        <div className="px-5 py-4 border-b flex items-center justify-between" style={{borderColor:'var(--line)'}}>
+          <div>
+            <h2 className="f-head font-bold text-lg tx">{step === 4 ? '✓ จองสำเร็จ' : STEPS[step-1]}</h2>
+            <div className="flex gap-1.5 mt-1.5">
+              {STEPS.map((s, i) => (
+                <div key={i} className="h-1 rounded-full transition-all"
+                     style={{width: i < step ? 26 : 14, background: i < step ? 'var(--g2)' : 'var(--line2)'}}/>
+              ))}
+            </div>
+          </div>
+          <button onClick={onClose} className="btn btn-quiet" style={{padding:'6px 12px'}}>✕</button>
         </div>
 
-        <div className="p-5 max-h-[75vh] overflow-y-auto scrollable">
+        <div className="p-5 max-h-[72vh] overflow-y-auto scrollable">
           {step === 1 && (
-            <div className="space-y-3">
-              <div className="glass-gold p-3 mb-3 text-xs">
-                <div className="font-semibold text-white">{payload.course_name}</div>
-                <div className="text-slate-300 mt-1">{payload.format_label} · {payload.duration_hours || payload.hours} ชม. · ฿{fmtTHB(payload.amount)}</div>
-                {payload.is_early_bird && <div className="text-red-300 mt-1">🔥 Early Bird ราคาพิเศษ</div>}
-                <div className="text-[10px] text-slate-400 mt-1">📅 {fmtDate(payload.preferred_date)} · {payload.preferred_time}</div>
+            <div className="space-y-3.5">
+              <div className="panel2 p-4 text-[13.5px]">
+                <div className="font-semibold tx">{payload.course_name}</div>
+                <div className="tx2 mt-1">{payload.format_label} · {payload.duration_hours || payload.hours} ชม. · <span className="gold font-bold">฿{fmtTHB(payload.amount)}</span></div>
+                {payload.is_early_bird && <div className="mt-1" style={{color:'var(--red)'}}>🔥 ราคา Early Bird</div>}
+                <div className="text-[12px] tx3 mt-1">📅 {fmtDate(payload.preferred_date)} · {payload.preferred_time} น.</div>
               </div>
 
               <div><label className="lbl">ชื่อ-สกุล *</label><input className="inp" value={form.customer_name} onChange={e => setForm({...form, customer_name: e.target.value})}/></div>
               <div><label className="lbl">เบอร์โทร *</label><input className="inp" value={form.customer_phone} onChange={e => setForm({...form, customer_phone: e.target.value})}/></div>
               <div><label className="lbl">Email</label><input className="inp" type="email" value={form.customer_email} onChange={e => setForm({...form, customer_email: e.target.value})}/></div>
-              <div><label className="lbl">บริษัท (optional)</label><input className="inp" value={form.customer_company} onChange={e => setForm({...form, customer_company: e.target.value})}/></div>
+              <div><label className="lbl">บริษัท (ถ้ามี)</label><input className="inp" value={form.customer_company} onChange={e => setForm({...form, customer_company: e.target.value})}/></div>
 
-              <button onClick={() => setStep(2)} disabled={!form.customer_name || !form.customer_phone} className="btn btn-gold w-full justify-center mt-3"
-                style={(!form.customer_name || !form.customer_phone) ? {opacity:0.5, cursor:'not-allowed'} : {}}>
-                ถัดไป → ชำระเงิน
+              <button onClick={() => setStep(2)} disabled={!form.customer_name || !form.customer_phone}
+                      className="btn btn-primary w-full mt-2">
+                ถัดไป · ชำระเงิน
               </button>
             </div>
           )}
 
           {step === 2 && (
             <div>
-              <div className="text-xs text-slate-300 mb-4 text-center">
-                โอนเงิน <span className="font-bold grad-gold text-base">฿{fmtTHB(payload.amount)}</span>
+              <div className="text-sm tx2 mb-4 text-center">
+                โอนเงิน <span className="f-head font-bold text-xl gold">฿{fmtTHB(payload.amount)}</span>
               </div>
 
-              {/* PromptPay QR — amount embedded */}
-              <div className="glass-gold p-4 mb-3 text-center">
-                <div className="text-[10px] eyebrow mb-2">— PromptPay · สแกนจ่ายเลย</div>
-                <div className="inline-block p-2 rounded-lg" style={{background:'#fff'}}>
+              <div className="panel2 p-4 mb-3 text-center">
+                <div className="eyebrow mb-2" style={{fontSize:10}}>PromptPay · สแกนจ่ายได้เลย</div>
+                <div className="inline-block p-2 rounded-xl" style={{background:'#fff', border:'1px solid var(--line)'}}>
                   <PromptPayQR amount={payload.amount} size={200}/>
                 </div>
-                <div className="text-[10px] text-slate-500 mt-2">ยอดและผู้รับฝังใน QR เรียบร้อย</div>
-                <div className="text-[11px] text-slate-300 mt-1">นาย ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
+                <div className="text-[12px] tx3 mt-2">ยอดเงินและผู้รับฝังใน QR แล้ว</div>
+                <div className="text-[13px] tx mt-0.5 font-semibold">นาย ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
               </div>
 
-              {/* Bank account fallback */}
-              <div className="glass p-3 mb-4">
-                <div className="text-[10px] eyebrow mb-1 text-center">— หรือโอนเข้าบัญชี</div>
-                <div className="text-[10px] text-slate-400 text-center mt-1">กสิกรไทย</div>
-                <div className="font-mono font-bold text-lg grad-gold text-center">745-2-61376-4</div>
-                <div className="text-[10px] text-slate-300 text-center">ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
+              <div className="panel2 p-4 mb-4 text-center">
+                <div className="eyebrow mb-1" style={{fontSize:10}}>หรือโอนเข้าบัญชี · กสิกรไทย</div>
+                <div className="f-mono font-bold text-xl gold">745-2-61376-4</div>
+                <div className="text-[12.5px] tx2">ชัยวัฒน์ ภูวนนท์จิรกวิน</div>
               </div>
 
-              <button onClick={() => setStep(3)} className="btn btn-gold w-full justify-center">ฉันโอนแล้ว → อัพโหลดสลิป</button>
-              <button onClick={() => setStep(1)} className="btn btn-ghost w-full justify-center mt-2 text-xs">← กลับ</button>
+              <button onClick={() => setStep(3)} className="btn btn-primary w-full">โอนแล้ว · แนบสลิป</button>
+              <button onClick={() => setStep(1)} className="btn btn-quiet w-full mt-2 text-[13px]">← กลับ</button>
             </div>
           )}
 
           {step === 3 && (
             <div>
-              <div className="text-xs text-slate-300 mb-3">แนบสลิปการโอน (JPG / PNG)</div>
+              <div className="text-sm tx2 mb-3">แนบสลิปการโอน (JPG / PNG)</div>
               <input type="file" accept="image/*" onChange={e => setSlipFile(e.target.files?.[0])} className="inp"/>
-              {slipFile && <div className="text-xs text-emerald-400 mt-2">✓ {slipFile.name}</div>}
-              {error && <div className="text-xs text-red-400 mt-2">{error}</div>}
-              <button onClick={submit} disabled={!slipFile || submitting} className="btn btn-gold w-full justify-center mt-4"
-                style={(!slipFile || submitting) ? {opacity:0.5, cursor:'not-allowed'} : {}}>
-                {submitting ? '⏳ กำลังบันทึก...' : 'ส่งใบจอง'}
+              {slipFile && <div className="text-sm mt-2 teal">✓ {slipFile.name}</div>}
+              {error && <div className="text-sm mt-2" style={{color:'var(--red)'}}>{error}</div>}
+              <button onClick={submit} disabled={!slipFile || submitting} className="btn btn-primary w-full mt-4">
+                {submitting ? 'กำลังบันทึก…' : 'ส่งใบจอง'}
               </button>
-              <div className="text-[10px] text-slate-500 mt-3 text-center">ส่งไม่ได้? <button onClick={submit} disabled={submitting} className="underline" style={{color:'#F5D67A'}}>ข้ามอัพโหลด · ส่งภายหลัง</button></div>
+              <div className="text-[12px] tx3 mt-3 text-center">
+                ส่งไม่ได้? <button onClick={submit} disabled={submitting} className="underline gold">ข้ามการแนบสลิป · ส่งภายหลัง</button>
+              </div>
             </div>
           )}
 
           {step === 4 && (
             <div className="text-center py-4">
               <div className="text-5xl mb-3">🎉</div>
-              <div className="font-display font-bold text-xl text-white">จองสำเร็จแล้ว!</div>
-              <div className="text-sm text-slate-300 mt-2">เลขที่จอง: <span className="font-mono font-bold grad-gold">{bookingNo}</span></div>
-              <div className="text-xs text-slate-400 mt-4 max-w-sm mx-auto">
+              <div className="f-head font-bold text-xl tx">จองสำเร็จแล้ว!</div>
+              <div className="text-sm tx2 mt-2">เลขที่จอง: <span className="f-mono font-bold gold">{bookingNo}</span></div>
+              <div className="text-[13px] tx2 mt-4 max-w-sm mx-auto">
                 {payload.mode === 'public_cohort'
-                  ? '⏳ รอ admin verify การโอน · เมื่อครบ 4 คน Class จะ Confirm และแจ้งคุณทาง LINE'
-                  : '⏳ รอ admin verify การโอน · จะ confirm slot ภายใน 24 ชม.'}
+                  ? 'รอทีมงานตรวจการโอน · เมื่อครบขั้นต่ำ รอบจะยืนยันและแจ้งคุณทาง LINE'
+                  : 'รอทีมงานตรวจการโอน · จะยืนยันเวลาเรียนภายใน 24 ชม.'}
               </div>
 
               {(slipStatus === 'storage_not_ready' || slipStatus === 'upload_failed') && (
-                <div className="glass-gold p-3 mt-4 text-left">
-                  <div className="text-[11px] font-semibold text-white mb-1">⚠️ สลิปยังไม่ได้อัปโหลด</div>
-                  <div className="text-[10px] text-slate-300 mb-2">
+                <div className="panel2 p-4 mt-4 text-left">
+                  <div className="text-[13px] font-semibold tx mb-1">⚠️ สลิปยังไม่ได้อัปโหลด</div>
+                  <div className="text-[12.5px] tx2 mb-2">
                     {slipStatus === 'storage_not_ready'
-                      ? 'ระบบเก็บสลิปยังไม่พร้อม — กรุณาส่งสลิปทาง LINE พร้อมเลขจอง:'
-                      : 'อัปโหลดสลิปไม่สำเร็จ — กรุณาส่งสลิปทาง LINE พร้อมเลขจอง:'}
+                      ? 'ระบบเก็บสลิปยังไม่พร้อม — ส่งสลิปทาง LINE พร้อมเลขจอง:'
+                      : 'อัปโหลดสลิปไม่สำเร็จ — ส่งสลิปทาง LINE พร้อมเลขจอง:'}
                   </div>
                   <a href={`https://line.me/R/ti/p/@tonpalearn?msg=${encodeURIComponent('สลิปสำหรับเลขจอง ' + bookingNo)}`}
                      target="_blank" rel="noopener"
-                     className="btn btn-gold w-full justify-center text-xs">💬 ส่งสลิปทาง LINE</a>
+                     className="btn btn-primary w-full text-[13px]">💬 ส่งสลิปทาง LINE</a>
                 </div>
               )}
 
-              <div className="text-[10px] text-slate-500 mt-4">หรือสอบถามได้ที่ <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="underline" style={{color:'#F5D67A'}}>LINE @tonpalearn</a></div>
-              <button onClick={onClose} className="btn btn-gold mt-5">เสร็จสิ้น</button>
+              <div className="text-[12px] tx3 mt-4">สอบถามได้ที่ <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="underline gold">LINE @tonpalearn</a></div>
+              <button onClick={onClose} className="btn btn-primary mt-5">เสร็จสิ้น</button>
             </div>
           )}
         </div>
@@ -1113,138 +1105,94 @@ function BookingModal({ payload, onClose }) {
 }
 
 // ──────────────────────────────────────────────
-// TESTIMONIALS — รีวิวจากผู้เรียนจริง
+// TESTIMONIALS — รีวิวจริง · การ์ดเรียบ อ่านง่าย
 // ──────────────────────────────────────────────
 const TESTIMONIALS = [
   {
     name: 'คุณแบงค์',
     role: 'ธุรกิจนำเข้า-ส่งออกสัตว์เลี้ยง',
-    photo: '/assets/reviews/class-03.jpg',
     text: 'อาจารย์สอนดีมากครับ จากคนที่ไม่เข้าทั้งโครงสร้าง AI และ workflow การทำงานของ AI พร้อมทั้งแทรกวิธีคิดในทักษะด้านอื่นๆ ให้ง่ายต่อการประยุกต์ใช้ AI และช่วยเพิ่มรายละเอียดปลีกย่อยต่างๆ ในการใช้งาน AI ดีมากครับ ถ้ามีใครสนใจหาอาจารย์สอนอยู่ ผมแนะนำอาจารย์ต้นครับ ไม่ผิดหวังครับ',
-    rating: 5,
     initial: 'บ',
-    accent: 'gold',
   },
   {
     name: 'คุณตอง',
     role: 'นักการตลาด Online',
-    photo: '/assets/reviews/class-02.jpg',
     text: 'ประทับใจมากค่ะ บอกเลยว่าตัดสินใจไม่ผิดจริงๆ ที่เลือกปรึกษาคุณต้น สอนดีมากและให้คำแนะนำอย่างจริงใจสุดๆ จุดไหนที่เป็นเทคนิคสำคัญหรือเคล็ดลับที่ควรรู้ บอกหมดแบบไม่มีกั๊กเลยค่ะ\n\nใจเย็นมาก ไม่ว่าเราจะสงสัยตรงไหน ช่วยอธิบายด้วยภาษาที่เข้าใจง่าย ทำให้เรื่องยากๆ กลายเป็นเรื่องธรรมดาไปเลย\n\nที่สำคัญคือเนื้อหาที่สอนสามารถเอาไปต่อยอดใช้งานได้จริง ไม่ใช่แค่ทฤษฎีพื้นฐานทั่วไป จบ session แล้วรู้สึกมั่นใจขึ้นเยอะเลย แนะนำค่ะคนนี้',
-    rating: 5,
     initial: 'ต',
-    accent: 'teal',
     featured: true,
   },
   {
     name: 'คุณผักขม',
     role: 'ธุรกิจนำเที่ยว',
-    photo: '/assets/reviews/class-06.jpg',
     text: 'คุณต้นสอนดีมากๆๆๆ ค่ะ คุ้มค่าจริงๆ ทักษะการสอนการพูดของคุณต้นดีมาก น้ำเสียงนุ่มน่าฟัง สอนแบบใจเย็น ถามได้หมดเลย ส่วนตัวไม่มี basic ด้านนี้เลย ภายใน 2 ชม. คุณต้นเริ่มตั้งแต่ให้พื้นฐาน เห็นภาพรวม AI มีตัวอย่างประกอบจากการใช้งานจริง ไปจนถึงการ setup ว่าทำอะไรได้บ้าง และจบด้วยลอง customise กับงานของเราให้ เนื้อหาดีมาก เป็นประโยชน์และใช้งานได้จริง แนะนำค่ะ ☺️',
-    rating: 5,
     initial: 'ผ',
-    accent: 'violet',
   },
   {
     name: 'คุณเหน่ง',
     role: 'ธุรกิจโรงแรม + คลีนิก',
-    photo: '/assets/reviews/class-04.jpg',
     text: 'สอนได้ดีมากครับ ตั้งแต่ Mindset ภาพรวม จนถึงขั้นตอนการทำ',
-    rating: 5,
     initial: 'น',
-    accent: 'gold',
   },
   {
     name: 'คุณเอ็ม',
     role: 'ธุรกิจ Event Organizer',
-    photo: '/assets/reviews/class-05.jpg',
     text: 'พี่ต้นสอนละเอียดย่อยข้อมูลเข้าใจง่ายมากครับ แนะนำสำหรับคนที่อยากพัฒนาการใช้ AI ให้เก่งขึ้นมากๆ ครับ',
-    rating: 5,
     initial: 'ม',
-    accent: 'teal',
   },
 ];
 
-const ACCENT_STYLE = {
-  gold:   { color:'#F5D67A', borderColor:'rgba(245,214,122,0.40)', bg:'linear-gradient(135deg, rgba(245,214,122,0.14), rgba(230,184,75,0.04))' },
-  teal:   { color:'#5EEAD4', borderColor:'rgba(94,234,212,0.40)',  bg:'linear-gradient(135deg, rgba(94,234,212,0.14), rgba(20,184,166,0.04))' },
-  violet: { color:'#C4B5FD', borderColor:'rgba(196,181,253,0.40)', bg:'linear-gradient(135deg, rgba(196,181,253,0.14), rgba(124,92,252,0.04))' },
-};
-
-function Stars({ n = 5 }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({length: n}).map((_, i) => (
-        <span key={i} style={{color:'#F5D67A', fontSize: 14, textShadow:'0 0 4px rgba(245,214,122,0.4)'}}>★</span>
-      ))}
-    </div>
-  );
-}
-
 function ReviewCard({ r, span }) {
-  const a = ACCENT_STYLE[r.accent] || ACCENT_STYLE.gold;
   return (
-    <div className={`glass glass-hover overflow-hidden relative flex flex-col ${span}`}>
-      {/* Photo backdrop at low opacity */}
-      <div style={{
-        position:'absolute', inset:0,
-        backgroundImage: `url(${r.photo})`,
-        backgroundSize:'cover', backgroundPosition:'center',
-        opacity: 0.18,
-        filter: 'blur(1px) saturate(110%)',
-        pointerEvents: 'none',
-      }}/>
-      <div style={{
-        position:'absolute', inset:0,
-        background: 'linear-gradient(180deg, rgba(8,8,15,0.50) 0%, rgba(8,8,15,0.85) 100%)',
-        pointerEvents: 'none',
-      }}/>
-
-      <div className="relative p-5 sm:p-6 flex flex-col h-full">
-        {/* Quote mark */}
-        <div className="absolute top-2 right-4 text-7xl leading-none opacity-15" style={{color: a.color, fontFamily:'Cormorant Garamond, serif'}}>"</div>
-
-        {/* Header: avatar + name */}
-        <div className="flex items-center gap-3 mb-3 relative z-10">
-          <div className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center font-display font-bold text-lg"
-               style={{background: a.bg, border: `1px solid ${a.borderColor}`, color: a.color}}>
-            {r.initial}
-          </div>
-          <div>
-            <div className="font-display font-bold text-white text-sm">{r.name}</div>
-            <div className="text-[11px] text-slate-400">{r.role}</div>
-          </div>
-          <div className="ml-auto">
-            <Stars n={r.rating}/>
-          </div>
+    <div className={`panel p-5 sm:p-6 flex flex-col ${span || ''}`}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center f-head font-bold"
+             style={{background:'var(--gold-soft)', border:'1px solid var(--gold-line)', color:'var(--gold)'}}>
+          {r.initial}
         </div>
-
-        {/* Quote text */}
-        <p className="text-[13px] sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line relative z-10">
-          {r.text}
-        </p>
-
-        {/* Bottom verified badge */}
-        <div className="mt-4 pt-3 border-t border-white/5 text-[10px] text-slate-500 font-mono uppercase tracking-widest flex items-center gap-1.5 relative z-10">
-          <span style={{color: a.color}}>✓</span> ผู้เรียนจริง · Verified
+        <div>
+          <div className="f-head font-bold tx text-[14.5px]">{r.name}</div>
+          <div className="text-[12px] tx3">{r.role}</div>
         </div>
+        <div className="ml-auto text-[13px]" style={{color:'var(--gold)', letterSpacing:2}}>★★★★★</div>
+      </div>
+      <p className="text-[14px] tx2 whitespace-pre-line" style={{lineHeight:1.8}}>{r.text}</p>
+      <div className="mt-4 pt-3 hairline text-[11px] tx3 f-mono flex items-center gap-1.5">
+        <span className="teal">✓</span> ผู้เรียนจริง · VERIFIED
       </div>
     </div>
   );
 }
 
+function ClassPhotos() {
+  return (
+    <section className="pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="eyebrow">บรรยากาศห้องเรียนจริง</div>
+          <div className="text-[12px] tx3">เลื่อนดูได้ →</div>
+        </div>
+        <div className="strip scrollable">
+          {CLASS_PHOTOS.map((p, i) => (
+            <img key={i} src={p.src} alt={p.caption} title={p.caption} loading="lazy"/>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Testimonials() {
   return (
-    <section className="relative pt-2 pb-16">
+    <section className="pb-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-8">
-          <div className="eyebrow mb-2">— รีวิวจากผู้เรียนจริง</div>
-          <h2 className="font-display font-bold text-2xl sm:text-3xl text-white">
-            <span className="grad-gold">5.0</span> · จากศิษย์เก่า <span className="grad-aurora">ทุกอุตสาหกรรม</span>
+        <div className="text-center mb-7">
+          <div className="eyebrow mb-2">รีวิวจากผู้เรียนจริง</div>
+          <h2 className="f-head font-bold text-2xl tx">
+            <span className="gold">5.0</span> จากศิษย์เก่าทุกอุตสาหกรรม
           </h2>
-          <p className="text-xs text-slate-400 mt-2">ตั้งแต่ Online Marketer · Pet Logistics · Tour · Hotel & Clinic · Event Organizer</p>
+          <p className="text-[13px] tx3 mt-1.5">Online Marketer · Pet Logistics · Tour · Hotel & Clinic · Event Organizer</p>
         </div>
 
-        {/* 5 cards · masonry-ish grid · featured (longest) spans 2 cols on lg */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 auto-rows-max">
           <ReviewCard r={TESTIMONIALS[0]} span="lg:col-span-1"/>
           <ReviewCard r={TESTIMONIALS[1]} span="sm:col-span-2 lg:col-span-2"/>
@@ -1253,15 +1201,14 @@ function Testimonials() {
           <ReviewCard r={TESTIMONIALS[4]} span="lg:col-span-1 sm:col-span-1"/>
         </div>
 
-        {/* Bottom CTA strip */}
-        <div className="glass-gold p-4 sm:p-5 mt-8 flex flex-col sm:flex-row items-center gap-3">
+        <div className="panel p-5 mt-7 flex flex-col sm:flex-row items-center gap-3">
           <span className="text-3xl">⭐</span>
           <div className="flex-1 text-center sm:text-left">
-            <div className="font-display font-bold text-white">รีวิว 5/5 · ผู้เรียนทุกคน</div>
-            <div className="text-[11px] text-slate-300">ส่วนใหญ่กลับมาเรียนต่อ · บางคนแนะนำเพื่อนต่อ</div>
+            <div className="f-head font-bold tx">รีวิว 5/5 จากผู้เรียนทุกคน</div>
+            <div className="text-[12.5px] tx3">ส่วนใหญ่กลับมาเรียนต่อ · หลายคนแนะนำเพื่อนมาเรียน</div>
           </div>
-          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-gold text-xs">
-            💬 ทักไลน์ลองคุย
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="btn btn-quiet text-[13px]">
+            💬 ทักไลน์ลองคุยก่อนได้
           </a>
         </div>
       </div>
@@ -1271,19 +1218,19 @@ function Testimonials() {
 
 function Footer() {
   return (
-    <footer className="border-t border-white/5 py-10 mt-10">
+    <footer className="hairline py-10">
       <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <div className="font-display font-bold text-base flex items-baseline gap-1">
-            <span className="text-white">TON</span><span className="grad-gold">PA</span><span className="grad-teal">LEARN</span>
+          <div className="f-latin font-bold text-base flex items-baseline gap-0.5">
+            <span className="tx">TON</span><span className="lg-gold">PA</span><span className="lg-teal">LEARN</span>
           </div>
-          <div className="text-xs text-slate-500 mt-1">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
+          <div className="text-[12.5px] tx3 mt-1">AI ง่ายขึ้น เมื่อมีต้นพาไป</div>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-400">
-          <a href="/" className="hover:text-white transition">Home</a>
-          <a href="/vdo/" className="hover:text-white transition">VDO</a>
-          <a href="/arsenal/" className="hover:text-white transition">Arsenal</a>
-          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="hover:text-gold-200 transition">LINE</a>
+        <div className="flex items-center gap-5 text-[13px] tx2">
+          <a href="/" className="hover:opacity-70 transition">Home</a>
+          <a href="/vdo/" className="hover:opacity-70 transition">VDO</a>
+          <a href="/arsenal/" className="hover:opacity-70 transition">Arsenal</a>
+          <a href="https://line.me/R/ti/p/@tonpalearn" target="_blank" rel="noopener" className="gold hover:opacity-70 transition">LINE</a>
         </div>
       </div>
     </footer>
@@ -1297,7 +1244,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [bookingPayload, setBookingPayload] = useState(null);
 
-  // Page view + tab switch tracking
   useEffect(() => {
     if (!trackInited) { track('page_view', { mode }); trackInited = true; }
   }, []);
@@ -1318,6 +1264,8 @@ function App() {
       setLoading(false);
     })();
   }, []);
+
+  const openCount = useMemo(() => cohorts.filter(c => cohortState(c).bookable).length, [cohorts]);
 
   const handlePublicBook = (cohort, price, isEB) => {
     track('cohort_click', { cohort_id: cohort.id, course_num: cohort.course_num, price, is_early_bird: isEB });
@@ -1340,13 +1288,13 @@ function App() {
   return (
     <>
       <Nav/>
-      <ClassroomMarquee/>
-      <Hero mode={mode} setMode={setMode}/>
+      <Header mode={mode} setMode={setMode} openCount={openCount}/>
       {mode === 'public' ? (
         <PublicTab cohorts={cohorts} loading={loading} onBook={handlePublicBook}/>
       ) : (
         <PrivateTab onBook={(p) => { track('private_book_click', { course_num: p.course_num, format: p.format, amount: p.amount }); setBookingPayload(p); }}/>
       )}
+      <ClassPhotos/>
       <Testimonials/>
       <Footer/>
       {bookingPayload && <BookingModal payload={bookingPayload} onClose={() => setBookingPayload(null)}/>}
