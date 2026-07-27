@@ -1266,17 +1266,21 @@ function Funnel({ data }) {
 // ──────────────────────────────────────────────────────────
 // COHORTS · Public class scheduling
 // ──────────────────────────────────────────────────────────
+// ⚠️ ราคาต้องตรงกับ AI Course/MASTER.xlsx เสมอ (group = คอลัมน์ Online คนแรก)
+// sync ล่าสุด: 26 ก.ค. 2569 · Course 12 (IT Audit) ไม่ใส่ เพราะเป็น quote-based ขายเฉพาะองค์กร
 const CATALOG_COURSES = [
-  { num:'01', name:'AI Basic',                hrs:2, prices:{group:2000,onsite:3000} },
-  { num:'02', name:'AI Agentic',              hrs:4, prices:{group:3500,onsite:7000} },
-  { num:'03', name:'MCP Connector',           hrs:5, prices:{group:3500,onsite:7000} },
-  { num:'04', name:'LINE ChatBot',            hrs:3, prices:{group:3500,onsite:7000} },
-  { num:'05', name:'AI for Kids',             hrs:3, prices:{group:2000,onsite:3000} },
-  { num:'06', name:'AI for Personal Assistant',hrs:3, prices:{group:2000,onsite:3000} },
-  { num:'08', name:'AI Agentic Web Builder',  hrs:5, prices:{group:3500,onsite:7000} },
-  { num:'09', name:'AI Agentic App Builder',  hrs:5, prices:{group:3500,onsite:7000} },
-  { num:'10', name:'AI Agentic Orchestra',    hrs:4, prices:{group:4500,onsite:9000} },
-  { num:'11', name:'AI Content Creator System',hrs:4, prices:{group:4500,onsite:9000} },
+  { num:'01', name:'AI Basic',                hrs:2, prices:{group:2500,onsite:3000} },
+  { num:'02', name:'AI Agentic',              hrs:4, prices:{group:4500,onsite:7000} },
+  { num:'03', name:'MCP Connector',           hrs:4, prices:{group:4500,onsite:7000} },
+  { num:'04', name:'LINE ChatBot',            hrs:4, prices:{group:4500,onsite:7000} },
+  { num:'05', name:'AI for Kids',             hrs:2, prices:{group:3000,onsite:3000} },
+  { num:'06', name:'AI for Personal Assistant',hrs:2, prices:{group:2500,onsite:3000} },
+  { num:'07', name:'AI for ABOs',             hrs:2, prices:{group:2500,onsite:3000} },
+  { num:'08', name:'AI Agentic Web Builder',  hrs:4, prices:{group:4500,onsite:7000} },
+  { num:'09', name:'AI Agentic App Builder',  hrs:4, prices:{group:6000,onsite:9000} },
+  { num:'10', name:'AI Agentic Orchestra',    hrs:4, prices:{group:6000,onsite:9000} },
+  { num:'11', name:'AI Content Creator System',hrs:4, prices:{group:6000,onsite:9000} },
+  { num:'13', name:'One Person Business Builder', hrs:12, prices:{group:12900,onsite:12900} },
 ];
 
 function Cohorts({ client, showToast }) {
