@@ -433,7 +433,7 @@ function Hero({ mode, setMode }) {
   );
 }
 
-function CohortCard({ cohort, onBook }) {
+function CohortCard({ cohort, onBook, onDetail }) {
   const cardRef = React.useRef(null);
   const viewedRef = React.useRef(false);
 
@@ -469,7 +469,7 @@ function CohortCard({ cohort, onBook }) {
 
   return (
     <div ref={cardRef} className="glass glass-hover overflow-hidden flex flex-col">
-      <div className="cohort-cover" style={cohort.cover_url ? { backgroundImage: `url(${cohort.cover_url})` } : {}}>
+      <div className="cohort-cover" onClick={() => onDetail(cohort)} style={{cursor:'pointer', ...(cohort.cover_url ? { backgroundImage: `url(${cohort.cover_url})` } : {})}}>
         {!cohort.cover_url && <div className="placeholder-icon">🎓</div>}
         {cohort.is_featured && (
           <div className="absolute top-3 left-3 pill text-[10px]" style={{background:'rgba(230,184,75,0.20)', borderColor:'rgba(245,214,122,0.50)', color:'#F5D67A', zIndex:1}}>
@@ -487,7 +487,7 @@ function CohortCard({ cohort, onBook }) {
 
       <div className="p-5 flex-1 flex flex-col">
         <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{cohort.format_label} · {cohort.duration_hours} ชม.</div>
-        <div className="font-display font-bold text-lg text-white mt-0.5 line-clamp-2">{cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}</div>
+        <div onClick={() => onDetail(cohort)} className="font-display font-bold text-lg text-white mt-0.5 line-clamp-2" style={{cursor:'pointer'}}>{cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}</div>
 
         <div className="mt-3 flex items-center gap-2 text-xs text-slate-300">
           <span>📅</span>
@@ -506,7 +506,11 @@ function CohortCard({ cohort, onBook }) {
                   <span className="line-clamp-2">{b}</span>
                 </li>
               ))}
-              {cohort.what_you_learn.length > 3 && <li className="text-[10px] text-slate-500 italic">+ {cohort.what_you_learn.length - 3} หัวข้ออื่นๆ</li>}
+              {cohort.what_you_learn.length > 3 && (
+                <li><button onClick={() => onDetail(cohort)} className="text-[10px] italic underline underline-offset-2" style={{color:'#E6B84B'}}>
+                  + อีก {cohort.what_you_learn.length - 3} หัวข้อ · ดูรายละเอียดทั้งหมด
+                </button></li>
+              )}
             </ul>
           </div>
         )}
@@ -552,6 +556,7 @@ function CohortCard({ cohort, onBook }) {
                 style={isFull || isCancelled ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
           {isFull ? '🔒 เต็มแล้ว' : isCancelled ? '❌ ยกเลิก' : isConfirmed ? '🎫 จองที่นั่ง · ฿' + fmtTHB(displayPrice) : '⏳ Pre-Book · ฿' + fmtTHB(displayPrice)}
         </button>
+        <button onClick={() => onDetail(cohort)} className="btn btn-ghost w-full justify-center mt-2 text-xs">📋 ดูรายละเอียดคอร์สแบบเต็ม</button>
         {!isConfirmed && !isCancelled && !isFull && (
           <div className="text-[9px] text-slate-500 text-center mt-1.5">💛 ครบ {minConfirm} คน → ยืนยันเปิดเรียน · ถ้าไม่ครบ คืนเงินเต็ม</div>
         )}
@@ -560,8 +565,149 @@ function CohortCard({ cohort, onBook }) {
   );
 }
 
+function CohortDetailModal({ cohort, onBook, onClose }) {
+  useEffect(() => {
+    track('cohort_detail_open', { cohort_id: cohort.id, course_num: cohort.course_num });
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const esc = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', esc);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', esc); };
+  }, []);
+
+  const seats = cohort.seats_taken || 0;
+  const minConfirm = cohort.min_to_confirm || 4;
+  const maxSeats = cohort.max_seats || 10;
+  const isConfirmed = cohort.status === 'confirmed' || cohort.status === 'full' || seats >= minConfirm;
+  const isFull = seats >= maxSeats;
+  const isCancelled = cohort.status === 'cancelled';
+  const ebActive = !!(cohort.early_bird_price_thb && cohort.early_bird_deadline && daysLeft(cohort.early_bird_deadline) > 0);
+  const displayPrice = ebActive ? cohort.early_bird_price_thb : cohort.price_thb;
+  const seatsToConfirm = Math.max(0, minConfirm - seats);
+  const seatsRemaining = Math.max(0, maxSeats - seats);
+  const progressPct = Math.min(100, (seats / minConfirm) * 100);
+
+  const Meta = ({ icon, label, value }) => (
+    <div className="glass-soft px-4 py-3">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">{label}</div>
+      <div className="text-sm text-white font-semibold mt-0.5">{icon} {value}</div>
+    </div>
+  );
+
+  const Bullets = ({ title, items, color, mark }) => (
+    (items && items.length > 0) ? (
+      <div className="mt-6">
+        <div className="text-[11px] font-mono uppercase tracking-widest mb-2" style={{color}}>— {title}</div>
+        <ul className="space-y-2">
+          {items.map((b, i) => (
+            <li key={i} className="text-sm text-slate-300 flex items-start gap-2.5 leading-relaxed">
+              <span style={{color, marginTop:2, flex:'none'}}>{mark}</span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center px-3 sm:px-4 overflow-y-auto" onClick={onClose}>
+      <div className="glass-strong max-w-3xl w-full my-6 overflow-hidden" onClick={e => e.stopPropagation()}>
+
+        <div className="relative border-b border-white/10" style={{background:'rgba(8,8,15,0.6)'}}>
+          <button onClick={onClose} aria-label="ปิด"
+                  className="btn btn-ghost absolute top-3 right-3 text-sm"
+                  style={{zIndex:3, background:'rgba(8,8,15,0.85)', backdropFilter:'blur(10px)'}}>✕</button>
+          <div className="absolute top-3 left-3 flex gap-2" style={{zIndex:3}}>
+            {isCancelled && <span className="pill-status st-declined">❌ ยกเลิก</span>}
+            {!isCancelled && isFull && <span className="pill-status st-expired">🔒 เต็มแล้ว</span>}
+            {!isCancelled && !isFull && isConfirmed && <span className="pill-status st-paid">✅ Confirmed</span>}
+            {!isCancelled && !isFull && !isConfirmed && <span className="pill-status st-pending">⏳ Pre-booking</span>}
+          </div>
+          {cohort.cover_url ? (
+            // โชว์ปกเต็มใบ ไม่ครอป — ปกบางคอร์สเป็นโปสเตอร์แนวตั้งที่มีข้อมูลครบอยู่ในภาพ
+            <img src={cohort.cover_url} alt={cohort.title || cohort.course_name}
+                 style={{display:'block', width:'100%', height:'auto'}}/>
+          ) : (
+            <div className="cohort-cover" style={{height:200}}><div className="placeholder-icon">🎓</div></div>
+          )}
+        </div>
+
+        <div className="px-5 sm:px-7 py-6 max-h-[62vh] overflow-y-auto scrollable">
+
+          <div className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
+            {cohort.cohort_no ? cohort.cohort_no + ' · ' : ''}{cohort.format_label} · {cohort.duration_hours} ชม.
+          </div>
+          <h2 className="font-display font-bold text-xl sm:text-2xl text-white mt-1 mb-5 leading-snug">
+            {cohort.title || `Course ${cohort.course_num} · ${cohort.course_name}`}
+          </h2>
+
+          <div className="grid sm:grid-cols-3 gap-2.5">
+            <Meta icon="📅" label="วันเรียน" value={`${fmtDate(cohort.start_date)} (${fmtDay(cohort.start_date)})`}/>
+            <Meta icon="⏰" label="เวลา" value={`${cohort.start_time} · ${cohort.duration_hours} ชม.`}/>
+            <Meta icon="📍" label="รูปแบบ" value={cohort.format_label}/>
+          </div>
+
+          {cohort.description && (
+            <div className="mt-6 text-sm text-slate-300 leading-relaxed" style={{whiteSpace:'pre-wrap'}}>
+              {cohort.description}
+            </div>
+          )}
+
+          <Bullets title="จะได้เรียนอะไร" items={cohort.what_you_learn} color="#E6B84B" mark="▸"/>
+          <Bullets title="จะได้อะไรกลับ" items={cohort.what_you_get} color="#5EEAD4" mark="✓"/>
+
+          <div className="glass-soft p-4 mt-7">
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="text-slate-400">👥 ที่นั่ง</span>
+              <span className={isConfirmed ? 'text-teal-300' : 'text-slate-300'}>
+                {seats} / {maxSeats}
+                {!isConfirmed && seatsToConfirm > 0 && <span className="ml-1" style={{color:'#F5D67A'}}>· ขาดอีก {seatsToConfirm} คน จึงเปิดเรียน</span>}
+                {isConfirmed && seatsRemaining > 0 && <span className="text-teal-300 ml-1">· เหลือ {seatsRemaining} ที่</span>}
+              </span>
+            </div>
+            <div className={`seat-bar ${isConfirmed ? 'seat-bar-confirmed' : ''}`}>
+              <div className="seat-bar-fill" style={{ width: `${progressPct}%` }}/>
+            </div>
+            {!isConfirmed && !isCancelled && !isFull && (
+              <div className="text-[11px] text-slate-400 mt-2.5">💛 ครบ {minConfirm} คน → ยืนยันเปิดเรียน · ถ้าไม่ครบถึงกำหนด คืนเงินเต็ม 100%</div>
+            )}
+          </div>
+
+        </div>
+
+        <div className="px-5 sm:px-7 py-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3"
+             style={{background:'rgba(8,8,15,0.95)', backdropFilter:'blur(20px)'}}>
+          <div>
+            <div className="flex items-baseline gap-2">
+              {ebActive && cohort.early_bird_price_thb !== cohort.price_thb && (
+                <span className="text-sm text-slate-500 line-through">฿{fmtTHB(cohort.price_thb)}</span>
+              )}
+              <span className="font-display font-bold text-3xl grad-gold">฿{fmtTHB(displayPrice)}</span>
+              {ebActive && (
+                <span className="pill text-[9px]" style={{background:'rgba(239,68,68,0.15)', borderColor:'rgba(239,68,68,0.40)', color:'#FCA5A5'}}>🔥 Early Bird</span>
+              )}
+            </div>
+            {ebActive && (
+              <div className="text-[11px] text-red-300 mt-0.5">หมดเขต {fmtDateShort(cohort.early_bird_deadline)} · เหลือ {daysLeft(cohort.early_bird_deadline)} วัน</div>
+            )}
+          </div>
+          <button onClick={() => { onClose(); onBook(cohort, displayPrice, ebActive); }}
+                  disabled={isFull || isCancelled}
+                  className="btn btn-gold justify-center"
+                  style={isFull || isCancelled ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
+            {isFull ? '🔒 เต็มแล้ว' : isCancelled ? '❌ ยกเลิก' : isConfirmed ? '🎫 จองที่นั่ง' : '⏳ Pre-Book เลย'}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 function PublicTab({ cohorts, loading, onBook }) {
   const [filter, setFilter] = useState('all');
+  const [detail, setDetail] = useState(null);
   const filtered = useMemo(() => {
     let f = cohorts;
     if (filter === 'open') f = f.filter(c => ['open','confirmed'].includes(c.status) && (c.seats_taken||0) < (c.max_seats||10));
@@ -599,9 +745,11 @@ function PublicTab({ cohorts, loading, onBook }) {
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map(c => <CohortCard key={c.id} cohort={c} onBook={onBook}/>)}
+            {filtered.map(c => <CohortCard key={c.id} cohort={c} onBook={onBook} onDetail={setDetail}/>)}
           </div>
         )}
+
+        {detail && <CohortDetailModal cohort={detail} onBook={onBook} onClose={() => setDetail(null)}/>}
 
         <div className="glass-soft p-4 mt-8 text-xs text-slate-300 flex items-center gap-3">
           <span className="text-2xl">🛡️</span>
