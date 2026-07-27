@@ -556,11 +556,19 @@ function CohortCard({ cohort, onBook, onDetail, index }) {
 // DETAIL — โปสเตอร์ซ้าย เนื้อหาขวา · ตัวหนังสือใหญ่อ่านสบาย
 // ──────────────────────────────────────────────
 function CohortDetailModal({ cohort, onBook, onClose }) {
+  const [zoom, setZoom] = useState(false);          // lightbox ดูโปสเตอร์เต็มจอ
+  const zoomRef = React.useRef(false);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+
   useEffect(() => {
     track('cohort_detail_open', { cohort_id: cohort.id, course_num: cohort.course_num });
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const esc = (e) => { if (e.key === 'Escape') onClose(); };
+    const esc = (e) => {
+      if (e.key !== 'Escape') return;
+      if (zoomRef.current) { setZoom(false); }      // Esc ครั้งแรกปิดภาพใหญ่ก่อน
+      else onClose();
+    };
     window.addEventListener('keydown', esc);
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', esc); };
   }, []);
@@ -603,8 +611,16 @@ function CohortDetailModal({ cohort, onBook, onClose }) {
             {/* poster — เต็มใบ ไม่ครอป */}
             <div className="md:sticky md:top-0 self-start">
               {cohort.cover_url ? (
-                <img src={cohort.cover_url} alt={cohort.title || cohort.course_name}
-                     className="w-full h-auto rounded-xl border" style={{borderColor:'var(--line)'}}/>
+                <>
+                  <img src={cohort.cover_url} alt={cohort.title || cohort.course_name}
+                       onClick={() => setZoom(true)}
+                       className="w-full h-auto rounded-xl border"
+                       style={{borderColor:'var(--line)', cursor:'zoom-in'}}/>
+                  <button onClick={() => setZoom(true)}
+                          className="mt-2 w-full text-center text-[12px] tx3 hover:opacity-70 transition">
+                    🔍 กดที่ภาพเพื่อดูขนาดใหญ่
+                  </button>
+                </>
               ) : (
                 <div className="cover rounded-xl border" style={{borderColor:'var(--line)'}}>
                   <div className="absolute inset-0 flex items-center justify-center text-6xl opacity-20">🎓</div>
@@ -651,6 +667,24 @@ function CohortDetailModal({ cohort, onBook, onClose }) {
             </div>
           </div>
         </div>
+
+        {/* lightbox — ดูโปสเตอร์เต็มจอ */}
+        {zoom && cohort.cover_url && (
+          <div className="fixed inset-0 flex items-center justify-center p-3 sm:p-6"
+               style={{zIndex:70, background:'rgba(5,6,9,.92)', backdropFilter:'blur(4px)', cursor:'zoom-out'}}
+               onClick={(e) => { e.stopPropagation(); setZoom(false); }}>
+            <img src={cohort.cover_url} alt={cohort.title || cohort.course_name}
+                 style={{maxWidth:'96vw', maxHeight:'94vh', width:'auto', height:'auto',
+                         borderRadius:12, boxShadow:'0 30px 80px rgba(0,0,0,.6)'}}/>
+            <button aria-label="ปิดภาพใหญ่"
+                    onClick={(e) => { e.stopPropagation(); setZoom(false); }}
+                    className="btn"
+                    style={{position:'fixed', top:14, right:14, background:'rgba(255,255,255,.12)',
+                            color:'#fff', border:'1px solid rgba(255,255,255,.25)', padding:'8px 14px'}}>✕</button>
+            <div style={{position:'fixed', bottom:16, left:0, right:0, textAlign:'center',
+                         color:'rgba(255,255,255,.55)', fontSize:12}}>กดที่ใดก็ได้เพื่อปิด</div>
+          </div>
+        )}
 
         {/* sticky price footer */}
         <div className="sticky-bar px-5 sm:px-7 py-4 border-t flex flex-wrap items-center justify-between gap-3" style={{borderColor:'var(--line)'}}>
