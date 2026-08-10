@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light" style="--fs: 1;"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agentic Corporate Training — Proposal · AUTOCORP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fs:1;
+  --bg:#07060f; --grad1:rgba(99,102,241,.30); --grad2:rgba(192,132,252,.22); --grad3:rgba(16,185,129,.16);
+  --surf:rgba(255,255,255,.05); --surf2:rgba(255,255,255,.075); --bd:rgba(255,255,255,.11); --bd2:rgba(255,255,255,.17);
+  --txt:#e9e8f2; --ts:#bcbbcb; --tf:#8a899e; --shadow:0 12px 34px -12px rgba(0,0,0,.55);
+  --ind:#a5b4fc; --emr:#6ee7b7; --sky:#7dd3fc; --vio:#c4b5fd; --amb:#fcd34d; --ros:#fda4af; --slate:#cbd5e1;
+}
+[data-theme=light]{
+  --bg:#f5f6fb; --grad1:rgba(99,102,241,.14); --grad2:rgba(168,85,247,.10); --grad3:rgba(16,185,129,.10);
+  --surf:rgba(20,22,55,.030); --surf2:#ffffff; --bd:rgba(20,22,55,.11); --bd2:rgba(20,22,55,.18);
+  --txt:#1a1d2b; --ts:#4d5266; --tf:#868ba0; --shadow:0 8px 26px -10px rgba(30,34,80,.18);
+  --ind:#4f46e5; --emr:#059669; --sky:#0284c7; --vio:#7c3aed; --amb:#b45309; --ros:#e11d48; --slate:#475569;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; font-size:calc(16px * var(--fs))}
+body{margin:0; font-family:'IBM Plex Sans Thai',system-ui,sans-serif; background:var(--bg); color:var(--txt); -webkit-font-smoothing:antialiased; line-height:1.7; transition:background .3s,color .3s}
+.aurora{position:fixed; inset:0; z-index:-1; background:
+   radial-gradient(55rem 55rem at 12% -10%, var(--grad1), transparent 60%),
+   radial-gradient(45rem 45rem at 92% 4%, var(--grad2), transparent 60%),
+   radial-gradient(50rem 50rem at 80% 98%, var(--grad3), transparent 60%); }
+.disp{font-family:'Space Grotesk','IBM Plex Sans Thai',sans-serif}
+.mono{font-family:ui-monospace,Menlo,monospace}
+.wrap{max-width:1080px; margin:0 auto; padding:0 18px 110px}
+.card{background:var(--surf2); border:1px solid var(--bd); border-radius:16px; box-shadow:var(--shadow); backdrop-filter:blur(12px)}
+.panel{background:var(--surf); border:1px solid var(--bd); border-radius:12px}
+.ts{color:var(--ts)} .tf{color:var(--tf)}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; padding:3px 9px; border-radius:7px; background:color-mix(in srgb, var(--c,var(--ind)) 15%, transparent); color:var(--c,var(--ind)); border:1px solid color-mix(in srgb, var(--c,var(--ind)) 34%, transparent)}
+.h2{font-size:1.25rem; font-weight:800; letter-spacing:-.01em}
+.h3{font-size:1.02rem; font-weight:800}
+.num{flex:none; width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.82rem; background:color-mix(in srgb,var(--ind) 18%,transparent); color:var(--ind); border:1px solid color-mix(in srgb,var(--ind) 30%,transparent)}
+table{width:100%; border-collapse:collapse; font-size:.85rem}
+th{text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:var(--tf); padding:9px 11px; border-bottom:1px solid var(--bd)}
+td{padding:9px 11px; border-bottom:1px solid color-mix(in srgb,var(--bd) 55%,transparent); vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.tot td{font-weight:800; border-top:2px solid var(--bd2)}
+.ctrls{display:flex; gap:5px; align-items:center; flex:none}
+.ctrlbtn{cursor:pointer; border:1px solid var(--bd); background:var(--surf2); color:var(--ts); border-radius:8px; padding:5px 8px; font-size:.74rem; font-weight:700; font-family:inherit}
+.ctrlbtn:hover{color:var(--txt); border-color:var(--bd2)} .ctrlbtn.on{background:var(--ind); color:#fff; border-color:var(--ind)}
+nav{position:sticky; top:0; z-index:40; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--bd); margin-bottom:18px}
+.navin{max-width:1080px; margin:0 auto; padding:7px 18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; row-gap:5px}
+.navlinks{display:flex; gap:4px; overflow-x:auto; flex:1; min-width:0}
+.navlinks a{flex:none; cursor:pointer; padding:8px 11px; font-size:.78rem; font-weight:700; color:var(--ts); border-radius:9px; text-decoration:none; white-space:nowrap}
+.navlinks a:hover{color:var(--txt)} .navlinks a.on{background:var(--ind); color:#fff}
+.navdiv{width:1px; height:20px; background:var(--bd2); flex:none}
+ul.cl{list-style:none; padding:0; margin:8px 0}
+ul.cl li{position:relative; padding-left:20px; margin-bottom:6px}
+ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; height:6px; border-radius:2px; background:var(--ind)}
+.sec{scroll-margin-top:60px}
+.fgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:11px}
+.fcard{padding:14px; border-radius:13px; background:var(--surf2); border:1px solid var(--bd); border-top:3px solid var(--c,var(--ind))}
+.fcard h4{margin:0 0 3px; font-size:.92rem; display:flex; align-items:center; gap:7px}
+.flow{display:flex; flex-direction:column; gap:0; margin:10px 0}
+.frow{display:grid; grid-template-columns:118px 1fr; gap:12px; align-items:stretch}
+.factor{font-size:.74rem; font-weight:700; color:var(--txt); display:flex; align-items:center; gap:6px; padding:9px 0}
+.factor .dot{width:9px; height:9px; border-radius:3px; background:var(--c,var(--ind)); flex:none}
+.fstep{position:relative; padding:9px 12px 9px 14px; margin:4px 0; border-radius:11px; background:var(--surf); border:1px solid var(--bd); font-size:.82rem}
+.fstep::before{content:''; position:absolute; left:-6.5px; top:14px; width:11px; height:11px; border-radius:50%; background:var(--c,var(--ind)); border:2px solid var(--bg)}
+.fstep b{color:var(--c,var(--ind))}
+.farrow{text-align:center; color:var(--tf); font-size:.9rem; line-height:1; margin:-1px 0}
+.note{background:color-mix(in srgb,var(--amb) 12%,transparent); border:1px solid color-mix(in srgb,var(--amb) 30%,transparent); border-radius:10px; padding:10px 13px; font-size:.83rem}
+.classhead{display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px 12px 0 0; border:1px solid var(--bd); border-bottom:none}
+.classbody{border:1px solid var(--bd); border-top:none; border-radius:0 0 12px 12px; overflow:hidden; margin-bottom:20px}
+.deliv{display:flex; gap:8px; align-items:flex-start; padding:11px 16px; background:color-mix(in srgb,var(--emr) 9%,transparent); border-top:1px solid var(--bd); font-size:.82rem}
+.ez.editing{outline:1.5px dashed color-mix(in srgb,var(--ind) 50%,transparent); outline-offset:7px; border-radius:12px}
+#editHint{display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; text-align:center; padding:9px 14px; background:color-mix(in srgb,var(--ind) 92%, #000); color:#fff; font-size:.8rem; font-weight:700; box-shadow:0 -6px 20px -8px rgba(0,0,0,.45)}
+#editHint.show{display:block}
+@media print{ nav .ctrls,.noprint,#editHint{display:none!important} .aurora{display:none} body{background:#fff;color:#000} .card{box-shadow:none;border:1px solid #ccc; break-inside:avoid} nav{position:static} }
+@media(max-width:640px){.sow-grid{grid-template-columns:1fr!important} .frow{grid-template-columns:1fr} .factor{padding:4px 0}}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="wrap ez" id="z-head">
+  <header style="padding:24px 0 12px">
+    <span class="chip" style="--c:var(--ind)">📄 PROPOSAL</span>
+    <span class="chip" style="--c:var(--emr)">AI Agentic Corporate Training</span>
+    <h1 class="disp" style="font-size:1.9rem; font-weight:800; margin:12px 0 4px; letter-spacing:-.02em">AI Agentic Corporate Training</h1>
+    <div class="ts" style="font-size:.92rem">ข้อเสนอโครงการฝึกอบรม 4 Class · <span contenteditable="true" style="border-bottom:1px dashed var(--bd2)">AUTOCORP</span> · โดย TONPALEARN</div>
+    <div class="panel" style="margin-top:16px; padding:12px 16px; display:flex; flex-wrap:wrap; gap:18px; font-size:.84rem">
+      <div><span class="tf">จำนวน Class</span> <b style="color:var(--ind)">4</b></div>
+      <div><span class="tf">ผู้เข้าอบรมรวม</span> <b>70 คน</b></div>
+      <div><span class="tf">ระยะเวลารวม</span> <b>4 วัน · วันละครึ่งวัน</b></div>
+      <div><span class="tf">มูลค่ารวม</span> <b style="color:var(--ind)">฿226,000</b></div>
+      <div><span class="tf">วันที่</span> <b>11 ส.ค. 2569</b></div>
+    </div>
+  </header>
+</div>
+
+<nav><div class="navin">
+  <div class="navlinks" id="nav">
+    <a href="#s1">ภาพรวม</a>
+    <a href="#s2">โครงสร้าง 4 Class</a>
+    <a href="#s3">เนื้อหาแต่ละ Session</a>
+    <a href="#s4">Flow การเรียน</a>
+    <a href="#s5">ตารางเวลา</a>
+    <a href="#s6">ราคา</a>
+    <a href="#s7">เงื่อนไข</a>
+  </div>
+  <div class="navdiv"></div>
+  <div class="ctrls noprint" title="ธีม / ขนาดตัวอักษร">
+    <button class="ctrlbtn" data-th="auto" title="ตามระบบ">Auto</button>
+    <button class="ctrlbtn on" data-th="light" title="สว่าง">☀</button>
+    <button class="ctrlbtn" data-th="dark" title="มืด">🌙</button>
+    <span class="navdiv" style="margin:0 2px"></span>
+    <button class="ctrlbtn" data-fs="dn" title="เล็กลง">A−</button>
+    <button class="ctrlbtn on" data-fs="rs" title="ปกติ">A</button>
+    <button class="ctrlbtn" data-fs="up" title="ใหญ่ขึ้น">A+</button>
+    <span class="navdiv" style="margin:0 2px"></span>
+    <button class="ctrlbtn" id="editBtn" title="แก้ไขเอกสาร — คลิกที่ข้อความเพื่อแก้ได้เลย">✏️ แก้ไข</button>
+    <button class="ctrlbtn" id="dlBtn" title="บันทึกเป็นไฟล์ HTML ที่แก้แล้ว">💾</button>
+    <button class="ctrlbtn" id="resetBtn" title="คืนต้นฉบับ (ล้างการแก้ไข)">↺</button>
+    <button class="ctrlbtn" onclick="window.print()" title="พิมพ์ / บันทึก PDF">🖨</button>
+  </div>
+</div></nav>
+
+<div class="wrap ez" id="z-body">
+
+  <!-- 1 Overview -->
+  <section id="s1" class="sec card" style="padding:24px; margin-top:8px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">1</div><div class="h2 disp">ภาพรวมโครงการ</div></div>
+    <p style="margin-top:0">Training AI Agentic แบบ <b>แยกตามระดับผู้เรียน</b> — แต่ละกลุ่มในองค์กรใช้ AI ต่างจุดประสงค์กัน ผู้บริหารต้องเห็นศักยภาพเพื่อตัดสินใจ พนักงานต้องใช้งานได้จริงทุกวัน และทีม IT ต้องสร้าง/ดูแลเครื่องมือเองได้ — ออกแบบให้ทุกกลุ่มเริ่มจาก <b>ฐานความเข้าใจเดียวกัน</b> ก่อนแยกไปตามความลึกที่ต้องใช้จริง</p>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:6px" class="sow-grid">
+      <div class="panel" style="padding:13px; border-left:3px solid var(--emr)"><b>🎯 Pain Point</b><div class="ts" style="font-size:.82rem; margin-top:3px">สอน AI แบบเดียวทั้งองค์กร → ผู้บริหารเบื่อเพราะง่ายไป พนักงานงงเพราะยากไป ไม่มีใครได้ของที่ใช้ได้จริงกับบทบาทตัวเอง</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--ind)"><b>💡 แนวทาง</b><div class="ts" style="font-size:.82rem; margin-top:3px"><b>ฐานร่วม (Common) 4 ชม.</b> ก่อนเสมอ → แยก 3 เส้นทางตามบทบาท: โชว์ศักยภาพ (ผู้บริหาร) · ลงมือใช้จริง (Staff) · สร้างเครื่องมือเอง (Developer)</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--vio)"><b>⚙️ เครื่องมือหลัก</b><div class="ts" style="font-size:.82rem; margin-top:3px">Claude Cowork (Setup + Connector + Skill) · Claude Code (Multi-agent + SDLC) — ไม่ต้อง code เป็นสำหรับ 3 กลุ่มแรก</div></div>
+    </div>
+  </section>
+
+  <!-- 2 Structure -->
+  <section id="s2" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">2</div><div class="h2 disp">โครงสร้าง 4 Class</div></div>
+    <div style="overflow-x:auto"><table style="min-width:620px"><thead><tr><th>Class</th><th>ระยะเวลา</th><th>จำนวนคน</th><th>ต่อจาก</th></tr></thead><tbody>
+      <tr><td><b style="color:var(--ind)">1 · Common</b><div class="tf" style="font-size:.75rem">ภาพรวม AI + User Preference + บุคลิก AI</div></td><td>4 ชม.</td><td>30 คน</td><td class="ts">เริ่มต้น — ทุกคนจากกลุ่ม 2+3 เข้าร่วม</td></tr>
+      <tr><td><b style="color:var(--amb)">2 · Top Management</b><div class="tf" style="font-size:.75rem">โชว์ศักยภาพ Multi-agent + Brainstorm</div></td><td>4 ชม.</td><td>20 คน</td><td class="ts">ต่อจาก Class 1 (Common)</td></tr>
+      <tr><td><b style="color:var(--emr)">3 · Key Person / Staff</b><div class="tf" style="font-size:.75rem">Workshop ลงมือใช้จริง</div></td><td>4 ชม.</td><td>10 คน</td><td class="ts">ต่อจาก Class 1 (Common)</td></tr>
+      <tr><td><b style="color:var(--vio)">4 · Developer</b><div class="tf" style="font-size:.75rem">Claude Code Technical + SDLC</div></td><td>4 ชม.</td><td>10 คน</td><td class="ts">แยกอิสระ — ไม่ต้องผ่าน Common</td></tr>
+    </tbody></table></div>
+    <div class="note" style="margin-top:12px">จัดแยก <b>4 วัน ครึ่งวัน</b> — 1 Class ต่อ 1 วัน วิทยากรคนเดียวพอทุกวัน ไม่ต้องเช่าห้องคู่ขนาน (รายละเอียดตารางเวลาดู §5)</div>
+  </section>
+
+  <!-- 3 Session Detail -->
+  <section id="s3" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">3</div><div class="h2 disp">เนื้อหาแต่ละ Session — ผู้เรียนจะได้อะไร</div></div>
+    <p class="ts" style="font-size:.84rem; margin-top:0">แบ่งเป็น Module ตามช่วงเวลาจริง · ปรับ Custom Example ให้ตรงธุรกิจลูกค้าในทุก Class</p>
+
+    <!-- Class 1 -->
+    <div class="classhead" style="--c:var(--ind); background:color-mix(in srgb,var(--ind) 8%,transparent)"><span class="chip" style="--c:var(--ind)">4 ชม. · 30 คน</span><div class="h3 disp">Class 1 · Common — พื้นฐานการใช้ AI</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:26%">Module</th><th style="width:16%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. AI คืออะไร</b></td><td>45 นาที</td><td>ภาพรวม AI ยุคปัจจุบัน · AI Agentic ต่างจาก AI Chat ทั่วไป (ChatGPT/Copilot) อย่างไร · Demo เห็นภาพ End-to-End ว่า Agentic Workflow หน้าตาเป็นยังไง</td></tr>
+        <tr><td><b>2. สร้าง User Preference ที่ดี</b></td><td>75 นาที<div class="tf" style="font-size:.72rem">ทฤษฎี 30 + Workshop 45</div></td><td>Project Instruction คือ "DNA" ของ AI ผู้ช่วย · องค์ประกอบที่ต้องมี: Role / Context / Tone / Output Format · <b>Workshop:</b> เขียน User Preference ของตัวเองจากงานจริง</td></tr>
+        <tr><td><b>3. ใส่บุคลิก (Persona) ให้ AI</b></td><td>75 นาที<div class="tf" style="font-size:.72rem">ทฤษฎี 30 + Workshop 45</div></td><td>ทำไมต้องมีบุคลิก — AI ที่มีบุคลิกทำงานกับคนได้เป็นธรรมชาติกว่า · โครงสร้าง Persona ที่ใช้ได้จริง · <b>Workshop:</b> สร้าง Persona 1 ตัวสำหรับงานที่ใช้บ่อยที่สุด</td></tr>
+        <tr><td><b>4. สรุป + เชื่อมสู่ขั้นถัดไป</b></td><td>45 นาที</td><td>ทดสอบเปรียบเทียบ AI ก่อน/หลังตั้งค่า Preference+Persona ให้เห็นความต่างชัดเจน · Q&amp;A</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ได้กลับไป:</b> User Preference ของตัวเอง 1 ชุด + Persona AI อย่างน้อย 1 ตัว ที่ใช้งานต่อได้ทันที</div></div>
+    </div>
+
+    <!-- Class 2 -->
+    <div class="classhead" style="--c:var(--amb); background:color-mix(in srgb,var(--amb) 8%,transparent)"><span class="chip" style="--c:var(--amb)">4 ชม. · 20 คน</span><div class="h3 disp">Class 2 · Top Management</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:26%">Module</th><th style="width:16%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. Recap + มุมมองกลยุทธ์</b></td><td>20 นาที</td><td>เชื่อมโยงจาก Common สู่การตัดสินใจระดับผู้บริหาร — จะใช้ AI ตรงไหนเพื่อสร้างมูลค่า ไม่ใช่แค่ประหยัดเวลา</td></tr>
+        <tr><td><b>2. Multi-agent Panel Review</b></td><td>60 นาที<div class="tf" style="font-size:.72rem">Demo สด</div></td><td>ให้ AI หลายมุมมองช่วยกลั่นกรองการตัดสินใจก่อนถึงมือผู้บริหาร · Demo สดด้วยโจทย์การตัดสินใจจริงขององค์กร</td></tr>
+        <tr><td><b>3. สร้าง Dashboard จากข้อมูลจริง</b></td><td>60 นาที<div class="tf" style="font-size:.72rem">Demo สด</div></td><td>ดึงข้อมูลจริงของบริษัท → ให้ AI วิเคราะห์ → ได้ Dashboard พร้อมใช้ภายในไม่กี่นาที (ไม่ต้องรอทีม IT)</td></tr>
+        <tr><td><b>4. กรณีศึกษา "ว้าว"</b></td><td>40 นาที</td><td>เคสการใช้ AI ระดับผู้บริหารจากอุตสาหกรรมใกล้เคียง ปรับให้ตรงบริบทลูกค้า</td></tr>
+        <tr><td><b>5. Brainstorm + Q&amp;A</b></td><td>60 นาที</td><td>Facilitate ให้ผู้บริหารช่วยกันคิดและจัดลำดับว่าจุดไหนในองค์กรที่อยากเอา AI ไปใช้ก่อน</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ได้กลับไป:</b> Roadmap แนวคิดการใช้ AI ระดับองค์กร (สรุปจาก Brainstorm) พร้อมลำดับความสำคัญ</div></div>
+    </div>
+
+    <!-- Class 3 -->
+    <div class="classhead" style="--c:var(--emr); background:color-mix(in srgb,var(--emr) 8%,transparent)"><span class="chip" style="--c:var(--emr)">4 ชม. · 10 คน</span><div class="h3 disp">Class 3 · Staff (Key Person) — Workshop</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:26%">Module</th><th style="width:16%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. Recap + ตั้งเป้า Workshop</b></td><td>15 นาที</td><td>ทบทวน Common สั้น ๆ · แต่ละคนตั้งเป้าว่าจะสร้าง Skill อะไรวันนี้</td></tr>
+        <tr><td><b>2. Setup Claude Cowork</b></td><td>45 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ติดตั้ง + สร้าง Project จริง + ใช้ User Preference ที่เขียนไว้จาก Class 1</td></tr>
+        <tr><td><b>3. Connector — เชื่อม App จริง</b></td><td>60 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>เชื่อม Google Sheets / Notion / Gmail ที่ใช้งานอยู่จริง · สั่งงานข้าม App ในคำสั่งเดียว (อ่านชีท→สรุป→ส่งอีเมล)</td></tr>
+        <tr><td><b>4. สร้าง Skill จาก Use Case จริง</b></td><td>75 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>4 ขั้นตอนสร้าง Skill จากงานประจำวันของตัวเอง (Trigger→Context→Steps→Output) + ทดสอบจนได้ผลลัพธ์ที่ใช้ได้</td></tr>
+        <tr><td><b>5. นำเสนอ + Workflow Map</b></td><td>45 นาที</td><td>แต่ละคนโชว์ Skill ที่สร้าง · วางแผน AI Workflow ในงานประจำวัน 30 วัน</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ได้กลับไป:</b> Skill ใช้งานได้จริง 1 ตัวต่อคน + Workflow Map ส่วนตัว 30 วัน</div></div>
+    </div>
+
+    <!-- Class 4 -->
+    <div class="classhead" style="--c:var(--vio); background:color-mix(in srgb,var(--vio) 8%,transparent)"><span class="chip" style="--c:var(--vio)">4 ชม. · 10 คน</span><div class="h3 disp">Class 4 · Developer — Claude Code Technical</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:26%">Module</th><th style="width:16%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. Claude Code คืออะไร</b></td><td>20 นาที</td><td>ต่างจาก Claude ทั่วไปยังไง · เหมาะกับงานพัฒนาระบบแบบไหน</td></tr>
+        <tr><td><b>2. สร้าง Multi-agent Team</b></td><td>60 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ตั้งตำแหน่ง BA / SA / Dev / Tester ให้ AI แต่ละตัว แบ่งหน้าที่ชัดเจนว่าใครทำอะไร ใครห้ามทำอะไร</td></tr>
+        <tr><td><b>3. เขียน PRD จากโจทย์จริง</b></td><td>45 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ให้ Agent-BA เก็บ Requirement จริงจากทีม แล้วเรียบเรียงเป็น PRD ที่ทีมใช้อ้างอิงต่อได้</td></tr>
+        <tr><td><b>4. System Design + Test Plan</b></td><td>45 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>Agent-SA ออกแบบระบบ/เลือก Tech Stack · Agent-Tester ทำ Test Plan และ Test Scenario คู่ขนาน</td></tr>
+        <tr><td><b>5. Development Loop</b></td><td>70 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>Dev จริงตาม PRD → Test → แก้ไขตามผล Test Report → จบด้วยของที่ deploy ใช้งานได้จริง</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ได้กลับไป:</b> Prototype ต้นแบบ 1 ระบบที่ deploy ใช้งานได้จริง + Multi-agent Team Template ที่นำไปใช้ซ้ำกับโจทย์อื่นในบริษัทได้</div></div>
+    </div>
+  </section>
+
+  <!-- 4 Flow -->
+  <section id="s4" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">4</div><div class="h2 disp">Flow การเรียน</div></div>
+    <p class="ts" style="font-size:.84rem; margin-top:0">ทุกคนเริ่มจากฐานเดียวกัน (Common) ก่อนแยกไปตามบทบาท — Developer เป็นเส้นทางแยกอิสระ ไม่ต้องผ่าน Common</p>
+    <div class="flow">
+      <div class="frow"><div class="factor" style="--c:var(--ind)"><span class="dot"></span>ทุกคน</div><div><div class="fstep" style="--c:var(--ind)"><b>Class 1.</b> Common — ภาพรวม AI + User Preference + บุคลิก (4 ชม. · 30 คน)</div></div></div>
+      <div class="farrow">▼ แยกเส้นทาง ▼</div>
+      <div class="frow"><div class="factor" style="--c:var(--amb)"><span class="dot"></span>ผู้บริหาร</div><div><div class="fstep" style="--c:var(--amb)"><b>Class 2.</b> Top Management — Multi-agent Panel Review · Dashboard · Brainstorm (4 ชม. · 20 คน)</div></div></div>
+      <div class="frow"><div class="factor" style="--c:var(--emr)"><span class="dot"></span>Key Person</div><div><div class="fstep" style="--c:var(--emr)"><b>Class 3.</b> Workshop ลงมือใช้จริง — Cowork/Agent/Skill/Connector (4 ชม. · 10 คน)</div></div></div>
+      <div class="farrow">— แยกอิสระ —</div>
+      <div class="frow"><div class="factor" style="--c:var(--vio)"><span class="dot"></span>Developer</div><div><div class="fstep" style="--c:var(--vio)"><b>Class 4.</b> Claude Code Technical — Multi-agent · PRD · Test Plan · SDLC (4 ชม. · 10 คน)</div></div></div>
+    </div>
+  </section>
+
+  <!-- 5 Schedule -->
+  <section id="s5" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">5</div><div class="h2 disp">ตารางเวลา — แยก 4 วัน ครึ่งวัน</div></div>
+    <p class="ts" style="font-size:.84rem; margin-top:0">1 Class ต่อ 1 วัน (ครึ่งวัน) · วิทยากรคนเดียวพอทุกวัน · ไม่ต้องเช่าห้องคู่ขนาน · เว้นระยะระหว่างวันได้ตามสะดวกลูกค้า</p>
+    <table><thead><tr><th>วัน</th><th>ช่วงเวลา</th><th>Class</th><th style="text-align:right">จำนวนคน</th></tr></thead><tbody>
+      <tr><td>Day 1</td><td>09:00–13:00 (4 ชม.)</td><td>Class 1 · Common</td><td style="text-align:right">30</td></tr>
+      <tr><td>Day 2</td><td>09:00–13:00 (4 ชม.)</td><td>Class 2 · Top Management</td><td style="text-align:right">20</td></tr>
+      <tr><td>Day 3</td><td>09:00–13:00 (4 ชม.)</td><td>Class 3 · Key Person Workshop</td><td style="text-align:right">10</td></tr>
+      <tr><td>Day 4</td><td>09:00–13:00 (4 ชม.)</td><td>Class 4 · Developer</td><td style="text-align:right">10</td></tr>
+    </tbody></table>
+    <div class="note" style="margin-top:12px">ลำดับวันปรับสลับได้ตามความสะดวกลูกค้า — แนะนำให้ Day 1 (Common) มาก่อน Day 2–3 เสมอ เพราะ Top Management และ Key Person ต่อยอดจากเนื้อหา Common · Day 4 (Developer) จัดวันไหนก็ได้ ไม่ผูกกับ 3 วันแรก</div>
+  </section>
+
+  <!-- 6 Pricing -->
+  <section id="s6" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">6</div><div class="h2 disp">ราคา · Pricing</div></div>
+    <div class="note" style="margin-bottom:12px"><b>หลักคิดราคา (ทุก Class เหมือนกัน):</b> คนแรก <b>7,000 บาท</b> · คนต่อไปคนละ <b>3,000 บาท</b></div>
+    <div style="overflow-x:auto"><table style="min-width:620px"><thead><tr><th>Class</th><th style="text-align:right">จำนวนคน</th><th style="text-align:right">คำนวณ</th><th style="text-align:right">ราคา (฿)</th></tr></thead><tbody>
+      <tr><td><b>1 · Common</b></td><td style="text-align:right">30</td><td class="tf" style="text-align:right">7,000 + 29×3,000</td><td style="text-align:right">94,000</td></tr>
+      <tr><td><b>2 · Top Management</b></td><td style="text-align:right">20</td><td class="tf" style="text-align:right">7,000 + 19×3,000</td><td style="text-align:right">64,000</td></tr>
+      <tr><td><b>3 · Key Person</b></td><td style="text-align:right">10</td><td class="tf" style="text-align:right">7,000 + 9×3,000</td><td style="text-align:right">34,000</td></tr>
+      <tr><td><b>4 · Developer</b></td><td style="text-align:right">10</td><td class="tf" style="text-align:right">7,000 + 9×3,000</td><td style="text-align:right">34,000</td></tr>
+      <tr class="tot"><td>รวมทั้ง 4 Class (70 คน)</td><td style="text-align:right">—</td><td style="text-align:right">—</td><td style="text-align:right; color:var(--ind)">226,000</td></tr>
+    </tbody></table></div>
+    <div class="ts" style="font-size:.78rem; margin-top:6px">ยังไม่รวม VAT 7% · ไม่รวมค่าเดินทาง/ที่พัก (ถ้ามี)</div>
+  </section>
+
+  <!-- 7 Terms -->
+  <section id="s7" class="sec card" style="padding:24px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">7</div><div class="h2 disp">เงื่อนไข</div></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px" class="sow-grid">
+      <div class="panel" style="padding:13px">
+        <div style="font-weight:700; margin-bottom:5px">💳 การชำระเงิน</div>
+        <ul class="cl" style="font-size:.81rem">
+          <li>มัดจำ 50% ตอน Confirm วันจัด</li>
+          <li>เหลือ 50% ก่อนวันสอน 7 วัน</li>
+          <li>รับ PO + ใบกำกับภาษีเต็มรูปแบบ</li>
+        </ul>
+      </div>
+      <div class="panel" style="padding:13px">
+        <div style="font-weight:700; margin-bottom:5px">📋 รวมอยู่ในราคาแล้ว</div>
+        <ul class="cl" style="font-size:.81rem">
+          <li>Pre-class prep session 1 ชม. (นัดกับ HR/L&amp;D)</li>
+          <li>Custom Examples ตามอุตสาหกรรมลูกค้า</li>
+          <li>Support หลังคลาส 14 วัน (LINE Group)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:22px; font-size:.84rem">
+      <div style="border-top:1px solid var(--bd2); padding-top:8px">ผู้เสนอ (TONPALEARN)<div class="tf" style="margin-top:28px">ลงชื่อ / วันที่</div></div>
+      <div style="border-top:1px solid var(--bd2); padding-top:8px">ผู้อนุมัติ (AUTOCORP)<div class="tf" style="margin-top:28px">ลงชื่อ / วันที่</div></div>
+    </div>
+  </section>
+
+  <footer class="tf" style="text-align:center; font-size:.78rem; margin-top:28px">AI Agentic Corporate Training · Proposal · ฿226,000 (70 คน) · TONPALEARN</footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var head=document.getElementById('z-head'), body=document.getElementById('z-body');
+  var PROP_V='1.0';
+  try{ var saved=JSON.parse(localStorage.getItem('corp_train_prop_final_edit')||'null'); if(saved && saved.v===PROP_V){ if(saved.head) head.innerHTML=saved.head; if(saved.body) body.innerHTML=saved.body; } }catch(e){}
+
+  function sysDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function applyTheme(m){ var r=m==='auto'?(sysDark()?'dark':'light'):m; root.setAttribute('data-theme',r); localStorage.setItem('corp_train_theme',m); document.querySelectorAll('.ctrls [data-th]').forEach(function(b){b.classList.toggle('on',b.dataset.th===m);}); }
+  document.querySelectorAll('.ctrls [data-th]').forEach(function(b){b.onclick=function(){applyTheme(b.dataset.th);};});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){ if((localStorage.getItem('corp_train_theme')||'auto')==='auto') applyTheme('auto'); });
+  applyTheme(localStorage.getItem('corp_train_theme')||'auto');
+
+  function applyFs(v){ v=Math.min(1.35,Math.max(0.85,Math.round(v*100)/100)); root.style.setProperty('--fs',v); localStorage.setItem('corp_train_fs',v); document.querySelectorAll('.ctrls [data-fs]').forEach(function(b){b.classList.toggle('on', b.dataset.fs==='rs'&&v===1);}); }
+  applyFs(parseFloat(localStorage.getItem('corp_train_fs')||'1'));
+  document.querySelector('.ctrls [data-fs=dn]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('corp_train_fs')||'1')-0.1); };
+  document.querySelector('.ctrls [data-fs=up]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('corp_train_fs')||'1')+0.1); };
+  document.querySelector('.ctrls [data-fs=rs]').onclick=function(){ applyFs(1); };
+
+  var hint=document.createElement('div'); hint.id='editHint';
+  hint.innerHTML='✏️ โหมดแก้ไข — คลิกที่ข้อความเพื่อแก้ได้เลย · เสร็จแล้วกด <b>✓ เสร็จ</b> · เก็บถาวรกด <b>💾</b> เพื่อบันทึกเป็นไฟล์';
+  document.body.appendChild(hint);
+  var editBtn=document.getElementById('editBtn'), dlBtn=document.getElementById('dlBtn'), resetBtn=document.getElementById('resetBtn');
+  var zones=[head,body], editing=false;
+  function saveEdits(){ try{ localStorage.setItem('corp_train_prop_final_edit', JSON.stringify({v:PROP_V, head:head.innerHTML, body:body.innerHTML})); }catch(e){} }
+  function setEdit(on){ editing=on;
+    zones.forEach(function(z){ if(on){ z.setAttribute('contenteditable','true'); z.classList.add('editing'); } else { z.removeAttribute('contenteditable'); z.classList.remove('editing'); } });
+    editBtn.classList.toggle('on',on); editBtn.textContent=on?'✓ เสร็จ':'✏️ แก้ไข'; hint.classList.toggle('show',on);
+  }
+  editBtn.onclick=function(){ setEdit(!editing); if(!editing) saveEdits(); };
+  zones.forEach(function(z){ z.addEventListener('input', function(){ if(editing) saveEdits(); }); });
+  dlBtn.onclick=function(){ if(editing){ setEdit(false); saveEdits(); }
+    var clone=root.cloneNode(true);
+    var h=clone.querySelector('#editHint'); if(h) h.remove();
+    clone.querySelectorAll('[contenteditable]').forEach(function(e){ e.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('.editing').forEach(function(e){ e.classList.remove('editing'); });
+    var out='<!DOCTYPE html>\n'+clone.outerHTML;
+    var blob=new Blob([out],{type:'text/html;charset=utf-8'}); var u=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=u; a.download='Corporate-Training-Proposal-edited.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
+  };
+  resetBtn.onclick=function(){ if(confirm('ล้างการแก้ไขทั้งหมด กลับเป็นต้นฉบับ?')){ localStorage.removeItem('corp_train_prop_final_edit'); location.reload(); } };
+
+  var links=[].slice.call(document.querySelectorAll('#nav a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){ var i=0; for(var k=0;k<secs.length;k++){ if(secs[k] && secs[k].getBoundingClientRect().top<=90) i=k; } links.forEach(function(l){l.classList.remove('on');}); if(links[i]){links[i].classList.add('on'); links[i].scrollIntoView({block:'nearest',inline:'center'});} }
+  document.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+
+</body></html>
