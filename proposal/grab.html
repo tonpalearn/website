@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark" style="--fs: 1;"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ข้อเสนอโครงการฝึกอบรม AI Agentic — ศูนย์ย่อย Grab · TONPALEARN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --fs:1;
+  --bg:#07060f; --grad1:rgba(45,212,191,.22); --grad2:rgba(124,92,252,.20); --grad3:rgba(200,168,75,.14);
+  --surf:rgba(255,255,255,.05); --surf2:rgba(255,255,255,.075); --bd:rgba(255,255,255,.11); --bd2:rgba(255,255,255,.18);
+  --txt:#eeeef7; --ts:#bcbbcb; --tf:#8a899e; --shadow:0 14px 38px -14px rgba(0,0,0,.6);
+  --teal:#2DD4BF; --vio:#7C5CFC; --gold:#C8A84B; --grab:#00B14F; --emr:#6ee7b7; --amb:#fcd34d; --ros:#fda4af;
+}
+[data-theme=light]{
+  --bg:#f5f6fb; --grad1:rgba(45,212,191,.14); --grad2:rgba(124,92,252,.10); --grad3:rgba(200,168,75,.12);
+  --surf:rgba(20,22,55,.030); --surf2:#ffffff; --bd:rgba(20,22,55,.11); --bd2:rgba(20,22,55,.18);
+  --txt:#181a26; --ts:#4d5266; --tf:#868ba0; --shadow:0 8px 26px -10px rgba(30,34,80,.18);
+  --teal:#0d9488; --vio:#6d28d9; --gold:#92722f; --grab:#00913f; --emr:#059669; --amb:#b45309; --ros:#e11d48;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; font-size:calc(16px * var(--fs))}
+body{margin:0; font-family:'IBM Plex Sans Thai',system-ui,sans-serif; background:var(--bg); color:var(--txt); -webkit-font-smoothing:antialiased; line-height:1.7; transition:background .3s,color .3s}
+.aurora{position:fixed; inset:0; z-index:-1; background:
+   radial-gradient(55rem 55rem at 10% -8%, var(--grad1), transparent 60%),
+   radial-gradient(45rem 45rem at 94% 6%, var(--grad2), transparent 60%),
+   radial-gradient(50rem 50rem at 78% 100%, var(--grad3), transparent 60%); }
+.disp{font-family:'Space Grotesk','IBM Plex Sans Thai',sans-serif}
+.wrap{max-width:1080px; margin:0 auto; padding:0 18px 110px}
+.glass{background:var(--surf2); border:1px solid var(--bd); border-radius:20px; box-shadow:var(--shadow); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px)}
+.panel{background:var(--surf); border:1px solid var(--bd); border-radius:14px}
+.ts{color:var(--ts)} .tf{color:var(--tf)}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; padding:4px 10px; border-radius:8px; background:color-mix(in srgb, var(--c,var(--teal)) 15%, transparent); color:var(--c,var(--teal)); border:1px solid color-mix(in srgb, var(--c,var(--teal)) 34%, transparent)}
+.h2{font-size:1.28rem; font-weight:800; letter-spacing:-.01em}
+.h3{font-size:1.02rem; font-weight:800}
+.num{flex:none; width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; background:color-mix(in srgb,var(--teal) 18%,transparent); color:var(--teal); border:1px solid color-mix(in srgb,var(--teal) 32%,transparent)}
+table{width:100%; border-collapse:collapse; font-size:.86rem}
+th{text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:var(--tf); padding:10px 12px; border-bottom:1px solid var(--bd)}
+td{padding:10px 12px; border-bottom:1px solid color-mix(in srgb,var(--bd) 55%,transparent); vertical-align:top}
+tr:last-child td{border-bottom:none}
+.ctrls{display:flex; gap:5px; align-items:center; flex:none}
+.ctrlbtn{cursor:pointer; border:1px solid var(--bd); background:var(--surf2); color:var(--ts); border-radius:8px; padding:5px 8px; font-size:.74rem; font-weight:700; font-family:inherit}
+.ctrlbtn:hover{color:var(--txt); border-color:var(--bd2)} .ctrlbtn.on{background:var(--teal); color:#04231e; border-color:var(--teal)}
+nav{position:sticky; top:0; z-index:40; background:color-mix(in srgb,var(--bg) 90%,transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--bd); margin-bottom:20px}
+.navin{max-width:1080px; margin:0 auto; padding:8px 18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; row-gap:5px}
+.navlinks{display:flex; gap:4px; overflow-x:auto; flex:1; min-width:0}
+.navlinks a{flex:none; cursor:pointer; padding:8px 11px; font-size:.76rem; font-weight:700; color:var(--ts); border-radius:9px; text-decoration:none; white-space:nowrap}
+.navlinks a:hover{color:var(--txt)} .navlinks a.on{background:var(--teal); color:#04231e}
+.navdiv{width:1px; height:20px; background:var(--bd2); flex:none}
+ul.cl{list-style:none; padding:0; margin:8px 0}
+ul.cl li{position:relative; padding-left:20px; margin-bottom:7px}
+ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; height:6px; border-radius:2px; background:var(--teal)}
+.sec{scroll-margin-top:64px}
+.hero-banner{position:relative; border-radius:20px; overflow:hidden; border:1px solid var(--bd2); box-shadow:var(--shadow)}
+.hero-banner img{display:block; width:100%; height:auto}
+.hcard{padding:15px; border-radius:14px; background:var(--surf2); border:1px solid var(--bd); border-top:3px solid var(--c,var(--teal))}
+.pill{text-align:center; padding:14px 10px; border-radius:14px; background:var(--surf2); border:1px solid var(--bd); font-weight:700; font-size:.88rem}
+.usp{display:flex; gap:14px; align-items:flex-start; padding:18px; border-radius:16px; background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 14%,transparent),color-mix(in srgb,var(--vio) 10%,transparent)); border:1px solid color-mix(in srgb,var(--teal) 30%,transparent)}
+.badge-status{display:inline-flex; padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:700}
+.badge-done{background:color-mix(in srgb,var(--emr) 20%,transparent); color:var(--emr)}
+.badge-ongoing{background:color-mix(in srgb,var(--amb) 20%,transparent); color:var(--amb)}
+.gal{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin-top:12px}
+.gal img{width:100%; height:150px; object-fit:cover; border-radius:12px; border:1px solid var(--bd)}
+.bio-photo{width:100%; border-radius:14px; border:1px solid var(--bd2); object-fit:cover}
+.ez.editing{outline:1.5px dashed color-mix(in srgb,var(--teal) 50%,transparent); outline-offset:7px; border-radius:12px}
+#editHint{display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; text-align:center; padding:9px 14px; background:color-mix(in srgb,var(--teal) 92%, #000); color:#fff; font-size:.8rem; font-weight:700; box-shadow:0 -6px 20px -8px rgba(0,0,0,.45)}
+#editHint.show{display:block}
+@media print{ nav .ctrls,.noprint,#editHint{display:none!important} .aurora{display:none} body{background:#fff;color:#000} .glass{box-shadow:none;border:1px solid #ccc; break-inside:avoid} nav{position:static} }
+@media(max-width:640px){.g3{grid-template-columns:1fr!important} .g2{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+
+<div class="wrap ez" id="z-head">
+  <header style="padding:22px 0 14px">
+    <div class="hero-banner">
+      <img src="assets/grab/grab-hero.jpg" alt="TONPALEARN — AI ง่ายขึ้น เมื่อมีต้นพาไป">
+    </div>
+    <div class="glass" style="margin-top:16px; padding:0; overflow:hidden">
+      <table>
+        <tr><td style="width:34%; font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Prepared by</td><td><b>TONPALEARN</b> · <a href="https://tonpalearn.com" style="color:var(--teal)" target="_blank">tonpalearn.com</a></td></tr>
+        <tr><td colspan="2" style="text-align:center; padding:18px 12px">
+          <img src="assets/grab/grab-logo.png" alt="Grab" style="height:34px; margin-bottom:10px">
+          <div class="h2 disp" style="margin-top:2px" contenteditable="true">ข้อเสนอโครงการฝึกอบรม AI Agentic สำหรับศูนย์ย่อย Grab</div>
+        </td></tr>
+        <tr><td style="font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Date</td><td contenteditable="true">14 สิงหาคม 2569</td></tr>
+        <tr><td colspan="2" class="ts" style="font-size:.86rem">ติดต่อ: <b contenteditable="true">ชัยวัฒน์ ภูวนนท์จิรกวิน</b> · <span contenteditable="true">093-914-9397</span> · tonpalearn.com · line : @tonpalearn</td></tr>
+      </table>
+    </div>
+  </header>
+</div>
+
+<nav><div class="navin">
+  <div class="navlinks" id="nav">
+    <a href="#s1">ภาพรวม</a>
+    <a href="#s2">หลักสูตร</a>
+    <a href="#s3">แผนดำเนินการ</a>
+    <a href="#s4">ปัญหา</a>
+    <a href="#s5">ผลงาน</a>
+    <a href="#s6">ผู้สอน</a>
+    <a href="#s7">จุดเด่น</a>
+    <a href="#s8">ราคา</a>
+    <a href="#s9">ขั้นตอนถัดไป</a>
+    <a href="#s10">ติดต่อ</a>
+  </div>
+  <div class="navdiv"></div>
+  <div class="ctrls noprint" title="ธีม / ขนาดตัวอักษร">
+    <button class="ctrlbtn" data-th="auto" title="ตามระบบ">Auto</button>
+    <button class="ctrlbtn" data-th="light" title="สว่าง">☀</button>
+    <button class="ctrlbtn on" data-th="dark" title="มืด">🌙</button>
+    <span class="navdiv" style="margin:0 2px"></span>
+    <button class="ctrlbtn" data-fs="dn" title="เล็กลง">A−</button>
+    <button class="ctrlbtn on" data-fs="rs" title="ปกติ">A</button>
+    <button class="ctrlbtn" data-fs="up" title="ใหญ่ขึ้น">A+</button>
+    <span class="navdiv" style="margin:0 2px"></span>
+    <button class="ctrlbtn" id="editBtn" title="แก้ไขเอกสาร — คลิกที่ข้อความเพื่อแก้ได้เลย">✏️ แก้ไข</button>
+    <button class="ctrlbtn" id="dlBtn" title="บันทึกเป็นไฟล์ HTML ที่แก้แล้ว">💾</button>
+    <button class="ctrlbtn" id="resetBtn" title="คืนต้นฉบับ (ล้างการแก้ไข)">↺</button>
+    <button class="ctrlbtn" onclick="window.print()" title="พิมพ์ / บันทึก PDF">🖨</button>
+  </div>
+</div></nav>
+
+<div class="wrap ez" id="z-body">
+
+  <!-- 1 Overview -->
+  <section id="s1" class="sec glass" style="padding:26px; margin-top:8px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">1</div><div class="h2 disp">ภาพรวมโครงการ</div></div>
+    <p style="margin-top:0"><b>TONPALEARN</b> สอน AI Agentic (เช่น Claude Cowork) ที่เน้นให้ลงมือสร้างเครื่องมือใช้งานจริง ไม่ใช่แค่ฟังทฤษฎี</p>
+    <p style="margin-bottom:0">เอกสารนี้เสนอโครงการฝึกอบรม AI Agentic สำหรับศูนย์ย่อย Grab เพื่อช่วยลดภาระงานตรวจเอกสารสมัครคนขับที่ต้องทำด้วยมือทุกวัน และสามารถต่อยอดพัฒนาการบริหารศูนย์ได้อย่างมีประสิทธิภาพ</p>
+  </section>
+
+  <!-- 2 Course structure -->
+  <section id="s2" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">2</div><div class="h2 disp">โครงสร้างหลักสูตร</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">หลักสูตร 3 ชั่วโมง ปูพื้นตั้งแต่ AI คืออะไร ไปจนถึงลงมือสร้างเครื่องมือของศูนย์เอง และใช้ตรวจเอกสารตัวอย่างการทำงานจริงในวันอบรม ไม่ต้องมีพื้นฐานเขียนโปรแกรมมาก่อน</p>
+    <div class="g3" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:8px">
+      <div class="hcard" style="--c:var(--teal)"><div class="chip" style="--c:var(--teal); margin-bottom:8px">ชั่วโมงที่ 1</div><div>AI Agentic คืออะไร ต่างจาก AI ทั่วไปยังไง เริ่มจากศูนย์</div></div>
+      <div class="hcard" style="--c:var(--vio)"><div class="chip" style="--c:var(--vio); margin-bottom:8px">ชั่วโมงที่ 2</div><div>ลงมือสร้าง Agent File ของศูนย์เอง แบบ Step-by-step</div></div>
+      <div class="hcard" style="--c:var(--gold)"><div class="chip" style="--c:var(--gold); margin-bottom:8px">ชั่วโมงที่ 3</div><div>Workshop ตรวจเอกสารสมัครคนขับจริงด้วยเครื่องมือที่สร้างเอง และ<b>ได้งานจริงกลับไปใช้เลย</b></div></div>
+    </div>
+  </section>
+
+  <!-- 3 Approach + Plan -->
+  <section id="s3" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">3</div><div class="h2 disp">แนวทางของเรา &amp; แผนดำเนินการ</div></div>
+    <p style="margin-top:0">อบรมให้เจ้าหน้าที่ศูนย์สร้างเครื่องมือ AI ตรวจสอบเอกสารสมัครคนขับได้เองภายในวันเดียว ใช้งานได้จริงทันทีหลังจบคอร์ส ไม่ต้องรอทีม IT — ผ่านการอบรมกับองค์กรจริงมาแล้ว เช่น <b>AutoCorp (100+ ชม.)</b>, <b>BabyAndMom (50+ ชม.)</b> และ <b>SME อื่นๆ อีกกว่า 30 ธุรกิจ</b></p>
+
+    <div class="tf" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin:18px 0 8px">เป้าหมาย และวัตถุประสงค์</div>
+    <div class="g3" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px">
+      <div class="pill" style="color:var(--teal)">ลดงานซ้ำ</div>
+      <div class="pill" style="color:var(--vio)">สอดคล้อง PDPA</div>
+      <div class="pill" style="color:var(--gold)">เพิ่มใบสมัครสำเร็จ</div>
+    </div>
+
+    <div class="tf" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin:20px 0 8px">แผนดำเนินการ</div>
+    <div class="panel" style="overflow:hidden"><table>
+      <tr><td style="width:26%; font-weight:800">Timeline</td><td>1 วัน (อบรม 3 ชั่วโมง) + Add-on ตามต้องการ</td></tr>
+      <tr><td style="font-weight:800">Resources</td><td>คอร์สจาก TONPALEARN พร้อมเอกสารประกอบการอบรมเป็น PDF</td></tr>
+      <tr><td style="font-weight:800">Steps</td><td>AI คืออะไร → สร้าง Agent File → Workshop ตรวจเอกสารจริง → Dashboard แสดงภาพรวมเพื่อบริหาร</td></tr>
+      <tr><td style="font-weight:800">ผลลัพธ์ที่คาดหวัง</td><td>เจ้าหน้าที่ตรวจเอกสารได้เร็วและแม่นยำขึ้น · ได้ Agent จริงไปทำงานเลยทันทีหลังเรียนจบ</td></tr>
+    </table></div>
+  </section>
+
+  <!-- 4 Pain points -->
+  <section id="s4" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">4</div><div class="h2 disp">ปัญหาที่ศูนย์เจอ</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">ปัญหาที่ศูนย์ย่อย Grab เจอซ้ำทุกวันจากการตรวจเอกสารสมัครคนขับด้วยมือ:</p>
+    <div style="display:flex; flex-direction:column; gap:9px; margin-top:10px">
+      <div style="display:flex; gap:11px; align-items:flex-start"><div class="num" style="--_n:1">1</div><div><b>เอกสารสมัครคนขับ</b> เข้ามาจำนวนมาก ตรวจด้วยมือช้า และเสี่ยงพลาด</div></div>
+      <div style="display:flex; gap:11px; align-items:flex-start"><div class="num">2</div><div>เจ้าหน้าที่ต้องเสียเวลาไปกับการทำงานซ้ำๆ ที่ไม่เกิดประโยชน์</div></div>
+      <div style="display:flex; gap:11px; align-items:flex-start"><div class="num">3</div><div>ผู้สมัครรอผลนาน ทำให้ประสบการณ์สมัครไม่ดี</div></div>
+      <div style="display:flex; gap:11px; align-items:flex-start"><div class="num">4</div><div>ศูนย์ไม่เห็นภาพรวม (<b>Dashboard</b>) ทั้งหมด เพื่อให้การบริหารงานมีประสิทธิภาพขึ้น</div></div>
+    </div>
+  </section>
+
+  <!-- 5 Track record -->
+  <section id="s5" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">5</div><div class="h2 disp">ผลงานที่ผ่านมา</div></div>
+    <p style="margin-top:0">อบรมทั้งรูปแบบบุคคล กลุ่ม และองค์กรจริงมาแล้วมากกว่า <b style="color:var(--teal)">500 ชั่วโมง</b></p>
+    <ul class="cl">
+      <li>AutoCorp (100+ ชม.)</li>
+      <li>BabyAndMom (50+ ชม.)</li>
+      <li>SME อื่นๆ อีกกว่า 30 ธุรกิจ</li>
+      <li>1 ใน Speaker ในงาน <b>One Person Business Summit 2026</b></li>
+    </ul>
+    <div class="gal">
+      <img src="assets/grab/grab-opb-poster.jpg" alt="One Person Business Summit 2026 — speaker lineup">
+      <img src="assets/grab/grab-stage-wide.jpg" alt="ชัยวัฒน์ ภูวนนท์จิรกวิน พูดบนเวที OPB Summit 2026">
+      <img src="assets/grab/grab-stage-close.jpg" alt="ถ่ายภาพระยะใกล้บนเวที OPB Summit 2026">
+    </div>
+  </section>
+
+  <!-- 6 Instructor bio -->
+  <section id="s6" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">6</div><div class="h2 disp">ประวัติผู้สอน</div></div>
+    <div class="g2" style="display:grid; grid-template-columns:220px 1fr; gap:20px; align-items:start">
+      <img class="bio-photo" src="assets/grab/grab-bio-portrait.jpg" alt="ชัยวัฒน์ ภูวนนท์จิรกวิน" style="aspect-ratio:3/4; object-fit:cover">
+      <div>
+        <div class="h3 disp" style="color:var(--teal)">CEO &amp; Founder TONPALEARN</div>
+        <ul class="cl" style="margin-top:6px">
+          <li>สอนและฝึกอบรม AI Agentic</li>
+          <li>ที่ปรึกษาทางธุรกิจองค์กร เพื่อทำ AI Transformation</li>
+          <li>พัฒนาระบบงานเพื่อองค์กร ด้วย AI Agentic</li>
+        </ul>
+        <div class="h3 disp" style="color:var(--vio); margin-top:14px">CEO &amp; Co-founder UP Wellness</div>
+        <div class="ts" style="font-size:.86rem">ทำธุรกิจด้านสุขภาพ และ Longevity</div>
+
+        <div class="h3 disp" style="color:var(--gold); margin-top:14px">Project Management Specialist</div>
+        <div class="ts" style="font-size:.86rem; margin-bottom:8px">15 ปีในสนามจริงของงานบริหารโปรเจกต์ระดับองค์กร</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px">
+          <span class="chip" style="--c:var(--slate,#94a3b8)">True Corporation</span>
+          <span class="chip" style="--c:var(--slate,#94a3b8)">Kasikornbank</span>
+          <span class="chip" style="--c:var(--slate,#94a3b8)">Krungsri Auto</span>
+          <span class="chip" style="--c:var(--slate,#94a3b8)">กระทรวงการต่างประเทศ</span>
+          <span class="chip" style="--c:var(--slate,#94a3b8)">กรมการขนส่งทางบก</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px; margin-bottom:0">จุดต่างของต้นคือไม่ได้มาสอนในฐานะนักวิชาการ แต่มาในฐานะคนที่ใช้ AI สร้างธุรกิจของตัวเองจริงแล้วเอาสิ่งที่ทำได้ผลมาสอนต่อ ผ่านการอบรมองค์กรจริง ทำจริง</p>
+    <p style="margin-bottom:0">พื้นฐาน Computer Engineering, Project Manager และเป็น CEO เจ้าของธุรกิจเอง ทำให้เข้าใจทั้งฝั่งเทคนิค และฝั่งคนทำงานจริง — สอนแบบจับมือทำให้เห็นผลในวันเดียว ไม่ใช่แค่พรีเซนต์สไลด์แล้วจบ</p>
+  </section>
+
+  <!-- 7 USP -->
+  <section id="s7" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">7</div><div class="h2 disp">จุดเด่นของ TONPALEARN</div></div>
+    <div class="usp">
+      <div style="font-size:1.4rem">✅</div>
+      <div>
+        <div class="h3 disp" style="margin-bottom:6px">สอนจริง ใช้ได้จริงวันเดียว และต้องได้งานจริงกลับไปทำต่อได้เลย</div>
+        <div class="ts">TONPALEARN ให้ลงมือสร้างเครื่องมือ AI ตรวจสอบเอกสารสมัครคนขับได้จริงภายในวันอบรม พร้อม Add-on สนับสนุนต่อเนื่อง</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 Pricing -->
+  <section id="s8" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">8</div><div class="h2 disp">ราคา</div></div>
+    <div class="g3" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px">
+      <div class="hcard" style="--c:var(--teal); text-align:center">
+        <div class="chip" style="--c:var(--teal); margin-bottom:10px">อบรม 3 ชั่วโมง</div>
+        <div class="ts" style="font-size:.82rem; min-height:54px">หลักสูตร AI Agentic + Workshop ตรวจเอกสารจริง (ผู้เรียน 100 ท่าน)</div>
+        <div class="disp" style="font-size:1.5rem; font-weight:800; color:var(--teal); margin-top:8px">79,000 บาท</div>
+      </div>
+      <div class="hcard" style="--c:var(--vio); text-align:center">
+        <div class="chip" style="--c:var(--vio); margin-bottom:10px">Add-on Follow-up</div>
+        <div class="ts" style="font-size:.82rem; min-height:54px">กลุ่ม LINE สนับสนุนต่อเนื่อง 1 เดือน</div>
+        <div class="disp" style="font-size:1.5rem; font-weight:800; color:var(--vio); margin-top:8px">15,000 บาท</div>
+      </div>
+      <div class="hcard" style="--c:var(--gold); text-align:center">
+        <div class="chip" style="--c:var(--gold); margin-bottom:10px">รวมทั้งหมด</div>
+        <div class="ts" style="font-size:.82rem; min-height:54px">อบรม + Follow-up 1 เดือน</div>
+        <div class="disp" style="font-size:1.5rem; font-weight:800; color:var(--gold); margin-top:8px">94,000 บาท</div>
+      </div>
+    </div>
+    <div class="panel" style="padding:13px 16px; margin-top:14px; font-size:.85rem">
+      <b>เงื่อนไขการชำระเงิน</b>
+      <ul class="cl" style="margin-top:6px">
+        <li>ส่วนที่ 1 : 50% เมื่อตกลงตามข้อเสนอ</li>
+        <li>ส่วนที่ 2 : 50% ก่อนวันจัดอบรม 7 วันทำการ</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 9 Next steps -->
+  <section id="s9" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">9</div><div class="h2 disp">ขั้นตอนถัดไป</div></div>
+    <div class="panel" style="overflow:hidden"><table>
+      <thead><tr><th>Action Items</th><th style="text-align:right">Status</th></tr></thead>
+      <tbody>
+        <tr><td>รับ Brief + เสนอ Proposal เบื้องต้น</td><td style="text-align:right"><span class="badge-status badge-done">Done</span></td></tr>
+        <tr><td>นำเสนอโครงการ</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
+        <tr><td>Sign-off : ข้อเสนอโครงการ + PO</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 10 Contact -->
+  <section id="s10" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">10</div><div class="h2 disp">Contact information</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">For more details about our company, please reach out to:</p>
+    <div class="panel" style="overflow:hidden"><table>
+      <thead><tr><th>ผู้เสนอโครงการ</th><th>Email address</th><th>เบอร์ติดต่อ</th></tr></thead>
+      <tbody><tr>
+        <td><b>ชัยวัฒน์ ภูวนนท์จิรกวิน</b></td>
+        <td><a href="mailto:info@tonpalearn.com" style="color:var(--teal)">info@tonpalearn.com</a></td>
+        <td>093-914-9397</td>
+      </tr></tbody>
+    </table></div>
+
+    <div class="tf" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin:22px 0 8px">หลักฐานการสอนจริง</div>
+    <div class="gal">
+      <img src="assets/grab/grab-workshop-group.jpg" alt="อบรมกลุ่มย่อยจริง">
+      <img src="assets/grab/grab-workshop-teach.jpg" alt="สอนจับมือทำจริง">
+      <img src="assets/grab/grab-stage-social.jpg" alt="แชร์ผลงานผ่าน Facebook — In tribute to my accountant">
+    </div>
+  </section>
+
+  <footer class="tf" style="text-align:center; font-size:.78rem; margin-top:28px">ข้อเสนอโครงการฝึกอบรม AI Agentic · ศูนย์ย่อย Grab · TONPALEARN</footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var head=document.getElementById('z-head'), body=document.getElementById('z-body');
+  var PROP_V='1.0';
+  try{ var saved=JSON.parse(localStorage.getItem('grab_prop_edit')||'null'); if(saved && saved.v===PROP_V){ if(saved.head) head.innerHTML=saved.head; if(saved.body) body.innerHTML=saved.body; } }catch(e){}
+
+  function sysDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function applyTheme(m){ var r=m==='auto'?(sysDark()?'dark':'light'):m; root.setAttribute('data-theme',r); localStorage.setItem('grab_prop_theme',m); document.querySelectorAll('.ctrls [data-th]').forEach(function(b){b.classList.toggle('on',b.dataset.th===m);}); }
+  document.querySelectorAll('.ctrls [data-th]').forEach(function(b){b.onclick=function(){applyTheme(b.dataset.th);};});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){ if((localStorage.getItem('grab_prop_theme')||'dark')==='auto') applyTheme('auto'); });
+  applyTheme(localStorage.getItem('grab_prop_theme')||'dark');
+
+  function applyFs(v){ v=Math.min(1.35,Math.max(0.85,Math.round(v*100)/100)); root.style.setProperty('--fs',v); localStorage.setItem('grab_prop_fs',v); document.querySelectorAll('.ctrls [data-fs]').forEach(function(b){b.classList.toggle('on', b.dataset.fs==='rs'&&v===1);}); }
+  applyFs(parseFloat(localStorage.getItem('grab_prop_fs')||'1'));
+  document.querySelector('.ctrls [data-fs=dn]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('grab_prop_fs')||'1')-0.1); };
+  document.querySelector('.ctrls [data-fs=up]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('grab_prop_fs')||'1')+0.1); };
+  document.querySelector('.ctrls [data-fs=rs]').onclick=function(){ applyFs(1); };
+
+  var hint=document.createElement('div'); hint.id='editHint';
+  hint.innerHTML='✏️ โหมดแก้ไข — คลิกที่ข้อความเพื่อแก้ได้เลย · เสร็จแล้วกด <b>✓ เสร็จ</b> · เก็บถาวรกด <b>💾</b> เพื่อบันทึกเป็นไฟล์';
+  document.body.appendChild(hint);
+  var editBtn=document.getElementById('editBtn'), dlBtn=document.getElementById('dlBtn'), resetBtn=document.getElementById('resetBtn');
+  var zones=[head,body], editing=false;
+  function saveEdits(){ try{ localStorage.setItem('grab_prop_edit', JSON.stringify({v:PROP_V, head:head.innerHTML, body:body.innerHTML})); }catch(e){} }
+  function setEdit(on){ editing=on;
+    zones.forEach(function(z){ if(on){ z.setAttribute('contenteditable','true'); z.classList.add('editing'); } else { z.removeAttribute('contenteditable'); z.classList.remove('editing'); } });
+    editBtn.classList.toggle('on',on); editBtn.textContent=on?'✓ เสร็จ':'✏️ แก้ไข'; hint.classList.toggle('show',on);
+  }
+  editBtn.onclick=function(){ setEdit(!editing); if(!editing) saveEdits(); };
+  zones.forEach(function(z){ z.addEventListener('input', function(){ if(editing) saveEdits(); }); });
+  dlBtn.onclick=function(){ if(editing){ setEdit(false); saveEdits(); }
+    var clone=root.cloneNode(true);
+    var h=clone.querySelector('#editHint'); if(h) h.remove();
+    clone.querySelectorAll('[contenteditable]').forEach(function(e){ e.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('.editing').forEach(function(e){ e.classList.remove('editing'); });
+    var out='<!DOCTYPE html>\n'+clone.outerHTML;
+    var blob=new Blob([out],{type:'text/html;charset=utf-8'}); var u=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=u; a.download='Grab-AI-Training-Proposal-edited.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
+  };
+  resetBtn.onclick=function(){ if(confirm('ล้างการแก้ไขทั้งหมด กลับเป็นต้นฉบับ?')){ localStorage.removeItem('grab_prop_edit'); location.reload(); } };
+
+  var links=[].slice.call(document.querySelectorAll('#nav a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){ var i=0; for(var k=0;k<secs.length;k++){ if(secs[k] && secs[k].getBoundingClientRect().top<=90) i=k; } links.forEach(function(l){l.classList.remove('on');}); if(links[i]){links[i].classList.add('on'); links[i].scrollIntoView({block:'nearest',inline:'center'});} }
+  document.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+
+</body></html>
