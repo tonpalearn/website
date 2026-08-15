@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark" style="--fs: 1;"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แผนฝึกอบรม AI Agentic ระดับองค์กร — AUTOCORP · TONPALEARN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fs:1;
+  --bg:#07060f; --grad1:rgba(45,212,191,.22); --grad2:rgba(124,92,252,.20); --grad3:rgba(200,168,75,.14);
+  --surf:rgba(255,255,255,.05); --surf2:rgba(255,255,255,.075); --bd:rgba(255,255,255,.11); --bd2:rgba(255,255,255,.18);
+  --txt:#eeeef7; --ts:#bcbbcb; --tf:#8a899e; --shadow:0 14px 38px -14px rgba(0,0,0,.6);
+  --teal:#2DD4BF; --vio:#7C5CFC; --gold:#C8A84B; --sky:#7dd3fc; --emr:#6ee7b7; --amb:#fcd34d; --ros:#fda4af; --slate:#94a3b8;
+}
+[data-theme=light]{
+  --bg:#f5f6fb; --grad1:rgba(45,212,191,.14); --grad2:rgba(124,92,252,.10); --grad3:rgba(200,168,75,.12);
+  --surf:rgba(20,22,55,.030); --surf2:#ffffff; --bd:rgba(20,22,55,.11); --bd2:rgba(20,22,55,.18);
+  --txt:#181a26; --ts:#4d5266; --tf:#868ba0; --shadow:0 8px 26px -10px rgba(30,34,80,.18);
+  --teal:#0d9488; --vio:#6d28d9; --gold:#92722f; --sky:#0284c7; --emr:#059669; --amb:#b45309; --ros:#e11d48; --slate:#475569;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; font-size:calc(16px * var(--fs))}
+body{margin:0; font-family:'IBM Plex Sans Thai',system-ui,sans-serif; background:var(--bg); color:var(--txt); -webkit-font-smoothing:antialiased; line-height:1.7; transition:background .3s,color .3s}
+.aurora{position:fixed; inset:0; z-index:-1; background:
+   radial-gradient(55rem 55rem at 10% -8%, var(--grad1), transparent 60%),
+   radial-gradient(45rem 45rem at 94% 6%, var(--grad2), transparent 60%),
+   radial-gradient(50rem 50rem at 78% 100%, var(--grad3), transparent 60%); }
+.disp{font-family:'Space Grotesk','IBM Plex Sans Thai',sans-serif}
+.wrap{max-width:1080px; margin:0 auto; padding:0 18px 110px}
+.glass{background:var(--surf2); border:1px solid var(--bd); border-radius:20px; box-shadow:var(--shadow); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px)}
+.panel{background:var(--surf); border:1px solid var(--bd); border-radius:14px}
+.ts{color:var(--ts)} .tf{color:var(--tf)}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:.7rem; font-weight:700; padding:4px 10px; border-radius:8px; background:color-mix(in srgb, var(--c,var(--teal)) 15%, transparent); color:var(--c,var(--teal)); border:1px solid color-mix(in srgb, var(--c,var(--teal)) 34%, transparent)}
+.h2{font-size:1.28rem; font-weight:800; letter-spacing:-.01em}
+.h3{font-size:1.02rem; font-weight:800}
+.num{flex:none; width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; background:color-mix(in srgb,var(--teal) 18%,transparent); color:var(--teal); border:1px solid color-mix(in srgb,var(--teal) 32%,transparent)}
+table{width:100%; border-collapse:collapse; font-size:.86rem}
+th{text-align:left; font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:var(--tf); padding:10px 12px; border-bottom:1px solid var(--bd)}
+td{padding:10px 12px; border-bottom:1px solid color-mix(in srgb,var(--bd) 55%,transparent); vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.tot td{font-weight:800; border-top:2px solid var(--bd2)}
+.ctrls{display:flex; gap:5px; align-items:center; flex:none}
+.ctrlbtn{cursor:pointer; border:1px solid var(--bd); background:var(--surf2); color:var(--ts); border-radius:8px; padding:5px 8px; font-size:.74rem; font-weight:700; font-family:inherit}
+.ctrlbtn:hover{color:var(--txt); border-color:var(--bd2)} .ctrlbtn.on{background:var(--teal); color:#04231e; border-color:var(--teal)}
+nav{position:sticky; top:0; z-index:40; background:color-mix(in srgb,var(--bg) 90%,transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--bd); margin-bottom:20px}
+.navin{max-width:1080px; margin:0 auto; padding:8px 18px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; row-gap:5px}
+.navlinks{display:flex; gap:4px; overflow-x:auto; flex:1; min-width:0}
+.navlinks a{flex:none; cursor:pointer; padding:8px 11px; font-size:.76rem; font-weight:700; color:var(--ts); border-radius:9px; text-decoration:none; white-space:nowrap}
+.navlinks a:hover{color:var(--txt)} .navlinks a.on{background:var(--teal); color:#04231e}
+.navdiv{width:1px; height:20px; background:var(--bd2); flex:none}
+ul.cl{list-style:none; padding:0; margin:8px 0}
+ul.cl li{position:relative; padding-left:20px; margin-bottom:7px}
+ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; height:6px; border-radius:2px; background:var(--c,var(--teal))}
+.sec{scroll-margin-top:64px}
+.hero-banner{position:relative; border-radius:20px; overflow:hidden; border:1px solid var(--bd2); box-shadow:var(--shadow)}
+.hero-banner img{display:block; width:100%; height:auto}
+.hcard{padding:15px; border-radius:14px; background:var(--surf2); border:1px solid var(--bd); border-top:3px solid var(--c,var(--teal))}
+.pill{text-align:center; padding:14px 10px; border-radius:14px; background:var(--surf2); border:1px solid var(--bd); font-weight:700; font-size:.88rem}
+.usp{display:flex; gap:14px; align-items:flex-start; padding:18px; border-radius:16px; background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 14%,transparent),color-mix(in srgb,var(--vio) 10%,transparent)); border:1px solid color-mix(in srgb,var(--teal) 30%,transparent)}
+.badge-status{display:inline-flex; padding:3px 10px; border-radius:99px; font-size:.72rem; font-weight:700}
+.badge-done{background:color-mix(in srgb,var(--emr) 20%,transparent); color:var(--emr)}
+.badge-ongoing{background:color-mix(in srgb,var(--amb) 20%,transparent); color:var(--amb)}
+.gal{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin-top:12px}
+.gal img{width:100%; height:150px; object-fit:cover; border-radius:12px; border:1px solid var(--bd)}
+.bio-photo{width:100%; border-radius:14px; border:1px solid var(--bd2); object-fit:cover}
+
+/* ---- AI Deployment Model ---- */
+.modes{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px}
+.mode{border-radius:16px; overflow:hidden; border:1px solid color-mix(in srgb,var(--c) 32%,transparent); background:var(--surf2); display:flex; flex-direction:column}
+.mode-head{padding:13px 14px; background:color-mix(in srgb,var(--c) 16%,transparent); border-bottom:1px solid color-mix(in srgb,var(--c) 26%,transparent)}
+.mode-head .no{font-size:.7rem; font-weight:800; color:var(--c); letter-spacing:.04em}
+.mode-head .nm{font-weight:800; font-size:.95rem; line-height:1.4; margin-top:2px}
+.mode-tag{display:block; text-align:center; font-size:.72rem; font-weight:700; padding:7px 8px; background:color-mix(in srgb,var(--c) 9%,transparent); color:var(--c); border-bottom:1px solid var(--bd)}
+.mode-meter{display:flex; gap:6px; padding:10px 12px; border-bottom:1px solid var(--bd); font-size:.7rem; font-weight:700; flex-wrap:wrap}
+.mtr{padding:3px 8px; border-radius:7px; border:1px solid var(--bd2)}
+.mode-body{padding:12px 14px; font-size:.8rem; flex:1}
+.mode-body ul{list-style:none; padding:0; margin:0}
+.mode-body li{position:relative; padding-left:14px; margin-bottom:7px; line-height:1.55}
+.mode-body li::before{content:''; position:absolute; left:0; top:.6em; width:5px; height:5px; border-radius:50%; background:var(--c)}
+.mode-body li.risk{color:var(--ros); font-weight:600}
+.mode-body li.risk::before{background:var(--ros)}
+
+/* ---- Governance ---- */
+.govgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:12px}
+.gov{padding:13px 15px; border-radius:13px; background:var(--surf); border:1px solid var(--bd); display:flex; gap:11px; align-items:flex-start}
+.gov .gn{flex:none; width:26px; height:26px; border-radius:8px; background:color-mix(in srgb,var(--teal) 20%,transparent); color:var(--teal); font-weight:800; font-size:.76rem; display:flex; align-items:center; justify-content:center}
+.gov b{display:block; font-size:.87rem; margin-bottom:2px}
+.gov .gd{font-size:.78rem; color:var(--ts); line-height:1.5}
+.axiom{margin-top:14px; padding:14px 18px; border-radius:14px; text-align:center; font-weight:700; font-size:.92rem;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 16%,transparent),color-mix(in srgb,var(--vio) 13%,transparent));
+  border:1px solid color-mix(in srgb,var(--teal) 32%,transparent)}
+
+/* ---- NetSuite layers ---- */
+.nslayer{display:grid; grid-template-columns:150px 1fr; gap:12px; align-items:stretch; margin-bottom:9px}
+.nslabel{padding:12px 14px; border-radius:12px; background:color-mix(in srgb,var(--c) 14%,transparent); border:1px solid color-mix(in srgb,var(--c) 30%,transparent); font-weight:800; font-size:.86rem; color:var(--c); display:flex; align-items:center}
+.nsitems{padding:12px 14px; border-radius:12px; background:var(--surf); border:1px solid var(--bd); font-size:.82rem; display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.nstag{padding:4px 10px; border-radius:8px; background:var(--surf2); border:1px solid var(--bd2); font-size:.76rem; font-weight:600}
+
+/* ---- class module tables ---- */
+.classhead{display:flex; align-items:center; gap:11px; padding:13px 17px; border-radius:14px 14px 0 0; border:1px solid var(--bd); border-bottom:none; flex-wrap:wrap}
+.classbody{border:1px solid var(--bd); border-top:none; border-radius:0 0 14px 14px; overflow:hidden; margin-bottom:20px}
+.deliv{display:flex; gap:9px; align-items:flex-start; padding:12px 17px; background:color-mix(in srgb,var(--emr) 9%,transparent); border-top:1px solid var(--bd); font-size:.82rem}
+
+/* ---- flow ---- */
+.flow{display:flex; flex-direction:column; margin:12px 0}
+.frow{display:grid; grid-template-columns:120px 1fr; gap:12px; align-items:stretch}
+.factor{font-size:.76rem; font-weight:700; display:flex; align-items:center; gap:7px; padding:9px 0}
+.factor .dot{width:9px; height:9px; border-radius:3px; background:var(--c,var(--teal)); flex:none}
+.fstep{position:relative; padding:10px 13px 10px 15px; margin:4px 0; border-radius:11px; background:var(--surf); border:1px solid var(--bd); font-size:.83rem}
+.fstep::before{content:''; position:absolute; left:-6.5px; top:15px; width:11px; height:11px; border-radius:50%; background:var(--c,var(--teal)); border:2px solid var(--bg)}
+.fstep b{color:var(--c,var(--teal))}
+.farrow{text-align:center; color:var(--tf); font-size:.88rem; line-height:1; margin:2px 0}
+.note{background:color-mix(in srgb,var(--amb) 12%,transparent); border:1px solid color-mix(in srgb,var(--amb) 30%,transparent); border-radius:11px; padding:11px 14px; font-size:.83rem}
+
+.ez.editing{outline:1.5px dashed color-mix(in srgb,var(--teal) 50%,transparent); outline-offset:7px; border-radius:12px}
+#editHint{display:none; position:fixed; left:0; right:0; bottom:0; z-index:60; text-align:center; padding:9px 14px; background:color-mix(in srgb,var(--teal) 92%, #000); color:#fff; font-size:.8rem; font-weight:700; box-shadow:0 -6px 20px -8px rgba(0,0,0,.45)}
+#editHint.show{display:block}
+@media print{ nav .ctrls,.noprint,#editHint{display:none!important} .aurora{display:none} body{background:#fff;color:#000} .glass{box-shadow:none;border:1px solid #ccc; break-inside:avoid} nav{position:static} .modes{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:900px){.modes{grid-template-columns:repeat(2,1fr)} .govgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.g3{grid-template-columns:1fr!important} .g2{grid-template-columns:1fr!important} .modes{grid-template-columns:1fr} .govgrid{grid-template-columns:1fr} .nslayer{grid-template-columns:1fr} .frow{grid-template-columns:1fr} .factor{padding:4px 0}}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+
+<div class="wrap ez" id="z-head">
+  <header style="padding:22px 0 14px">
+    <div class="hero-banner">
+      <img src="assets/autocorp/hero.jpg" alt="TONPALEARN — AI ง่ายขึ้น เมื่อมีต้นพาไป">
+    </div>
+    <div class="glass" style="margin-top:16px; padding:0; overflow:hidden">
+      <table>
+        <tr><td style="width:34%; font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Prepared by</td><td><b>TONPALEARN</b> · <a href="https://tonpalearn.com" style="color:var(--teal)" target="_blank">tonpalearn.com</a></td></tr>
+        <tr><td colspan="2" style="text-align:center; padding:20px 12px">
+          <span class="chip" style="--c:var(--gold)">Corporate Training Program</span>
+          <div class="h2 disp" style="margin-top:10px" contenteditable="true">แผนฝึกอบรม AI Agentic ระดับองค์กร — AUTOCORP</div>
+          <div class="ts" style="font-size:.88rem; margin-top:4px">4 หลักสูตรตามบทบาท · ผนวกแนวทาง Deploy AI ในองค์กร และ NetSuite AI</div>
+        </td></tr>
+        <tr><td style="font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Date</td><td contenteditable="true">15 สิงหาคม 2569</td></tr>
+        <tr><td colspan="2" class="ts" style="font-size:.86rem">ติดต่อ: <b contenteditable="true">ชัยวัฒน์ ภูวนนท์จิรกวิน</b> · <span contenteditable="true">093-914-9397</span> · tonpalearn.com · line : @tonpalearn</td></tr>
+      </table>
+    </div>
+    <div class="panel" style="margin-top:14px; padding:13px 17px; display:flex; flex-wrap:wrap; gap:20px; font-size:.85rem">
+      <div><span class="tf">จำนวนหลักสูตร</span> <b style="color:var(--teal)">4 Class</b></div>
+      <div><span class="tf">ผู้เข้าอบรมรวม</span> <b>70 คน</b></div>
+      <div><span class="tf">ระยะเวลา</span> <b>4 วัน · วันละ 4 ชม.</b></div>
+      <div><span class="tf">มูลค่ารวม</span> <b style="color:var(--teal)">฿226,000</b></div>
+    </div>
+  </header>
+</div>
+
+<nav><div class="navin">
+  <div class="navlinks" id="nav">
+    <a href="#s1">ภาพรวม</a>
+    <a href="#s2">4 โหมด Deploy AI</a>
+    <a href="#s3">Governance</a>
+    <a href="#s4">NetSuite AI</a>
+    <a href="#s5">โครงสร้าง 4 Class</a>
+    <a href="#s6">เนื้อหาละเอียด</a>
+    <a href="#s7">Flow การเรียน</a>
+    <a href="#s8">ตารางเวลา</a>
+    <a href="#s9">ราคา</a>
+    <a href="#s10">เงื่อนไข</a>
+    <a href="#s11">ผู้สอน</a>
+    <a href="#s12">ติดต่อ</a>
+  </div>
+  <div class="navdiv"></div>
+  <div class="ctrls noprint" title="ธีม / ขนาดตัวอักษร">
+    <button class="ctrlbtn" data-th="auto" title="ตามระบบ">Auto</button>
+    <button class="ctrlbtn" data-th="light" title="สว่าง">☀</button>
+    <button class="ctrlbtn on" data-th="dark" title="มืด">🌙</button>
+    <span class="navdiv" style="margin:0 2px"></span>
+    <button class="ctrlbtn" data-fs="dn" title="เล็กลง">A−</button>
+    <button class="ctrlbtn on" data-fs="rs" title="ปกติ">A</button>
+    <button class="ctrlbtn" data-fs="up" title="ใหญ่ขึ้น">A+</button>
+    <span class="navdiv" style="margin:0 2px"></span>
+    <button class="ctrlbtn" id="editBtn" title="แก้ไขเอกสาร — คลิกที่ข้อความเพื่อแก้ได้เลย">✏️ แก้ไข</button>
+    <button class="ctrlbtn" id="dlBtn" title="บันทึกเป็นไฟล์ HTML ที่แก้แล้ว">💾</button>
+    <button class="ctrlbtn" id="resetBtn" title="คืนต้นฉบับ (ล้างการแก้ไข)">↺</button>
+    <button class="ctrlbtn" onclick="window.print()" title="พิมพ์ / บันทึก PDF">🖨</button>
+  </div>
+</div></nav>
+
+<div class="wrap ez" id="z-body">
+
+  <!-- 1 Overview -->
+  <section id="s1" class="sec glass" style="padding:26px; margin-top:8px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">1</div><div class="h2 disp">ภาพรวมโครงการ</div></div>
+    <p style="margin-top:0">องค์กรไม่ได้ใช้ AI แบบเดียว — <b>ผู้บริหารต้องตัดสินใจ</b> ว่าจะเอา AI ไปวางตรงไหน · <b>พนักงานต้องใช้ให้ได้จริงทุกวัน</b> โดยไม่ทำข้อมูลรั่ว · <b>ทีม IT ต้องสร้างและคุมระบบเองได้</b> การสอนแบบเดียวทั้งองค์กรจึงไม่ตอบโจทย์ใคร</p>
+    <p>ข้อเสนอนี้ออกแบบเป็น <b>4 หลักสูตรแยกตามบทบาท</b> โดยทุกกลุ่มเริ่มจากฐานความเข้าใจเดียวกันก่อน แล้วจึงแยกไปตามความลึกที่แต่ละบทบาทต้องใช้จริง</p>
+    <p style="margin-bottom:0">จุดต่างของข้อเสนอนี้คือผูกเนื้อหาเข้ากับ <b>2 บริบทจริงของ AUTOCORP</b> — แนวทางการ Deploy AI ในองค์กร (4 โหมด) และ <b>NetSuite</b> ที่องค์กรใช้อยู่ ผู้เรียนจึงไม่ได้เรียน AI ลอย ๆ แต่เห็นเลยว่าเอาไปวางตรงไหนในระบบงานของตัวเอง</p>
+
+    <div class="g3" style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:16px">
+      <div class="panel" style="padding:13px; border-left:3px solid var(--ros)"><b>🎯 โจทย์</b><div class="ts" style="font-size:.82rem; margin-top:3px">สอน AI แบบเดียวทั้งองค์กร → ผู้บริหารเบื่อเพราะง่ายไป พนักงานงงเพราะยากไป ทีม IT ไม่ได้ของที่เอาไปต่อได้</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--teal)"><b>💡 แนวทาง</b><div class="ts" style="font-size:.82rem; margin-top:3px">ฐานร่วม (Basic) ก่อนเสมอ → แยก 3 เส้นทาง: ตัดสินใจได้ (Executive) · ใช้ได้จริง (Staff) · สร้างและคุมได้ (Developer)</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--vio)"><b>⚙️ ผูกกับระบบจริง</b><div class="ts" style="font-size:.82rem; margin-top:3px">4 โหมด Deploy AI + Governance 6 ข้อ + NetSuite AI (Classic → Generative → Agentic → NetSuite Next) รวมถึง MCP Connector</div></div>
+    </div>
+  </section>
+
+  <!-- 2 Deployment Model -->
+  <section id="s2" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">2</div><div class="h2 disp">AutoCorp AI Deployment Model — 4 โหมดการใช้ AI ในองค์กร</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">กรอบอ้างอิงที่ใช้ตลอดหลักสูตร — ทุกกลุ่มต้องรู้ว่างานที่ตัวเองทำอยู่ในโหมดไหน เพราะแต่ละโหมดมีระดับการควบคุมและความเสี่ยงต่างกัน</p>
+
+    <div class="modes">
+      <div class="mode" style="--c:var(--sky)">
+        <div class="mode-head"><div class="no">โหมดที่ 1</div><div class="nm">Employee-Initiated Public AI</div></div>
+        <div class="mode-tag">BYOAI / Public AI</div>
+        <div class="mode-meter"><span class="mtr" style="color:var(--ros)">Control: ต่ำ</span><span class="mtr" style="color:var(--amb)">Risk: ปานกลาง–สูง</span></div>
+        <div class="mode-body"><ul>
+          <li>พนักงานสมัครและใช้งาน AI ด้วยตนเอง</li>
+          <li>ตัวอย่าง: ChatGPT, Gemini, Claude, Perplexity</li>
+          <li>เหมาะกับ: brainstorming, เขียนงาน, แปลภาษา, research ทั่วไป</li>
+          <li>ใช้ได้เฉพาะข้อมูล Public / Non-sensitive</li>
+          <li class="risk">เสี่ยง: Data leakage, Shadow AI</li>
+        </ul></div>
+      </div>
+
+      <div class="mode" style="--c:var(--teal)">
+        <div class="mode-head"><div class="no">โหมดที่ 2</div><div class="nm">Enterprise-Sanctioned SaaS AI</div></div>
+        <div class="mode-tag">Approved Enterprise AI</div>
+        <div class="mode-meter"><span class="mtr" style="color:var(--amb)">Control: กลาง–สูง</span><span class="mtr" style="color:var(--amb)">Risk: กลาง</span></div>
+        <div class="mode-body"><ul>
+          <li>บริษัทจัดซื้อ อนุมัติ และกำหนดให้ใช้งาน</li>
+          <li>ตัวอย่าง: Gemini for Workspace, Microsoft Copilot, ChatGPT Enterprise</li>
+          <li>เพิ่ม productivity ในงานเอกสาร ประชุม และวิเคราะห์ข้อมูลทั่วไป</li>
+          <li>องค์กรควบคุมได้ผ่าน SSO, Admin, DLP, Audit Log</li>
+          <li class="risk">เสี่ยง: Vendor risk, privacy, data governance</li>
+        </ul></div>
+      </div>
+
+      <div class="mode" style="--c:var(--vio)">
+        <div class="mode-head"><div class="no">โหมดที่ 3</div><div class="nm">Enterprise Private Agentic AI</div></div>
+        <div class="mode-tag">Governed Private Agentic AI</div>
+        <div class="mode-meter"><span class="mtr" style="color:var(--emr)">Control: สูงมาก</span><span class="mtr" style="color:var(--ros)">Risk: สูง</span></div>
+        <div class="mode-body"><ul>
+          <li>AI Agents บน Private Cloud / ระบบที่บริษัทกำหนด</li>
+          <li>เชื่อม RAG, Knowledge Base, API, Workflow, MCP</li>
+          <li>ทำได้มากกว่า Generate — Reason, Retrieve, Recommend, Execute</li>
+          <li>ต้องมี RBAC, Least Privilege, Human Approval, Audit Trail</li>
+          <li class="risk">เสี่ยง: Tool abuse, excessive autonomy, system access</li>
+        </ul></div>
+      </div>
+
+      <div class="mode" style="--c:var(--gold)">
+        <div class="mode-head"><div class="no">โหมดที่ 4</div><div class="nm">Application-Embedded AI</div></div>
+        <div class="mode-tag">ERP-Native / System-Embedded AI</div>
+        <div class="mode-meter"><span class="mtr" style="color:var(--emr)">Control: สูงมาก</span><span class="mtr" style="color:var(--ros)">Risk: สูง–วิกฤต</span></div>
+        <div class="mode-body"><ul>
+          <li>AI Feature ที่ฝังอยู่ในระบบธุรกิจ เช่น ERP</li>
+          <li>ตัวอย่าง: <b>NetSuite AI</b> / system-native AI features</li>
+          <li>ใช้ข้อมูลในระบบธุรกิจโดยตรง — การเงิน สินค้าคงคลัง ลูกค้า จัดซื้อ</li>
+          <li>ต้องคุมสิทธิ์ธุรกรรม การอนุมัติ และ segregation of duties</li>
+          <li class="risk">เสี่ยง: Business impact, transaction error, compliance</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="tf" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin:22px 0 8px">หลักสูตรไหน ครอบคลุมโหมดไหน</div>
+    <div style="overflow-x:auto"><table style="min-width:620px">
+      <thead><tr><th>หลักสูตร</th><th>โหมด 1<div class="tf" style="font-size:.66rem; text-transform:none">Public AI</div></th><th>โหมด 2<div class="tf" style="font-size:.66rem; text-transform:none">SaaS AI</div></th><th>โหมด 3<div class="tf" style="font-size:.66rem; text-transform:none">Private Agentic</div></th><th>โหมด 4<div class="tf" style="font-size:.66rem; text-transform:none">Embedded / ERP</div></th></tr></thead>
+      <tbody>
+        <tr><td><b style="color:var(--teal)">1 · Basic</b></td><td>✅ ลึก</td><td>✅ ลึก</td><td class="tf">รู้จัก</td><td class="tf">รู้จัก</td></tr>
+        <tr><td><b style="color:var(--gold)">2 · Executive</b></td><td>✅</td><td>✅</td><td>✅ ตัดสินใจ</td><td>✅ ตัดสินใจ</td></tr>
+        <tr><td><b style="color:var(--emr)">3 · Staff</b></td><td class="tf">ทบทวน</td><td>✅ ลึก</td><td>✅ ลงมือ</td><td>✅ ใช้งาน</td></tr>
+        <tr><td><b style="color:var(--vio)">4 · Developer</b></td><td class="tf">—</td><td class="tf">ทบทวน</td><td>✅ สร้างเอง</td><td>✅ ต่อ MCP จริง</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 3 Governance -->
+  <section id="s3" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">3</div><div class="h2 disp">Common AI Governance Principles — 6 หลักการร่วม</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">ใช้ได้กับทุกโหมด สอนเป็นบทปิดใน Class 1 (Basic) และลงรายละเอียดเชิงเทคนิคอีกครั้งใน Class 4 (Developer)</p>
+
+    <div class="govgrid">
+      <div class="gov"><div class="gn">1</div><div><b>Data Classification</b><div class="gd">จัดประเภทข้อมูลตามความอ่อนไหว และกำหนดการใช้งานที่เหมาะสม</div></div></div>
+      <div class="gov"><div class="gn">2</div><div><b>AI Registry</b><div class="gd">ลงทะเบียนและอนุมัติเครื่องมือ/โมเดล AI พร้อมเจ้าของและวัตถุประสงค์</div></div></div>
+      <div class="gov"><div class="gn">3</div><div><b>Human Accountability</b><div class="gd">กำหนดความรับผิดชอบของมนุษย์ในการตัดสินใจและผลลัพธ์ที่สำคัญ</div></div></div>
+      <div class="gov"><div class="gn">4</div><div><b>Security &amp; Access Control</b><div class="gd">ควบคุมสิทธิ์ตามหลัก Least Privilege และปกป้องข้อมูลตลอดวงจรชีวิต</div></div></div>
+      <div class="gov"><div class="gn">5</div><div><b>Monitoring &amp; Audit Trail</b><div class="gd">ติดตามการใช้งาน ตรวจจับความผิดปกติ และบันทึก Audit Trail อย่างต่อเนื่อง</div></div></div>
+      <div class="gov"><div class="gn">6</div><div><b>Compliance &amp; Risk-Based Governance</b><div class="gd">ปฏิบัติตามกฎหมาย/มาตรฐาน และบริหารความเสี่ยงตามระดับของข้อมูลและผลกระทบ</div></div></div>
+    </div>
+
+    <div class="axiom">🛡️ หลักสำคัญ: ยิ่งข้อมูลอ่อนไหวมากขึ้น + AI มี autonomy มากขึ้น + ผลกระทบทางธุรกิจสูงขึ้น = ต้องมี governance ที่เข้มงวดมากขึ้น</div>
+  </section>
+
+  <!-- 4 NetSuite -->
+  <section id="s4" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">4</div><div class="h2 disp">NetSuite AI — สิ่งที่ AUTOCORP มีอยู่แล้วในระบบ</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">NetSuite แบ่ง AI เป็น 3 ชั้น และกำลังเดินหน้าสู่ NetSuite Next — หลักสูตรนี้จะทำให้ทีมเห็นว่าอะไรเปิดใช้ได้เลย อะไรต้องเตรียม และอะไรที่ต่อเข้ากับ AI ภายนอกได้</p>
+
+    <div style="margin-top:14px">
+      <div class="nslayer" style="--c:var(--sky)">
+        <div class="nslabel">Classic AI<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">วิเคราะห์/ทำนาย</div></div>
+        <div class="nsitems">
+          <span class="nstag">Intelligent Item Recommendations</span><span class="nstag">Bill Capture</span><span class="nstag">Financial Exception</span><span class="nstag">Predictive Forecasts</span>
+        </div>
+      </div>
+      <div class="nslayer" style="--c:var(--teal)">
+        <div class="nslabel">Generative AI<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">สร้างเนื้อหา</div></div>
+        <div class="nsitems">
+          <span class="nstag">Text Enhance</span><span class="nstag">Prompt Studio</span><span class="nstag">LLM Module (N/llm)</span><span class="nstag">GenAI API</span><span class="nstag">Narrative Insight</span>
+        </div>
+      </div>
+      <div class="nslayer" style="--c:var(--vio)">
+        <div class="nslabel">Agentic AI<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">ลงมือทำแทน</div></div>
+        <div class="nsitems">
+          <span class="nstag">Agent Studio</span><span class="nstag">Multi-turn Agents</span><span class="nstag" style="border-color:var(--vio); color:var(--vio)">MCP Integration</span><span class="nstag">3rd Party Integrations</span>
+        </div>
+      </div>
+      <div class="nslayer" style="--c:var(--gold)">
+        <div class="nslabel">NetSuite Next<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">รุ่นถัดไป</div></div>
+        <div class="nsitems">
+          <span class="nstag">Ask Oracle (Chat / Search / Explore)</span><span class="nstag">AI Canvas</span><span class="nstag">Ask Oracle Skills</span><span class="nstag">SuiteAgents</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px">
+      <div class="panel" style="padding:15px; border-left:3px solid var(--vio)">
+        <div class="h3 disp" style="color:var(--vio); margin-bottom:6px">🔌 NetSuite AI Connector Service (MCP)</div>
+        <div class="ts" style="font-size:.84rem">จุดที่น่าสนใจที่สุดสำหรับ AUTOCORP — เป็นชั้นเชื่อม AI ภายนอก (เช่น Claude) เข้ากับข้อมูล NetSuite ผ่าน MCP ถามเป็นภาษาธรรมชาติได้ ไม่ต้องเขียน integration เอง และทำงานบน security model เดิมของ NetSuite</div>
+        <ul class="cl" style="--c:var(--vio); font-size:.82rem; margin-top:8px">
+          <li>สอนติดตั้งจริงใน <b>Class 4 · Developer</b></li>
+          <li>ตามเอกสาร Oracle: <b>ไม่กิน AI Units</b> เพราะประมวลผลฝั่ง LLM ของลูกค้า</li>
+          <li>แต่นับรวมใน <b>service concurrency limit</b> — ต้องวางแผนการใช้งานพร้อมกัน</li>
+        </ul>
+      </div>
+      <div class="panel" style="padding:15px; border-left:3px solid var(--gold)">
+        <div class="h3 disp" style="color:var(--gold); margin-bottom:6px">💰 เศรษฐศาสตร์ AI Units</div>
+        <div class="ts" style="font-size:.84rem">ผู้บริหารต้องรู้ว่าฟีเจอร์ไหนกินงบเท่าไร ก่อนเปิดใช้ทั้งองค์กร — สอนใน <b>Class 2 · Executive</b></div>
+        <div style="overflow-x:auto; margin-top:8px"><table style="font-size:.79rem">
+          <thead><tr><th>ฟีเจอร์</th><th style="text-align:right">AI Units (ประมาณ)</th></tr></thead>
+          <tbody>
+            <tr><td>Ask Oracle (ถามสั้น → วิเคราะห์ → research)</td><td style="text-align:right">~10 · 10–50 · 50–200</td></tr>
+            <tr><td>Narrative Insights</td><td style="text-align:right">5–200</td></tr>
+            <tr><td>Case Summary</td><td style="text-align:right">5–75</td></tr>
+            <tr><td>SuiteScript N/llm</td><td style="text-align:right">5–25</td></tr>
+            <tr><td>Text Enhance / Prompt Studio</td><td style="text-align:right">5–10</td></tr>
+          </tbody>
+        </table></div>
+        <div class="tf" style="font-size:.75rem; margin-top:7px">สิทธิ์ที่ได้: 1,000 AI Units / ผู้ใช้ / เดือน (General Access license) · <b>ไม่กิน Units:</b> MCP Connector, EPM, NSAW และ Classic AI</div>
+      </div>
+    </div>
+
+    <div class="note" style="margin-top:14px"><b>หมายเหตุ:</b> ข้อมูล NetSuite ทั้งหมดในหน้านี้อ้างอิงจากเอกสารนำเสนอของ Oracle NetSuite (ส.ค. 2569) ที่ AUTOCORP ได้รับ — ตัวเลข AI Units เป็น <b>ค่าประมาณสำหรับวางแผน</b> ไม่ใช่การรับประกัน และการเปิดใช้จริงต้องยืนยันกับ Oracle อีกครั้ง</div>
+  </section>
+
+  <!-- 5 Structure -->
+  <section id="s5" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">5</div><div class="h2 disp">โครงสร้าง 4 หลักสูตร</div></div>
+    <div style="overflow-x:auto"><table style="min-width:680px">
+      <thead><tr><th>หลักสูตร</th><th>กลุ่มเป้าหมาย</th><th>ผลลัพธ์ที่ต้องได้</th><th>เวลา</th><th style="text-align:right">คน</th></tr></thead>
+      <tbody>
+        <tr><td><b style="color:var(--teal)">1 · Basic</b><div class="tf" style="font-size:.75rem">ฐานร่วมทั้งองค์กร</div></td><td>ทุกคน (กลุ่ม 2+3 เข้าร่วมด้วย)</td><td>ใช้ AI เป็น ได้งานตรงความต้องการ และรู้ว่าอะไรพิมพ์ลงไปได้/ไม่ได้</td><td>4 ชม.</td><td style="text-align:right">30</td></tr>
+        <tr><td><b style="color:var(--gold)">2 · Executive</b><div class="tf" style="font-size:.75rem">ผู้บริหาร</div></td><td>ผู้บริหาร / หัวหน้าสายงาน</td><td>ตัดสินใจได้ว่าจะวาง AI โหมดไหน กับงานไหน คุ้มไหม เสี่ยงแค่ไหน</td><td>4 ชม.</td><td style="text-align:right">20</td></tr>
+        <tr><td><b style="color:var(--emr)">3 · Staff</b><div class="tf" style="font-size:.75rem">Key Person</div></td><td>ตัวแทนแต่ละแผนก</td><td>สร้างเครื่องมือ AI ของตัวเองได้จริง และเอาไปใช้ต่อวันรุ่งขึ้น</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
+        <tr><td><b style="color:var(--vio)">4 · Developer</b><div class="tf" style="font-size:.75rem">IT / Technical</div></td><td>ทีมพัฒนา / NetSuite Admin</td><td>ต่อ AI เข้าระบบจริงได้ พร้อมคุมสิทธิ์และ Audit Trail</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note" style="margin-top:12px">Class 2 และ 3 <b>ต่อยอดจาก Class 1</b> จึงควรจัด Class 1 ก่อนเสมอ · Class 4 <b>แยกอิสระ</b> จัดวันไหนก็ได้ ไม่ต้องผ่าน Class 1</div>
+  </section>
+
+  <!-- 6 Detailed content -->
+  <section id="s6" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">6</div><div class="h2 disp">เนื้อหาแต่ละหลักสูตร — ผู้เรียนจะได้อะไร</div></div>
+    <p class="ts" style="font-size:.86rem; margin-top:0">แบ่งเป็น Module ตามช่วงเวลาจริง · ปรับตัวอย่างให้ตรงกับธุรกิจและระบบของ AUTOCORP ทุกหลักสูตร</p>
+
+    <!-- Class 1 -->
+    <div class="classhead" style="background:color-mix(in srgb,var(--teal) 8%,transparent)"><span class="chip" style="--c:var(--teal)">4 ชม. · 30 คน</span><div class="h3 disp">Class 1 · Basic — พื้นฐานการใช้ AI ที่ถูกต้องและปลอดภัย</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. AI คืออะไรกันแน่</b></td><td>40 นาที</td><td>ภาพรวม AI ยุคปัจจุบัน · <b>Classic → Generative → Agentic</b> ต่างกันยังไง (ใช้ชั้น AI ของ NetSuite เป็นตัวอย่างจริง) · เห็นภาพ End-to-End ว่า Agentic Workflow หน้าตาเป็นยังไง</td></tr>
+        <tr><td><b>2. 4 โหมดการใช้ AI ในองค์กร</b><div class="tf" style="font-size:.72rem">+ Data Classification</div></td><td>40 นาที</td><td>อธิบาย 4 โหมดตาม AutoCorp AI Deployment Model · <b>สิ่งที่ทุกคนต้องกลับไปได้:</b> รู้ว่างานที่ตัวเองทำอยู่โหมดไหน และข้อมูลแบบไหน<b>ห้าม</b>พิมพ์ลง Public AI เด็ดขาด</td></tr>
+        <tr><td><b>3. Prompt ที่ถูกต้อง</b></td><td>70 นาที<div class="tf" style="font-size:.72rem">ทฤษฎี 25 + Workshop 45</div></td><td>หลักการเขียน Prompt ให้ได้งานตรงความต้องการ — Context / Instruction / Format · เทียบ Prompt ที่ใช้ได้ผลจริง กับ Prompt ที่มั่ว · <b>Workshop:</b> ฝึกจากงานจริงของตัวเองจนได้ผลลัพธ์ที่ใช้ได้</td></tr>
+        <tr><td><b>4. User Preference (Agent File)</b></td><td>70 นาที<div class="tf" style="font-size:.72rem">ทฤษฎี 25 + Workshop 45</div></td><td>Agent File คือ "DNA" ของ AI ผู้ช่วย — ทำให้ AI รู้จักเราและบริบทงานจริง ๆ · องค์ประกอบที่ต้องมี: Role / Context / Tone / Output Format · <b>Workshop:</b> เขียน User Preference ของตัวเอง</td></tr>
+        <tr><td><b>5. Guardrail &amp; Governance</b></td><td>20 นาที</td><td>สรุป 6 หลักการ Governance ในภาษาที่พนักงานเข้าใจและทำตามได้จริง</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> Agent File ของตัวเอง 1 ไฟล์ + ชุด Prompt ที่ทดสอบแล้วว่าใช้ได้ + ความชัดเจนว่าข้อมูลแบบไหนใช้กับ AI ตัวไหนได้</div></div>
+    </div>
+
+    <!-- Class 2 -->
+    <div class="classhead" style="background:color-mix(in srgb,var(--gold) 8%,transparent)"><span class="chip" style="--c:var(--gold)">4 ชม. · 20 คน</span><div class="h3 disp">Class 2 · Executive — ตัดสินใจเรื่อง AI ได้อย่างมีหลักการ</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. Recap + มุมมองกลยุทธ์</b></td><td>20 นาที</td><td>เชื่อมจาก Basic สู่การตัดสินใจระดับผู้บริหาร — ใช้ AI ตรงไหนเพื่อ<b>สร้างมูลค่า</b> ไม่ใช่แค่ประหยัดเวลา</td></tr>
+        <tr><td><b>2. เลือกโหมดให้ตรงงาน</b><div class="tf" style="font-size:.72rem">Risk vs Control</div></td><td>50 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ใช้ Deployment Model เป็นเครื่องมือตัดสินใจ · <b>Workshop:</b> เอางานจริงของ AUTOCORP มาจัดว่าควรอยู่โหมดไหน และต้องมี control อะไรรองรับ</td></tr>
+        <tr><td><b>3. NetSuite AI Roadmap</b></td><td>50 นาที</td><td>อะไรเปิดใช้ได้เลยวันนี้ (Text Enhance, Narrative Insight, Bill Capture, Financial Exception, Bank Matching) · อะไรต้องเตรียม (Agent Studio, MCP) · <b>NetSuite Next</b> กำลังจะมาอะไรบ้าง — Ask Oracle, AI Canvas, SuiteAgents</td></tr>
+        <tr><td><b>4. เศรษฐศาสตร์ AI Units</b></td><td>40 นาที</td><td>ฟีเจอร์ไหนกิน Units เท่าไร · สิทธิ์ 1,000 Units/ผู้ใช้/เดือน พอไหม · อะไร<b>ไม่กิน</b> Units (MCP, NSAW, EPM, Classic AI) · วางงบและ usage alert ไม่ให้เกิน</td></tr>
+        <tr><td><b>5. Demo — AI ช่วยตัดสินใจ</b></td><td>40 นาที<div class="tf" style="font-size:.72rem">Demo สด</div></td><td>Multi-agent Panel Review — ให้ AI หลายมุมมองกลั่นกรองก่อนถึงมือผู้บริหาร · สร้าง Dashboard จากข้อมูลจริงภายในไม่กี่นาที</td></tr>
+        <tr><td><b>6. Brainstorm Roadmap</b></td><td>40 นาที</td><td>Facilitate ให้ผู้บริหารช่วยกันคิดและ<b>จัดลำดับ</b>ว่าจุดไหนในองค์กรควรเอา AI ไปใช้ก่อน พร้อมประเมินความเสี่ยงตามโหมด</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> ร่าง AI Transformation Roadmap ขององค์กร (สรุปจาก Brainstorm) + ตารางจับคู่งาน↔โหมด↔control ที่ต้องมี</div></div>
+    </div>
+
+    <!-- Class 3 -->
+    <div class="classhead" style="background:color-mix(in srgb,var(--emr) 8%,transparent)"><span class="chip" style="--c:var(--emr)">4 ชม. · 10 คน</span><div class="h3 disp">Class 3 · Staff (Key Person) — Workshop ลงมือใช้จริง</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. Recap + ตั้งเป้า</b></td><td>15 นาที</td><td>ทบทวน Basic สั้น ๆ · แต่ละคนตั้งเป้าว่าจะสร้างเครื่องมืออะไรให้เสร็จวันนี้</td></tr>
+        <tr><td><b>2. Setup Claude Cowork</b></td><td>45 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ติดตั้ง + สร้าง Project จริง + ใส่ User Preference ที่เขียนไว้จาก Class 1</td></tr>
+        <tr><td><b>3. Connector — เชื่อมระบบจริง</b></td><td>60 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>เชื่อมเครื่องมือที่ใช้อยู่จริง (Google Workspace / เอกสาร / อีเมล) · สั่งงานข้ามระบบในคำสั่งเดียว เช่น อ่านไฟล์ → สรุป → ร่างอีเมล</td></tr>
+        <tr><td><b>4. สร้าง Skill จากงานจริง</b></td><td>75 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>4 ขั้นตอนสร้าง Skill จากงานประจำวันของตัวเอง (Trigger → Context → Steps → Output) + ทดสอบซ้ำจนได้ผลลัพธ์ที่ไว้ใจได้</td></tr>
+        <tr><td><b>5. NetSuite AI ที่ใช้ได้ทันที</b><div class="tf" style="font-size:.72rem">+ นำเสนอผลงาน</div></td><td>45 นาที</td><td>พาใช้ฟีเจอร์ที่มีอยู่แล้วในระบบ — Text Enhance, Narrative Insight, Bill Capture, Bank Transaction Matching · แต่ละคนโชว์ Skill ที่สร้าง + วางแผนใช้จริง 30 วัน</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> Skill ที่ทำงานได้จริงอย่างน้อย 1 ตัวต่อคน + Workflow Map ของงานตัวเอง 30 วันข้างหน้า</div></div>
+    </div>
+
+    <!-- Class 4 -->
+    <div class="classhead" style="background:color-mix(in srgb,var(--vio) 8%,transparent)"><span class="chip" style="--c:var(--vio)">4 ชม. · 10 คน</span><div class="h3 disp">Class 4 · Developer — ต่อ AI เข้าระบบจริง และคุมให้ปลอดภัย</div></div>
+    <div class="classbody">
+      <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
+        <tr><td><b>1. Claude Code + Multi-agent SDLC</b></td><td>20 นาที</td><td>ต่างจาก Claude ทั่วไปยังไง · เหมาะกับงานพัฒนาระบบแบบไหน · ภาพรวมการทำงานเป็นทีม AI</td></tr>
+        <tr><td><b>2. สร้าง Multi-agent Team</b></td><td>50 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ตั้งบทบาท BA / SA / Dev / Tester ให้ AI แต่ละตัว แบ่งหน้าที่ชัดเจนว่าใครทำอะไร <b>และใครห้ามทำอะไร</b> · เขียน PRD จากโจทย์จริง</td></tr>
+        <tr><td><b>3. NetSuite AI Connector (MCP)</b><div class="tf" style="font-size:.72rem">⭐ ไฮไลต์ของคลาส</div></td><td>70 นาที<div class="tf" style="font-size:.72rem">Workshop ติดตั้งจริง</div></td><td>ติดตั้ง MCP ตามขั้นตอนจริงของ Oracle: เปิด <b>Server SuiteScript</b> + <b>OAuth 2.0</b> → ตั้ง Role permission (<b>MCP Server Connection</b>, <b>Log in using OAuth 2.0 Access Tokens</b>) → ติดตั้ง <b>MCP Standard Tools</b> SuiteApp → สร้าง Integration + Redirect URL → <b>เชื่อม Claude แล้วถามข้อมูล NetSuite จริงเป็นภาษาไทย</b></td></tr>
+        <tr><td><b>4. เครื่องมือ Dev ใน NetSuite</b></td><td>50 นาที</td><td><b>SuiteCloud Developer Assistant</b> — generate SuiteScript / SDF object จากภาษาธรรมชาติ · <b>SuiteScript N/llm</b> และ <b>Prompt Studio</b> — ฝัง AI ลงใน workflow ของระบบเอง</td></tr>
+        <tr><td><b>5. Governance เชิงเทคนิค</b></td><td>50 นาที</td><td>RBAC และ Least Privilege บน NetSuite · Human Approval ก่อน Agent เขียนข้อมูลจริง · Audit Trail และการตรวจย้อนหลัง · ข้อควรระวังเรื่อง <b>concurrency limit</b> ของ MCP · Dev Loop ปิดท้าย</td></tr>
+      </tbody></table>
+      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> MCP Connector ที่ต่อ NetSuite ได้จริงในสภาพแวดล้อมทดสอบ + Multi-agent Team Template + เช็กลิสต์ Governance สำหรับอนุมัติ AI use case ใหม่</div></div>
+    </div>
+  </section>
+
+  <!-- 7 Flow -->
+  <section id="s7" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">7</div><div class="h2 disp">Flow การเรียน</div></div>
+    <p class="ts" style="font-size:.86rem; margin-top:0">ทุกคนเริ่มจากฐานเดียวกันก่อนแยกไปตามบทบาท — Developer เป็นเส้นทางแยกอิสระ</p>
+    <div class="flow">
+      <div class="frow"><div class="factor" style="--c:var(--teal)"><span class="dot"></span>ทุกคน</div><div><div class="fstep" style="--c:var(--teal)"><b>Class 1 · Basic</b> — AI คืออะไร · 4 โหมด + Data Classification · Prompt · Agent File · Governance (4 ชม. · 30 คน)</div></div></div>
+      <div class="farrow">▼ แยกเส้นทางตามบทบาท ▼</div>
+      <div class="frow"><div class="factor" style="--c:var(--gold)"><span class="dot"></span>ผู้บริหาร</div><div><div class="fstep" style="--c:var(--gold)"><b>Class 2 · Executive</b> — เลือกโหมด · NetSuite Roadmap · AI Units · Demo · Brainstorm (4 ชม. · 20 คน)</div></div></div>
+      <div class="frow"><div class="factor" style="--c:var(--emr)"><span class="dot"></span>Key Person</div><div><div class="fstep" style="--c:var(--emr)"><b>Class 3 · Staff</b> — Cowork · Connector · Skill · NetSuite AI ที่ใช้ได้ทันที (4 ชม. · 10 คน)</div></div></div>
+      <div class="farrow">— แยกอิสระ ไม่ต้องผ่าน Class 1 —</div>
+      <div class="frow"><div class="factor" style="--c:var(--vio)"><span class="dot"></span>Developer</div><div><div class="fstep" style="--c:var(--vio)"><b>Class 4 · Developer</b> — Multi-agent SDLC · <b>MCP เข้า NetSuite</b> · SuiteCloud Assistant · Governance เชิงเทคนิค (4 ชม. · 10 คน)</div></div></div>
+    </div>
+  </section>
+
+  <!-- 8 Schedule -->
+  <section id="s8" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">8</div><div class="h2 disp">ตารางเวลา — 4 วัน วันละครึ่งวัน</div></div>
+    <p class="ts" style="font-size:.86rem; margin-top:0">1 หลักสูตรต่อ 1 วัน (ครึ่งวัน) · วิทยากรคนเดียวพอทุกวัน · ไม่ต้องเช่าห้องคู่ขนาน · เว้นระยะระหว่างวันได้ตามสะดวก</p>
+    <table><thead><tr><th>วัน</th><th>ช่วงเวลา</th><th>หลักสูตร</th><th style="text-align:right">จำนวนคน</th></tr></thead><tbody>
+      <tr><td>Day 1</td><td>09:00–13:00 (4 ชม.)</td><td><b style="color:var(--teal)">Class 1 · Basic</b></td><td style="text-align:right">30</td></tr>
+      <tr><td>Day 2</td><td>09:00–13:00 (4 ชม.)</td><td><b style="color:var(--gold)">Class 2 · Executive</b></td><td style="text-align:right">20</td></tr>
+      <tr><td>Day 3</td><td>09:00–13:00 (4 ชม.)</td><td><b style="color:var(--emr)">Class 3 · Staff</b></td><td style="text-align:right">10</td></tr>
+      <tr><td>Day 4</td><td>09:00–13:00 (4 ชม.)</td><td><b style="color:var(--vio)">Class 4 · Developer</b></td><td style="text-align:right">10</td></tr>
+    </tbody></table>
+    <div class="note" style="margin-top:12px">ลำดับวันปรับสลับได้ตามความสะดวก — แนะนำให้ <b>Day 1 (Basic) มาก่อน Day 2–3 เสมอ</b> เพราะทั้งสองต่อยอดจากเนื้อหา Basic · Day 4 (Developer) จัดวันไหนก็ได้</div>
+  </section>
+
+  <!-- 9 Pricing -->
+  <section id="s9" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">9</div><div class="h2 disp">ราคา</div></div>
+    <div class="note" style="margin-bottom:12px"><b>หลักคิดราคา (ทุกหลักสูตรเหมือนกัน):</b> คนแรก <b>7,000 บาท</b> · คนต่อไปคนละ <b>3,000 บาท</b></div>
+    <div style="overflow-x:auto"><table style="min-width:620px"><thead><tr><th>หลักสูตร</th><th style="text-align:right">จำนวนคน</th><th style="text-align:right">คำนวณ</th><th style="text-align:right">ราคา (฿)</th></tr></thead><tbody>
+      <tr><td><b style="color:var(--teal)">1 · Basic</b></td><td style="text-align:right">30</td><td class="tf" style="text-align:right">7,000 + 29×3,000</td><td style="text-align:right">94,000</td></tr>
+      <tr><td><b style="color:var(--gold)">2 · Executive</b></td><td style="text-align:right">20</td><td class="tf" style="text-align:right">7,000 + 19×3,000</td><td style="text-align:right">64,000</td></tr>
+      <tr><td><b style="color:var(--emr)">3 · Staff</b></td><td style="text-align:right">10</td><td class="tf" style="text-align:right">7,000 + 9×3,000</td><td style="text-align:right">34,000</td></tr>
+      <tr><td><b style="color:var(--vio)">4 · Developer</b></td><td style="text-align:right">10</td><td class="tf" style="text-align:right">7,000 + 9×3,000</td><td style="text-align:right">34,000</td></tr>
+      <tr class="tot"><td>รวมทั้ง 4 หลักสูตร (70 คน)</td><td style="text-align:right">—</td><td style="text-align:right">—</td><td style="text-align:right; color:var(--teal)">226,000</td></tr>
+    </tbody></table></div>
+    <div class="ts" style="font-size:.78rem; margin-top:8px">ยังไม่รวม VAT 7% · ไม่รวมค่าเดินทาง/ที่พัก (ถ้ามี)</div>
+  </section>
+
+  <!-- 10 Terms -->
+  <section id="s10" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">10</div><div class="h2 disp">เงื่อนไข &amp; สิ่งที่รวมอยู่ในราคา</div></div>
+    <div class="g2" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:10px">
+      <div class="panel" style="padding:15px">
+        <div style="font-weight:800; margin-bottom:5px">💳 การชำระเงิน</div>
+        <ul class="cl" style="font-size:.83rem">
+          <li>มัดจำ 50% ตอน Kick-off Project</li>
+          <li>ส่วนที่เหลือ 50% ก่อนวันสอนวันแรก 7 วันทำการ</li>
+          <li>รับ PO + ออกใบกำกับภาษีเต็มรูปแบบ</li>
+        </ul>
+      </div>
+      <div class="panel" style="padding:15px">
+        <div style="font-weight:800; margin-bottom:5px">📋 รวมอยู่ในราคาแล้ว</div>
+        <ul class="cl" style="font-size:.83rem">
+          <li>Pre-class prep session 2 ชม. (นัดกับ HR / L&amp;D)</li>
+          <li>ปรับตัวอย่างให้ตรงธุรกิจและระบบของ AUTOCORP ทุกหลักสูตร</li>
+          <li>เอกสารประกอบการอบรม (PDF)</li>
+          <li>Support หลังคลาส 14 วัน ผ่านกลุ่ม LINE</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel" style="padding:15px; margin-top:14px">
+      <div style="font-weight:800; margin-bottom:5px">🔧 สิ่งที่ AUTOCORP ต้องเตรียม</div>
+      <ul class="cl" style="font-size:.83rem; --c:var(--amb)">
+        <li>ห้องอบรม + อินเทอร์เน็ต + คอมพิวเตอร์สำหรับผู้เรียน (Class 3 และ 4 จำเป็นต้องมี)</li>
+        <li>สำหรับ Class 4: บัญชี NetSuite <b>สภาพแวดล้อมทดสอบ (Sandbox)</b> พร้อมสิทธิ์ Administrator สำหรับติดตั้ง MCP</li>
+        <li>ยืนยันกับ Oracle ว่าบัญชีมีสิทธิ์ใช้ฟีเจอร์ AI ที่เกี่ยวข้องก่อนวันอบรม</li>
+      </ul>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:24px; font-size:.85rem" class="g2">
+      <div style="border-top:1px solid var(--bd2); padding-top:8px">ผู้เสนอ (TONPALEARN)<div class="tf" style="margin-top:30px">ลงชื่อ / วันที่</div></div>
+      <div style="border-top:1px solid var(--bd2); padding-top:8px">ผู้อนุมัติ (AUTOCORP)<div class="tf" style="margin-top:30px">ลงชื่อ / วันที่</div></div>
+    </div>
+  </section>
+
+  <!-- 11 Instructor -->
+  <section id="s11" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">11</div><div class="h2 disp">ประวัติผู้สอน &amp; ผลงานที่ผ่านมา</div></div>
+    <div class="g2" style="display:grid; grid-template-columns:220px 1fr; gap:20px; align-items:start">
+      <img class="bio-photo" src="assets/autocorp/bio-portrait.jpg" alt="ชัยวัฒน์ ภูวนนท์จิรกวิน" style="aspect-ratio:3/4; object-fit:cover">
+      <div>
+        <div class="h3 disp" style="color:var(--teal)">CEO &amp; Founder TONPALEARN</div>
+        <ul class="cl" style="margin-top:6px">
+          <li>สอนและฝึกอบรม AI Agentic</li>
+          <li>ที่ปรึกษาทางธุรกิจองค์กร เพื่อทำ AI Transformation</li>
+          <li>พัฒนาระบบงานเพื่อองค์กร ด้วย AI Agentic</li>
+        </ul>
+        <div class="h3 disp" style="color:var(--vio); margin-top:14px">CEO &amp; Co-founder UP Wellness</div>
+        <div class="ts" style="font-size:.86rem">ทำธุรกิจด้านสุขภาพ และ Longevity</div>
+        <div class="h3 disp" style="color:var(--gold); margin-top:14px">Project Management Specialist</div>
+        <div class="ts" style="font-size:.86rem; margin-bottom:8px">15 ปีในสนามจริงของงานบริหารโปรเจกต์ระดับองค์กร</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px">
+          <span class="chip" style="--c:var(--slate)">True Corporation</span>
+          <span class="chip" style="--c:var(--slate)">Kasikornbank</span>
+          <span class="chip" style="--c:var(--slate)">Krungsri Auto</span>
+          <span class="chip" style="--c:var(--slate)">กระทรวงการต่างประเทศ</span>
+          <span class="chip" style="--c:var(--slate)">กรมการขนส่งทางบก</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px">พื้นฐาน Computer Engineering, Project Manager และเป็น CEO เจ้าของธุรกิจเอง ทำให้เข้าใจทั้งฝั่งเทคนิค และฝั่งคนทำงานจริง — สอนแบบจับมือทำให้เห็นผลในวันเดียว ไม่ใช่แค่พรีเซนต์สไลด์แล้วจบ</p>
+
+    <div class="tf" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin:20px 0 6px">ผลงานที่ผ่านมา</div>
+    <p style="margin-top:0">อบรมทั้งรูปแบบบุคคล กลุ่ม และองค์กรจริงมาแล้วมากกว่า <b style="color:var(--teal)">500 ชั่วโมง</b></p>
+    <ul class="cl">
+      <li>AutoCorp (100+ ชม.)</li>
+      <li>BabyAndMom (50+ ชม.)</li>
+      <li>SME อื่นๆ อีกกว่า 30 ธุรกิจ</li>
+      <li>1 ใน Speaker ในงาน <b>One Person Business Summit 2026</b></li>
+    </ul>
+    <div class="gal">
+      <img src="assets/autocorp/opb-poster.jpg" alt="One Person Business Summit 2026 — speaker lineup">
+      <img src="assets/autocorp/stage-wide.jpg" alt="ชัยวัฒน์ ภูวนนท์จิรกวิน พูดบนเวที OPB Summit 2026">
+      <img src="assets/autocorp/workshop-group.jpg" alt="อบรมกลุ่มย่อยจริง">
+      <img src="assets/autocorp/workshop-teach.jpg" alt="สอนจับมือทำจริง">
+    </div>
+  </section>
+
+  <!-- 12 Contact + next steps -->
+  <section id="s12" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">12</div><div class="h2 disp">ขั้นตอนถัดไป &amp; ติดต่อ</div></div>
+    <div class="panel" style="overflow:hidden"><table>
+      <thead><tr><th>Action Items</th><th style="text-align:right">Status</th></tr></thead>
+      <tbody>
+        <tr><td>ออกแบบหลักสูตร 4 Class + ผนวก Deployment Model และ NetSuite</td><td style="text-align:right"><span class="badge-status badge-done">Done</span></td></tr>
+        <tr><td>นำเสนอโครงการ + ปรับเนื้อหาตาม feedback</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
+        <tr><td>ยืนยันจำนวนผู้เรียนจริงแต่ละกลุ่ม + วันจัดอบรม</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
+        <tr><td>Sign-off : ข้อเสนอโครงการ + PO</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="panel" style="overflow:hidden; margin-top:14px"><table>
+      <thead><tr><th>ผู้เสนอโครงการ</th><th>Email address</th><th>เบอร์ติดต่อ</th></tr></thead>
+      <tbody><tr>
+        <td><b>ชัยวัฒน์ ภูวนนท์จิรกวิน</b></td>
+        <td><a href="mailto:info@tonpalearn.com" style="color:var(--teal)">info@tonpalearn.com</a></td>
+        <td>093-914-9397</td>
+      </tr></tbody>
+    </table></div>
+  </section>
+
+  <footer class="tf" style="text-align:center; font-size:.78rem; margin-top:28px">แผนฝึกอบรม AI Agentic ระดับองค์กร · AUTOCORP · 4 หลักสูตร 70 คน ฿226,000 · TONPALEARN</footer>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var head=document.getElementById('z-head'), body=document.getElementById('z-body');
+  var PROP_V='1.0';
+  try{ var saved=JSON.parse(localStorage.getItem('autocorp_prop_edit')||'null'); if(saved && saved.v===PROP_V){ if(saved.head) head.innerHTML=saved.head; if(saved.body) body.innerHTML=saved.body; } }catch(e){}
+
+  function sysDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function applyTheme(m){ var r=m==='auto'?(sysDark()?'dark':'light'):m; root.setAttribute('data-theme',r); localStorage.setItem('autocorp_prop_theme',m); document.querySelectorAll('.ctrls [data-th]').forEach(function(b){b.classList.toggle('on',b.dataset.th===m);}); }
+  document.querySelectorAll('.ctrls [data-th]').forEach(function(b){b.onclick=function(){applyTheme(b.dataset.th);};});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){ if((localStorage.getItem('autocorp_prop_theme')||'dark')==='auto') applyTheme('auto'); });
+  applyTheme(localStorage.getItem('autocorp_prop_theme')||'dark');
+
+  function applyFs(v){ v=Math.min(1.35,Math.max(0.85,Math.round(v*100)/100)); root.style.setProperty('--fs',v); localStorage.setItem('autocorp_prop_fs',v); document.querySelectorAll('.ctrls [data-fs]').forEach(function(b){b.classList.toggle('on', b.dataset.fs==='rs'&&v===1);}); }
+  applyFs(parseFloat(localStorage.getItem('autocorp_prop_fs')||'1'));
+  document.querySelector('.ctrls [data-fs=dn]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('autocorp_prop_fs')||'1')-0.1); };
+  document.querySelector('.ctrls [data-fs=up]').onclick=function(){ applyFs(parseFloat(localStorage.getItem('autocorp_prop_fs')||'1')+0.1); };
+  document.querySelector('.ctrls [data-fs=rs]').onclick=function(){ applyFs(1); };
+
+  var hint=document.createElement('div'); hint.id='editHint';
+  hint.innerHTML='✏️ โหมดแก้ไข — คลิกที่ข้อความเพื่อแก้ได้เลย · เสร็จแล้วกด <b>✓ เสร็จ</b> · เก็บถาวรกด <b>💾</b> เพื่อบันทึกเป็นไฟล์';
+  document.body.appendChild(hint);
+  var editBtn=document.getElementById('editBtn'), dlBtn=document.getElementById('dlBtn'), resetBtn=document.getElementById('resetBtn');
+  var zones=[head,body], editing=false;
+  function saveEdits(){ try{ localStorage.setItem('autocorp_prop_edit', JSON.stringify({v:PROP_V, head:head.innerHTML, body:body.innerHTML})); }catch(e){} }
+  function setEdit(on){ editing=on;
+    zones.forEach(function(z){ if(on){ z.setAttribute('contenteditable','true'); z.classList.add('editing'); } else { z.removeAttribute('contenteditable'); z.classList.remove('editing'); } });
+    editBtn.classList.toggle('on',on); editBtn.textContent=on?'✓ เสร็จ':'✏️ แก้ไข'; hint.classList.toggle('show',on);
+  }
+  editBtn.onclick=function(){ setEdit(!editing); if(!editing) saveEdits(); };
+  zones.forEach(function(z){ z.addEventListener('input', function(){ if(editing) saveEdits(); }); });
+  dlBtn.onclick=function(){ if(editing){ setEdit(false); saveEdits(); }
+    var clone=root.cloneNode(true);
+    var h=clone.querySelector('#editHint'); if(h) h.remove();
+    clone.querySelectorAll('[contenteditable]').forEach(function(e){ e.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('.editing').forEach(function(e){ e.classList.remove('editing'); });
+    var out='<!DOCTYPE html>\n'+clone.outerHTML;
+    var blob=new Blob([out],{type:'text/html;charset=utf-8'}); var u=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=u; a.download='AutoCorp-AI-Training-Proposal-edited.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(u);
+  };
+  resetBtn.onclick=function(){ if(confirm('ล้างการแก้ไขทั้งหมด กลับเป็นต้นฉบับ?')){ localStorage.removeItem('autocorp_prop_edit'); location.reload(); } };
+
+  var links=[].slice.call(document.querySelectorAll('#nav a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){ var i=0; for(var k=0;k<secs.length;k++){ if(secs[k] && secs[k].getBoundingClientRect().top<=90) i=k; } links.forEach(function(l){l.classList.remove('on');}); if(links[i]){links[i].classList.add('on'); links[i].scrollIntoView({block:'nearest',inline:'center'});} }
+  document.addEventListener('scroll',spy,{passive:true}); spy();
+})();
+</script>
+
+</body></html>
