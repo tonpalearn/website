@@ -92,12 +92,6 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
   background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 16%,transparent),color-mix(in srgb,var(--vio) 13%,transparent));
   border:1px solid color-mix(in srgb,var(--teal) 32%,transparent)}
 
-/* ---- NetSuite layers ---- */
-.nslayer{display:grid; grid-template-columns:150px 1fr; gap:12px; align-items:stretch; margin-bottom:9px}
-.nslabel{padding:12px 14px; border-radius:12px; background:color-mix(in srgb,var(--c) 14%,transparent); border:1px solid color-mix(in srgb,var(--c) 30%,transparent); font-weight:800; font-size:.86rem; color:var(--c); display:flex; align-items:center}
-.nsitems{padding:12px 14px; border-radius:12px; background:var(--surf); border:1px solid var(--bd); font-size:.82rem; display:flex; flex-wrap:wrap; gap:6px; align-items:center}
-.nstag{padding:4px 10px; border-radius:8px; background:var(--surf2); border:1px solid var(--bd2); font-size:.76rem; font-weight:600}
-
 /* ---- connection ladder ---- */
 .ladder{display:flex; flex-direction:column; gap:10px; margin-top:14px}
 .rung{display:grid; grid-template-columns:52px 1fr 128px; gap:14px; align-items:stretch; padding:15px 17px; border-radius:14px;
@@ -136,7 +130,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
 #editHint.show{display:block}
 @media print{ nav .ctrls,.noprint,#editHint{display:none!important} .aurora{display:none} body{background:#fff;color:#000} .glass{box-shadow:none;border:1px solid #ccc; break-inside:avoid} nav{position:static} .modes{grid-template-columns:repeat(2,1fr)} }
 @media(max-width:900px){.modes{grid-template-columns:repeat(2,1fr)} .govgrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.g3{grid-template-columns:1fr!important} .g2{grid-template-columns:1fr!important} .modes{grid-template-columns:1fr} .govgrid{grid-template-columns:1fr} .nslayer{grid-template-columns:1fr} .frow{grid-template-columns:1fr} .factor{padding:4px 0}}
+@media(max-width:640px){.g3{grid-template-columns:1fr!important} .g2{grid-template-columns:1fr!important} .modes{grid-template-columns:1fr} .govgrid{grid-template-columns:1fr} .frow{grid-template-columns:1fr} .factor{padding:4px 0}}
 </style>
 </head>
 <body>
@@ -153,7 +147,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
         <tr><td colspan="2" style="text-align:center; padding:20px 12px">
           <span class="chip" style="--c:var(--gold)">Corporate Training Program</span>
           <div class="h2 disp" style="margin-top:10px" contenteditable="true">แผนฝึกอบรม AI Agentic ระดับองค์กร — AUTOCORP</div>
-          <div class="ts" style="font-size:.88rem; margin-top:4px">4 หลักสูตรตามบทบาท · ผนวกแนวทาง Deploy AI ในองค์กร และ NetSuite AI</div>
+          <div class="ts" style="font-size:.88rem; margin-top:4px">4 หลักสูตรตามบทบาท · ผนวกแนวทาง Deploy AI ในองค์กร และหลักการเชื่อมต่อระบบ</div>
         </td></tr>
         <tr><td style="font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Date</td><td contenteditable="true">15 สิงหาคม 2569</td></tr>
         <tr><td colspan="2" class="ts" style="font-size:.86rem">ติดต่อ: <b contenteditable="true">ชัยวัฒน์ ภูวนนท์จิรกวิน</b> · <span contenteditable="true">093-914-9397</span> · tonpalearn.com · line : @tonpalearn</td></tr>
@@ -173,7 +167,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <a href="#s1">ภาพรวม</a>
     <a href="#s2">4 โหมด Deploy AI</a>
     <a href="#s3">Governance</a>
-    <a href="#s4">NetSuite AI</a>
+    <a href="#s4">การเชื่อมต่อ</a>
     <a href="#s5">โครงสร้าง 4 Class</a>
     <a href="#s6">เนื้อหาละเอียด</a>
     <a href="#s7">Flow การเรียน</a>
@@ -207,12 +201,12 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">1</div><div class="h2 disp">ภาพรวมโครงการ</div></div>
     <p style="margin-top:0">องค์กรไม่ได้ใช้ AI แบบเดียว — <b>ผู้บริหารต้องตัดสินใจ</b> ว่าจะเอา AI ไปวางตรงไหน · <b>พนักงานต้องใช้ให้ได้จริงทุกวัน</b> โดยไม่ทำข้อมูลรั่ว · <b>ทีม IT ต้องสร้างและคุมระบบเองได้</b> การสอนแบบเดียวทั้งองค์กรจึงไม่ตอบโจทย์ใคร</p>
     <p>ข้อเสนอนี้ออกแบบเป็น <b>4 หลักสูตรแยกตามบทบาท</b> โดยทุกกลุ่มเริ่มจากฐานความเข้าใจเดียวกันก่อน แล้วจึงแยกไปตามความลึกที่แต่ละบทบาทต้องใช้จริง</p>
-    <p style="margin-bottom:0">จุดต่างของข้อเสนอนี้คือผูกเนื้อหาเข้ากับ <b>2 บริบทจริงของ AUTOCORP</b> — แนวทางการ Deploy AI ในองค์กร (4 โหมด) และ <b>NetSuite</b> ที่องค์กรใช้อยู่ ผู้เรียนจึงไม่ได้เรียน AI ลอย ๆ แต่เห็นเลยว่าเอาไปวางตรงไหนในระบบงานของตัวเอง</p>
+    <p style="margin-bottom:0">จุดต่างของข้อเสนอนี้คือผูกเนื้อหาเข้ากับ <b>2 บริบทจริงของ AUTOCORP</b> — แนวทางการ Deploy AI ในองค์กร (4 โหมด) และ<b>หลักการเชื่อม AI เข้ากับระบบงานจริง</b> ผู้เรียนจึงไม่ได้เรียน AI ลอย ๆ แต่เห็นเลยว่าเอาไปวางตรงไหนในระบบงานของตัวเอง</p>
 
     <div class="g3" style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:16px">
       <div class="panel" style="padding:13px; border-left:3px solid var(--ros)"><b>🎯 โจทย์</b><div class="ts" style="font-size:.82rem; margin-top:3px">สอน AI แบบเดียวทั้งองค์กร → ผู้บริหารเบื่อเพราะง่ายไป พนักงานงงเพราะยากไป ทีม IT ไม่ได้ของที่เอาไปต่อได้</div></div>
       <div class="panel" style="padding:13px; border-left:3px solid var(--teal)"><b>💡 แนวทาง</b><div class="ts" style="font-size:.82rem; margin-top:3px">ฐานร่วม (Basic) ก่อนเสมอ → แยก 3 เส้นทาง: ตัดสินใจได้ (Executive) · ใช้ได้จริง (Staff) · สร้างและคุมได้ (Developer)</div></div>
-      <div class="panel" style="padding:13px; border-left:3px solid var(--vio)"><b>⚙️ ผูกกับระบบจริง</b><div class="ts" style="font-size:.82rem; margin-top:3px">4 โหมด Deploy AI + Governance 6 ข้อ + NetSuite AI (Classic → Generative → Agentic → NetSuite Next) · สอนเชื่อมข้อมูลแบบ <b>บันได 3 ขั้น</b> ที่ใช้ได้ทันทีโดยไม่ต้องรอ NetSuite พร้อม</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--vio)"><b>⚙️ ผูกกับระบบจริง</b><div class="ts" style="font-size:.82rem; margin-top:3px">4 โหมด Deploy AI + Governance 6 ข้อ + <b>หลักการเชื่อมต่อ 3 ขั้น</b> ที่ใช้ได้ทันทีกับระบบที่มีอยู่ และใช้ซ้ำได้กับระบบที่จะมีในอนาคต</div></div>
     </div>
   </section>
 
@@ -267,7 +261,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
         <div class="mode-meter"><span class="mtr" style="color:var(--emr)">Control: สูงมาก</span><span class="mtr" style="color:var(--ros)">Risk: สูง–วิกฤต</span></div>
         <div class="mode-body"><ul>
           <li>AI Feature ที่ฝังอยู่ในระบบธุรกิจ เช่น ERP</li>
-          <li>ตัวอย่าง: <b>NetSuite AI</b> / system-native AI features</li>
+          <li>ตัวอย่าง: AI ที่ฝังมากับ ERP / ระบบธุรกิจที่องค์กรใช้</li>
           <li>ใช้ข้อมูลในระบบธุรกิจโดยตรง — การเงิน สินค้าคงคลัง ลูกค้า จัดซื้อ</li>
           <li>ต้องคุมสิทธิ์ธุรกรรม การอนุมัติ และ segregation of duties</li>
           <li class="risk">เสี่ยง: Business impact, transaction error, compliance</li>
@@ -304,125 +298,64 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="axiom">🛡️ หลักสำคัญ: ยิ่งข้อมูลอ่อนไหวมากขึ้น + AI มี autonomy มากขึ้น + ผลกระทบทางธุรกิจสูงขึ้น = ต้องมี governance ที่เข้มงวดมากขึ้น</div>
   </section>
 
-  <!-- 4 NetSuite -->
+  <!-- 4 Connecting AI -->
   <section id="s4" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">4</div><div class="h2 disp">NetSuite AI — สิ่งที่ AUTOCORP มีอยู่แล้วในระบบ</div></div>
-    <p class="ts" style="margin-top:0; font-size:.88rem">NetSuite แบ่ง AI เป็น 3 ชั้น และกำลังเดินหน้าสู่ NetSuite Next — หลักสูตรนี้จะทำให้ทีมเห็นว่าอะไรเปิดใช้ได้เลย อะไรต้องเตรียม และอะไรที่ต่อเข้ากับ AI ภายนอกได้</p>
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">4</div><div class="h2 disp">เชื่อม AI เข้ากับระบบงาน — หลักการที่ใช้ซ้ำได้กับทุกระบบ</div></div>
+    <p class="ts" style="margin-top:0; font-size:.88rem">สิ่งที่ทำให้ <b>Agentic</b> ต่างจาก AI แบบแชททั่วไป คือมัน<b>เชื่อมกับข้อมูลจริงและลงมือทำงานได้</b> — ไม่ใช่แค่ตอบคำถาม · หัวใจของหลักสูตรนี้คือทำให้ทีม AUTOCORP เข้าใจ <b>“หลักการเชื่อมต่อ”</b> จนใช้ซ้ำได้กับระบบไหนก็ได้ เพราะรูปแบบการเชื่อมเหมือนกันหมด เปลี่ยนแค่ปลายทาง</p>
 
-    <div style="margin-top:14px">
-      <div class="nslayer" style="--c:var(--sky)">
-        <div class="nslabel">Classic AI<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">วิเคราะห์/ทำนาย</div></div>
-        <div class="nsitems">
-          <span class="nstag">Intelligent Item Recommendations</span><span class="nstag">Bill Capture</span><span class="nstag">Financial Exception</span><span class="nstag">Predictive Forecasts</span>
+    <div class="axiom" style="margin-top:16px">🔌 เราสอน <b>“รูปทรงของปลั๊ก” ไม่ใช่ “ยี่ห้อของเต้ารับ”</b> — เข้าใจครั้งเดียว ใช้ได้กับทุกระบบที่องค์กรมีวันนี้ และทุกระบบที่จะมีในอนาคต</div>
+
+    <div class="ladder">
+      <div class="rung" style="--c:var(--emr)">
+        <div class="rn">1</div>
+        <div>
+          <div class="rt">เชื่อมผ่านหน้าจอ — Claude in Chrome</div>
+          <div class="rd">AI ทำงานบนเบราว์เซอร์ด้วย <b>สิทธิ์ล็อกอินของผู้ใช้เอง</b> — อ่านหน้าจอ ดึงข้อมูล กรอกฟอร์ม ตรวจทานข้ามหน้าได้ · ใช้ได้กับ<b>ทุกระบบที่เปิดผ่านเว็บ</b> โดยไม่ต้องเปิด API ไม่ต้องขอสิทธิ์ Admin และไม่ต้องรอ IT · เหมาะกับงานที่คนนั่งทำอยู่แล้วและอยากให้เร็วขึ้น</div>
         </div>
+        <div class="rw"><span class="rwtag">ใช้ได้วันอบรม</span><span class="rwsub">ไม่ต้องรอใคร</span></div>
       </div>
-      <div class="nslayer" style="--c:var(--teal)">
-        <div class="nslabel">Generative AI<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">สร้างเนื้อหา</div></div>
-        <div class="nsitems">
-          <span class="nstag">Text Enhance</span><span class="nstag">Prompt Studio</span><span class="nstag">LLM Module (N/llm)</span><span class="nstag">GenAI API</span><span class="nstag">Narrative Insight</span>
+
+      <div class="rung" style="--c:var(--teal)">
+        <div class="rn">2</div>
+        <div>
+          <div class="rt">เชื่อมผ่านมาตรฐานกลาง — MCP</div>
+          <div class="rd">สอน <b>MCP (Model Context Protocol)</b> ในฐานะ “ปลั๊กมาตรฐาน” ที่ทำให้ AI ต่อกับระบบไหนก็ได้ แล้วลงมือต่อจริงกับระบบที่ AUTOCORP <b>เปิดใช้ได้อยู่แล้ว</b> (เช่น Google Workspace, ไฟล์เอกสาร, ฐานข้อมูลภายใน) · ผู้เรียนจะเห็นรูปแบบครบวงจร — <b>ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน → ได้คำตอบจากข้อมูลจริง</b></div>
         </div>
+        <div class="rw"><span class="rwtag">ใช้ได้วันอบรม</span><span class="rwsub">ต่อระบบที่มีอยู่</span></div>
       </div>
-      <div class="nslayer" style="--c:var(--vio)">
-        <div class="nslabel">Agentic AI<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">ลงมือทำแทน</div></div>
-        <div class="nsitems">
-          <span class="nstag">Agent Studio</span><span class="nstag">Multi-turn Agents</span><span class="nstag" style="border-color:var(--vio); color:var(--vio)">MCP Integration</span><span class="nstag">3rd Party Integrations</span>
+
+      <div class="rung" style="--c:var(--vio)">
+        <div class="rn">3</div>
+        <div>
+          <div class="rt">เชื่อมกับระบบธุรกิจในอนาคต — ปลั๊กตัวเดิม เต้ารับใหม่</div>
+          <div class="rd">เมื่อเข้าใจขั้น 1–2 แล้ว การต่อเข้ากับระบบธุรกิจใดก็ตามที่องค์กรจะเปิดใช้ในอนาคต — <b>รวมถึง ERP อย่าง NetSuite ที่ AUTOCORP กำลังจะมี</b> — เป็นเพียง<b>การทำซ้ำแบบเดิมกับปลายทางใหม่</b> · ผู้เรียนจะรู้ว่าต้องถามอะไรกับผู้ให้บริการระบบ ต้องเตรียมสิทธิ์อะไร และประเมินได้ว่างานไหนคุ้มที่จะเชื่อม</div>
         </div>
-      </div>
-      <div class="nslayer" style="--c:var(--gold)">
-        <div class="nslabel">NetSuite Next<div class="tf" style="font-size:.68rem; font-weight:600; margin-left:6px">รุ่นถัดไป</div></div>
-        <div class="nsitems">
-          <span class="nstag">Ask Oracle (Chat / Search / Explore)</span><span class="nstag">AI Canvas</span><span class="nstag">Ask Oracle Skills</span><span class="nstag">SuiteAgents</span>
-        </div>
+        <div class="rw"><span class="rwtag">พร้อมเมื่อระบบพร้อม</span><span class="rwsub">ใช้หลักการเดิม</span></div>
       </div>
     </div>
 
-    <div class="g2" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px">
-      <div class="panel" style="padding:15px; border-left:3px solid var(--vio)">
-        <div class="h3 disp" style="color:var(--vio); margin-bottom:6px">🔌 NetSuite AI Connector Service (MCP)</div>
-        <div class="ts" style="font-size:.84rem">จุดที่น่าสนใจที่สุดสำหรับ AUTOCORP — เป็นชั้นเชื่อม AI ภายนอก (เช่น Claude) เข้ากับข้อมูล NetSuite ผ่าน MCP ถามเป็นภาษาธรรมชาติได้ ไม่ต้องเขียน integration เอง และทำงานบน security model เดิมของ NetSuite</div>
-        <ul class="cl" style="--c:var(--vio); font-size:.82rem; margin-top:8px">
-          <li>สอนติดตั้งจริงใน <b>Class 4 · Developer</b></li>
-          <li>ตามเอกสาร Oracle: <b>ไม่กิน AI Units</b> เพราะประมวลผลฝั่ง LLM ของลูกค้า</li>
-          <li>แต่นับรวมใน <b>service concurrency limit</b> — ต้องวางแผนการใช้งานพร้อมกัน</li>
+    <div class="owner">
+      <div class="ownbox" style="--c:var(--teal)">
+        <b>✅ TONPALEARN รับผิดชอบ</b>
+        <ul>
+          <li>สอนหลักการ AI Agentic และการเชื่อมต่อจนใช้เองได้</li>
+          <li>ตั้งค่าและใช้งาน Claude / Claude in Chrome / Claude Code</li>
+          <li>ออกแบบ Agent, Skill, Prompt และ Guardrail</li>
+          <li>เช็กลิสต์ Governance สำหรับอนุมัติ use case ใหม่</li>
         </ul>
       </div>
-      <div class="panel" style="padding:15px; border-left:3px solid var(--gold)">
-        <div class="h3 disp" style="color:var(--gold); margin-bottom:6px">💰 เศรษฐศาสตร์ AI Units</div>
-        <div class="ts" style="font-size:.84rem">ผู้บริหารต้องรู้ว่าฟีเจอร์ไหนกินงบเท่าไร ก่อนเปิดใช้ทั้งองค์กร — สอนใน <b>Class 2 · Executive</b></div>
-        <div style="overflow-x:auto; margin-top:8px"><table style="font-size:.79rem">
-          <thead><tr><th>ฟีเจอร์</th><th style="text-align:right">AI Units (ประมาณ)</th></tr></thead>
-          <tbody>
-            <tr><td>Ask Oracle (ถามสั้น → วิเคราะห์ → research)</td><td style="text-align:right">~10 · 10–50 · 50–200</td></tr>
-            <tr><td>Narrative Insights</td><td style="text-align:right">5–200</td></tr>
-            <tr><td>Case Summary</td><td style="text-align:right">5–75</td></tr>
-            <tr><td>SuiteScript N/llm</td><td style="text-align:right">5–25</td></tr>
-            <tr><td>Text Enhance / Prompt Studio</td><td style="text-align:right">5–10</td></tr>
-          </tbody>
-        </table></div>
-        <div class="tf" style="font-size:.75rem; margin-top:7px">สิทธิ์ที่ได้: 1,000 AI Units / ผู้ใช้ / เดือน (General Access license) · <b>ไม่กิน Units:</b> MCP Connector, EPM, NSAW และ Classic AI</div>
+      <div class="ownbox" style="--c:var(--amb)">
+        <b>⚠️ AUTOCORP / ผู้ให้บริการระบบรับผิดชอบ</b>
+        <ul>
+          <li>License และการเปิดใช้ฟีเจอร์ของระบบธุรกิจ</li>
+          <li>สิทธิ์ผู้ดูแลระบบ และการอนุมัติเปิดการเชื่อมต่อ</li>
+          <li>การตั้งค่าเชิงลึกและแก้ปัญหาเฉพาะทางในระบบนั้น ๆ</li>
+          <li>นโยบายข้อมูลและการอนุมัติภายในองค์กร</li>
+        </ul>
       </div>
     </div>
 
-    <div class="note" style="margin-top:14px"><b>หมายเหตุ:</b> ข้อมูล NetSuite ทั้งหมดในหน้านี้อ้างอิงจากเอกสารนำเสนอของ Oracle NetSuite (ส.ค. 2569) ที่ AUTOCORP ได้รับ — ตัวเลข AI Units เป็น <b>ค่าประมาณสำหรับวางแผน</b> ไม่ใช่การรับประกัน และการเปิดใช้จริงต้องยืนยันกับ Oracle อีกครั้ง</div>
-
-    <!-- Connection ladder -->
-    <div style="margin-top:26px; padding-top:22px; border-top:1px solid var(--bd2)">
-      <div class="h3 disp" style="margin-bottom:5px">🪜 บันไดการเชื่อมต่อข้อมูล 3 ขั้น — หัวใจของการออกแบบหลักสูตรนี้</div>
-      <p class="ts" style="margin-top:0; font-size:.88rem">เราสอน <b>“รูปทรงของปลั๊ก” ไม่ใช่ “ยี่ห้อของเต้ารับ”</b> — ผู้เรียนจะเข้าใจว่า AI ต่อเข้ากับข้อมูลได้ยังไง ผ่าน 3 ขั้นที่ไล่จาก “ทำได้เลยวันนี้” ไปจนถึง “วันที่ NetSuite พร้อม” ทำให้หลักสูตร<b>ไม่ผูกกับว่า NetSuite จะเปิดใช้เมื่อไหร่</b> — เรียนจบวันนั้นมีของใช้ทันที และวันที่ระบบพร้อม ก็เสียบต่อได้เลยเพราะเข้าใจหลักการเดียวกันมาแล้ว</p>
-
-      <div class="ladder">
-        <div class="rung" style="--c:var(--emr)">
-          <div class="rn">1</div>
-          <div>
-            <div class="rt">Claude in Chrome — เชื่อมผ่านหน้าจอที่คนใช้อยู่แล้ว</div>
-            <div class="rd">AI ทำงานบนเบราว์เซอร์ด้วย <b>สิทธิ์ล็อกอินของผู้ใช้เอง</b> — อ่านหน้าจอ ดึงข้อมูล กรอกฟอร์ม ตรวจทานข้ามหน้าได้ <b>รวมถึงหน้าจอ NetSuite เอง</b> โดยไม่ต้องเปิด API ไม่ต้องขอสิทธิ์ Admin และไม่ต้องรอ license เพิ่ม · เหมาะกับงานที่คนนั่งทำอยู่แล้วและอยากให้เร็วขึ้น</div>
-          </div>
-          <div class="rw"><span class="rwtag">ใช้ได้วันอบรม</span><span class="rwsub">ไม่ต้องรอใคร</span></div>
-        </div>
-
-        <div class="rung" style="--c:var(--teal)">
-          <div class="rn">2</div>
-          <div>
-            <div class="rt">MCP — มาตรฐานกลางที่ทำให้ AI ต่อกับระบบไหนก็ได้</div>
-            <div class="rd">สอน <b>MCP (Model Context Protocol)</b> ในฐานะ “ปลั๊กมาตรฐาน” แล้วลงมือต่อจริงกับระบบที่ AUTOCORP <b>เปิดใช้ได้อยู่แล้ว</b> (เช่น Google Workspace, ไฟล์เอกสาร, ฐานข้อมูลภายใน) · ผู้เรียนจะเห็นรูปแบบการเชื่อมครบวงจร — ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน → ได้คำตอบจากข้อมูลจริง</div>
-          </div>
-          <div class="rw"><span class="rwtag">ใช้ได้วันอบรม</span><span class="rwsub">ไม่ต้องรอ NetSuite</span></div>
-        </div>
-
-        <div class="rung" style="--c:var(--vio)">
-          <div class="rn">3</div>
-          <div>
-            <div class="rt">NetSuite AI Connector — ปลั๊กตัวเดิม เสียบเข้าเต้ารับ NetSuite</div>
-            <div class="rd">เมื่อเข้าใจขั้น 2 แล้ว ขั้นนี้คือ <b>“ทำซ้ำแบบเดิมกับ NetSuite”</b> — เดินตามขั้นตอนของ Oracle: เปิด Server SuiteScript + OAuth 2.0 → ตั้ง Role permission → ติดตั้ง MCP Standard Tools SuiteApp → สร้าง Integration + Redirect URL → เชื่อม Claude · <b>ถ้าวันอบรมมี Sandbox ให้ทำสด</b> · ถ้ายังไม่พร้อม ส่งมอบเป็น <b>Runbook</b> ที่ทีมกดทำตามเองได้ทันทีวันที่ระบบเปิด</div>
-          </div>
-          <div class="rw"><span class="rwtag">วันที่ NetSuite พร้อม</span><span class="rwsub">Runbook ส่งมอบ</span></div>
-        </div>
-      </div>
-
-      <div class="owner">
-        <div class="ownbox" style="--c:var(--teal)">
-          <b>✅ TONPALEARN รับผิดชอบ (ฝั่ง AI)</b>
-          <ul>
-            <li>สอนหลักการเชื่อมต่อและ MCP ให้เข้าใจจนต่อเองได้</li>
-            <li>ตั้งค่าและใช้งาน Claude / Claude in Chrome / Claude Code</li>
-            <li>ออกแบบ Agent, Skill, Prompt และ Guardrail</li>
-            <li>Runbook การเชื่อม NetSuite ตามเอกสารทางการของ Oracle</li>
-            <li>เช็กลิสต์ Governance สำหรับอนุมัติ use case ใหม่</li>
-          </ul>
-        </div>
-        <div class="ownbox" style="--c:var(--amb)">
-          <b>⚠️ AUTOCORP / คู่ค้า NetSuite รับผิดชอบ (ฝั่งระบบ)</b>
-          <ul>
-            <li>License และการเปิดใช้ฟีเจอร์ AI ฝั่ง NetSuite</li>
-            <li>สิทธิ์ Administrator และการอนุมัติเปิด Sandbox</li>
-            <li>การตั้งค่าเชิงลึกและแก้ปัญหาเฉพาะทางใน NetSuite</li>
-            <li>นโยบายข้อมูลและการอนุมัติภายในองค์กร</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="note" style="margin-top:14px"><b>ทำไมออกแบบแบบนี้:</b> TONPALEARN เป็นผู้เชี่ยวชาญด้าน <b>AI Agentic</b> ไม่ใช่ผู้ให้บริการ NetSuite — เราจึงสอนสิ่งที่เราทำได้ดีที่สุดและควบคุมผลลัพธ์ได้จริง คือ<b>หลักการเชื่อมต่อที่ใช้ซ้ำได้กับทุกระบบ</b> แล้วส่งมอบ Runbook ให้ทีมไปทำงานร่วมกับคู่ค้า NetSuite ต่อ · ผลคือ <b>ไม่มีโมดูลไหนล่มเพราะระบบยังไม่พร้อม</b> และองค์กรได้ความสามารถที่ติดตัวทีมไป ไม่ผูกกับผู้ขายรายใดรายหนึ่ง</div>
-    </div>
+    <div class="note" style="margin-top:14px"><b>ขอบเขตที่ชัดเจน:</b> หลักสูตรนี้<b>ไม่ใช่คอร์สสอนระบบ ERP</b> และไม่ผูกกับว่าระบบใดจะเปิดใช้เมื่อไหร่ — TONPALEARN สอนฝั่ง <b>AI Agentic</b> ซึ่งเป็นสิ่งที่เราเชี่ยวชาญและควบคุมผลลัพธ์ได้จริง · ผลคือ<b>ไม่มีโมดูลไหนล่มเพราะระบบยังไม่พร้อม</b> และทีมได้ความสามารถที่ติดตัวไป ไม่ผูกกับผู้ขายรายใดรายหนึ่ง</div>
   </section>
 
   <!-- 5 Structure -->
@@ -434,7 +367,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
         <tr><td><b style="color:var(--teal)">1 · Basic</b><div class="tf" style="font-size:.75rem">ฐานร่วมทั้งองค์กร</div></td><td>ทุกคน (กลุ่ม 2+3 เข้าร่วมด้วย)</td><td>ใช้ AI เป็น ได้งานตรงความต้องการ และรู้ว่าอะไรพิมพ์ลงไปได้/ไม่ได้</td><td>4 ชม.</td><td style="text-align:right">30</td></tr>
         <tr><td><b style="color:var(--gold)">2 · Executive</b><div class="tf" style="font-size:.75rem">ผู้บริหาร</div></td><td>ผู้บริหาร / หัวหน้าสายงาน</td><td>ตัดสินใจได้ว่าจะวาง AI โหมดไหน กับงานไหน คุ้มไหม เสี่ยงแค่ไหน</td><td>4 ชม.</td><td style="text-align:right">20</td></tr>
         <tr><td><b style="color:var(--emr)">3 · Staff</b><div class="tf" style="font-size:.75rem">Key Person</div></td><td>ตัวแทนแต่ละแผนก</td><td>สร้างเครื่องมือ AI ของตัวเองได้จริง และเอาไปใช้ต่อวันรุ่งขึ้น</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
-        <tr><td><b style="color:var(--vio)">4 · Developer</b><div class="tf" style="font-size:.75rem">IT / Technical</div></td><td>ทีมพัฒนา / NetSuite Admin</td><td>ต่อ AI เข้าระบบจริงได้ พร้อมคุมสิทธิ์และ Audit Trail</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
+        <tr><td><b style="color:var(--vio)">4 · Developer</b><div class="tf" style="font-size:.75rem">IT / Technical</div></td><td>ทีมพัฒนา / ผู้ดูแลระบบ</td><td>ต่อ AI เข้าระบบจริงได้ พร้อมคุมสิทธิ์และ Audit Trail</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
       </tbody>
     </table></div>
     <div class="note" style="margin-top:12px">Class 2 และ 3 <b>ต่อยอดจาก Class 1</b> จึงควรจัด Class 1 ก่อนเสมอ · Class 4 <b>แยกอิสระ</b> จัดวันไหนก็ได้ ไม่ต้องผ่าน Class 1</div>
@@ -449,7 +382,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="classhead" style="background:color-mix(in srgb,var(--teal) 8%,transparent)"><span class="chip" style="--c:var(--teal)">4 ชม. · 30 คน</span><div class="h3 disp">Class 1 · Basic — พื้นฐานการใช้ AI ที่ถูกต้องและปลอดภัย</div></div>
     <div class="classbody">
       <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
-        <tr><td><b>1. AI คืออะไรกันแน่</b></td><td>40 นาที</td><td>ภาพรวม AI ยุคปัจจุบัน · <b>Classic → Generative → Agentic</b> ต่างกันยังไง (ใช้ชั้น AI ของ NetSuite เป็นตัวอย่างจริง) · เห็นภาพ End-to-End ว่า Agentic Workflow หน้าตาเป็นยังไง</td></tr>
+        <tr><td><b>1. AI คืออะไรกันแน่</b></td><td>40 นาที</td><td>ภาพรวม AI ยุคปัจจุบัน · <b>Classic → Generative → Agentic</b> ต่างกันยังไง (ยกตัวอย่างจากระบบที่ AUTOCORP ใช้จริง) · เห็นภาพ End-to-End ว่า Agentic Workflow หน้าตาเป็นยังไง</td></tr>
         <tr><td><b>2. 4 โหมดการใช้ AI ในองค์กร</b><div class="tf" style="font-size:.72rem">+ Data Classification</div></td><td>40 นาที</td><td>อธิบาย 4 โหมดตาม AutoCorp AI Deployment Model · <b>สิ่งที่ทุกคนต้องกลับไปได้:</b> รู้ว่างานที่ตัวเองทำอยู่โหมดไหน และข้อมูลแบบไหน<b>ห้าม</b>พิมพ์ลง Public AI เด็ดขาด</td></tr>
         <tr><td><b>3. Prompt ที่ถูกต้อง</b></td><td>70 นาที<div class="tf" style="font-size:.72rem">ทฤษฎี 25 + Workshop 45</div></td><td>หลักการเขียน Prompt ให้ได้งานตรงความต้องการ — Context / Instruction / Format · เทียบ Prompt ที่ใช้ได้ผลจริง กับ Prompt ที่มั่ว · <b>Workshop:</b> ฝึกจากงานจริงของตัวเองจนได้ผลลัพธ์ที่ใช้ได้</td></tr>
         <tr><td><b>4. User Preference (Agent File)</b></td><td>70 นาที<div class="tf" style="font-size:.72rem">ทฤษฎี 25 + Workshop 45</div></td><td>Agent File คือ "DNA" ของ AI ผู้ช่วย — ทำให้ AI รู้จักเราและบริบทงานจริง ๆ · องค์ประกอบที่ต้องมี: Role / Context / Tone / Output Format · <b>Workshop:</b> เขียน User Preference ของตัวเอง</td></tr>
@@ -464,8 +397,8 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
         <tr><td><b>1. Recap + มุมมองกลยุทธ์</b></td><td>20 นาที</td><td>เชื่อมจาก Basic สู่การตัดสินใจระดับผู้บริหาร — ใช้ AI ตรงไหนเพื่อ<b>สร้างมูลค่า</b> ไม่ใช่แค่ประหยัดเวลา</td></tr>
         <tr><td><b>2. เลือกโหมดให้ตรงงาน</b><div class="tf" style="font-size:.72rem">Risk vs Control</div></td><td>50 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ใช้ Deployment Model เป็นเครื่องมือตัดสินใจ · <b>Workshop:</b> เอางานจริงของ AUTOCORP มาจัดว่าควรอยู่โหมดไหน และต้องมี control อะไรรองรับ</td></tr>
-        <tr><td><b>3. NetSuite AI Roadmap</b><div class="tf" style="font-size:.72rem">+ บันไดการเชื่อมต่อ</div></td><td>50 นาที</td><td>อะไรเปิดใช้ได้เลยวันนี้ (Text Enhance, Narrative Insight, Bill Capture, Financial Exception, Bank Matching) · อะไรต้องเตรียม (Agent Studio, MCP) · <b>NetSuite Next</b> กำลังจะมาอะไรบ้าง — Ask Oracle, AI Canvas, SuiteAgents · <b>บันไดการเชื่อมต่อ 3 ขั้น:</b> ตัดสินใจว่าจะเริ่มที่ขั้นไหนก่อน โดยไม่ต้องรอ NetSuite พร้อมทั้งหมด</td></tr>
-        <tr><td><b>4. เศรษฐศาสตร์ AI Units</b></td><td>40 นาที</td><td>ฟีเจอร์ไหนกิน Units เท่าไร · สิทธิ์ 1,000 Units/ผู้ใช้/เดือน พอไหม · อะไร<b>ไม่กิน</b> Units (MCP, NSAW, EPM, Classic AI) · วางงบและ usage alert ไม่ให้เกิน</td></tr>
+        <tr><td><b>3. ขอบเขตการเชื่อมต่อ</b><div class="tf" style="font-size:.72rem">AI ต่อกับระบบได้แค่ไหน</div></td><td>50 นาที</td><td>ผู้บริหารต้องตอบให้ได้ว่า <b>“AI เชื่อมกับระบบเราได้จริงไหม”</b> — เห็นภาพ 3 ขั้นของการเชื่อมต่อ (หน้าจอ → มาตรฐานกลาง → ระบบธุรกิจ) · อะไรทำได้ทันทีโดยไม่ต้องลงทุนเพิ่ม อะไรต้องรอระบบพร้อม · ใช้ตัดสินใจว่าจะเริ่มที่จุดไหนก่อนให้เห็นผลเร็วที่สุด</td></tr>
+        <tr><td><b>4. ต้นทุนและการวางงบ AI</b></td><td>40 นาที</td><td>โครงสร้างค่าใช้จ่ายของ AI ในองค์กร — แบบเหมาจ่ายรายผู้ใช้ กับแบบจ่ายตามการใช้งาน ต่างกันยังไง · ประเมินว่างานแบบไหนคุ้ม งานแบบไหนไม่คุ้ม · <b>วางเพดานงบและระบบเตือนก่อนบานปลาย</b> · คำถามที่ต้องถามผู้ให้บริการก่อนเซ็นสัญญา</td></tr>
         <tr><td><b>5. Demo — AI ช่วยตัดสินใจ</b></td><td>40 นาที<div class="tf" style="font-size:.72rem">Demo สด</div></td><td>Multi-agent Panel Review — ให้ AI หลายมุมมองกลั่นกรองก่อนถึงมือผู้บริหาร · สร้าง Dashboard จากข้อมูลจริงภายในไม่กี่นาที</td></tr>
         <tr><td><b>6. Brainstorm Roadmap</b></td><td>40 นาที</td><td>Facilitate ให้ผู้บริหารช่วยกันคิดและ<b>จัดลำดับ</b>ว่าจุดไหนในองค์กรควรเอา AI ไปใช้ก่อน พร้อมประเมินความเสี่ยงตามโหมด</td></tr>
       </tbody></table>
@@ -478,9 +411,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
         <tr><td><b>1. Recap + ตั้งเป้า</b></td><td>15 นาที</td><td>ทบทวน Basic สั้น ๆ · แต่ละคนตั้งเป้าว่าจะสร้างเครื่องมืออะไรให้เสร็จวันนี้</td></tr>
         <tr><td><b>2. Setup Claude Cowork</b></td><td>45 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ติดตั้ง + สร้าง Project จริง + ใส่ User Preference ที่เขียนไว้จาก Class 1</td></tr>
-        <tr><td><b>3. Connector + Claude in Chrome</b><div class="tf" style="font-size:.72rem">เชื่อมระบบจริง</div></td><td>60 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>เชื่อมเครื่องมือที่ใช้อยู่จริง (Google Workspace / เอกสาร / อีเมล) · สั่งงานข้ามระบบในคำสั่งเดียว เช่น อ่านไฟล์ → สรุป → ร่างอีเมล · <b>Claude in Chrome:</b> ให้ AI ช่วยงานบนหน้าจอระบบที่ใช้อยู่ทุกวัน <b>รวมถึงหน้า NetSuite</b> — ดึงข้อมูล ตรวจทาน กรอกฟอร์ม โดยไม่ต้องรอ IT เปิดสิทธิ์อะไรเพิ่ม</td></tr>
+        <tr><td><b>3. Connector + Claude in Chrome</b><div class="tf" style="font-size:.72rem">เชื่อมระบบจริง</div></td><td>60 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>เชื่อมเครื่องมือที่ใช้อยู่จริง (Google Workspace / เอกสาร / อีเมล) · สั่งงานข้ามระบบในคำสั่งเดียว เช่น อ่านไฟล์ → สรุป → ร่างอีเมล · <b>Claude in Chrome:</b> ให้ AI ช่วยงานบนหน้าจอระบบที่ใช้อยู่ทุกวัน — ดึงข้อมูล ตรวจทาน กรอกฟอร์ม โดยไม่ต้องรอ IT เปิดสิทธิ์อะไรเพิ่ม</td></tr>
         <tr><td><b>4. สร้าง Skill จากงานจริง</b></td><td>75 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>4 ขั้นตอนสร้าง Skill จากงานประจำวันของตัวเอง (Trigger → Context → Steps → Output) + ทดสอบซ้ำจนได้ผลลัพธ์ที่ไว้ใจได้</td></tr>
-        <tr><td><b>5. NetSuite AI ที่ใช้ได้ทันที</b><div class="tf" style="font-size:.72rem">+ นำเสนอผลงาน</div></td><td>45 นาที</td><td>พาใช้ฟีเจอร์ที่มีอยู่แล้วในระบบ — Text Enhance, Narrative Insight, Bill Capture, Bank Transaction Matching · แต่ละคนโชว์ Skill ที่สร้าง + วางแผนใช้จริง 30 วัน</td></tr>
+        <tr><td><b>5. วางแผนใช้จริง + นำเสนอผลงาน</b></td><td>45 นาที</td><td>สำรวจว่างานประจำวันของตัวเองจุดไหนให้ AI ช่วยได้อีก · แต่ละคนโชว์ Skill ที่สร้าง + วางแผนใช้จริง 30 วันข้างหน้า · ข้อควรระวังก่อนเอาไปใช้กับข้อมูลจริง</td></tr>
       </tbody></table>
       <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> Skill ที่ทำงานได้จริงอย่างน้อย 1 ตัวต่อคน + Workflow Map ของงานตัวเอง 30 วันข้างหน้า</div></div>
     </div>
@@ -491,11 +424,11 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
         <tr><td><b>1. Claude Code + Multi-agent SDLC</b></td><td>20 นาที</td><td>ต่างจาก Claude ทั่วไปยังไง · เหมาะกับงานพัฒนาระบบแบบไหน · ภาพรวมการทำงานเป็นทีม AI</td></tr>
         <tr><td><b>2. สร้าง Multi-agent Team</b></td><td>50 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ตั้งบทบาท BA / SA / Dev / Tester ให้ AI แต่ละตัว แบ่งหน้าที่ชัดเจนว่าใครทำอะไร <b>และใครห้ามทำอะไร</b> · เขียน PRD จากโจทย์จริง</td></tr>
-        <tr><td><b>3. เชื่อม AI เข้าข้อมูลจริง — บันได 3 ขั้น</b><div class="tf" style="font-size:.72rem">⭐ ไฮไลต์ของคลาส</div></td><td>70 นาที<div class="tf" style="font-size:.72rem">Workshop ลงมือจริง</div></td><td><b>ขั้น 1 · Claude in Chrome (20 นาที)</b> — ต่อ AI เข้าหน้าจอระบบที่ใช้อยู่จริง <b>รวมถึงหน้า NetSuite</b> ด้วยสิทธิ์ล็อกอินของตัวเอง ไม่ต้องเปิด API ไม่ต้องรอ Admin<br><b>ขั้น 2 · MCP กับระบบที่เปิดแล้ว (25 นาที)</b> — ต่อ MCP จริงกับ Google Workspace / ไฟล์ / ฐานข้อมูลภายใน จนเห็นรูปแบบครบวงจร: ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน<br><b>ขั้น 3 · NetSuite MCP Runbook (25 นาที)</b> — เดินตามขั้นตอน Oracle: Server SuiteScript + OAuth 2.0 → Role permission (<b>MCP Server Connection</b>) → <b>MCP Standard Tools</b> SuiteApp → Integration + Redirect URL · <b>มี Sandbox = ทำสด · ไม่มี = ส่งมอบเป็น Runbook ที่ทำตามได้ทันที</b></td></tr>
-        <tr><td><b>4. เครื่องมือ Dev ใน NetSuite</b></td><td>50 นาที</td><td><b>SuiteCloud Developer Assistant</b> — generate SuiteScript / SDF object จากภาษาธรรมชาติ · <b>SuiteScript N/llm</b> และ <b>Prompt Studio</b> — ฝัง AI ลงใน workflow ของระบบเอง</td></tr>
-        <tr><td><b>5. Governance เชิงเทคนิค</b></td><td>50 นาที</td><td>RBAC และ Least Privilege บน NetSuite · Human Approval ก่อน Agent เขียนข้อมูลจริง · Audit Trail และการตรวจย้อนหลัง · ข้อควรระวังเรื่อง <b>concurrency limit</b> ของ MCP · Dev Loop ปิดท้าย</td></tr>
+        <tr><td><b>3. เชื่อม AI เข้าข้อมูลจริง — 3 ขั้น</b><div class="tf" style="font-size:.72rem">⭐ ไฮไลต์ของคลาส</div></td><td>70 นาที<div class="tf" style="font-size:.72rem">Workshop ลงมือจริง</div></td><td><b>ขั้น 1 · Claude in Chrome (20 นาที)</b> — ต่อ AI เข้าหน้าจอระบบที่ใช้อยู่จริง ด้วยสิทธิ์ล็อกอินของตัวเอง ไม่ต้องเปิด API ไม่ต้องรอ Admin<br><b>ขั้น 2 · MCP กับระบบที่เปิดแล้ว (30 นาที)</b> — ต่อ MCP จริงกับ Google Workspace / ไฟล์ / ฐานข้อมูลภายใน จนเห็นรูปแบบครบวงจร: ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน → ได้คำตอบจากข้อมูลจริง<br><b>ขั้น 3 · ต่อกับระบบธุรกิจในอนาคต (20 นาที)</b> — แปลงหลักการเดิมไปใช้กับระบบที่องค์กรจะเปิดใช้ · ต้องขอสิทธิ์อะไร ถามอะไรกับผู้ให้บริการระบบ และประเมินว่างานไหนคุ้มที่จะเชื่อม</td></tr>
+        <tr><td><b>4. ฝัง AI ลงในระบบที่ทีมดูแลเอง</b></td><td>50 นาที</td><td>เรียก AI จากโค้ด/สคริปต์ของระบบภายใน · ออกแบบ Prompt ที่ใช้ซ้ำได้และทดสอบได้ · จุดที่ควรฝัง AI และจุดที่ไม่ควร · ใช้ AI ช่วย generate โค้ดและ config ของระบบที่ทีมดูแลอยู่</td></tr>
+        <tr><td><b>5. Governance เชิงเทคนิค</b></td><td>50 นาที</td><td>RBAC และ Least Privilege · <b>Human Approval ก่อน Agent เขียนข้อมูลจริง</b> · Audit Trail และการตรวจย้อนหลัง · ข้อควรระวังเรื่องขีดจำกัดการเรียกใช้พร้อมกัน · Dev Loop ปิดท้าย</td></tr>
       </tbody></table>
-      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> การเชื่อม AI เข้าระบบจริงที่ทำงานได้แล้วอย่างน้อย 1 ช่องทาง (Chrome และ/หรือ MCP) + <b>NetSuite MCP Runbook</b> พร้อมใช้วันที่ระบบเปิด + Multi-agent Team Template + เช็กลิสต์ Governance สำหรับอนุมัติ AI use case ใหม่</div></div>
+      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> การเชื่อม AI เข้าระบบจริงที่ทำงานได้แล้วอย่างน้อย 1 ช่องทาง (Chrome และ/หรือ MCP) + <b>เช็กลิสต์การเชื่อมระบบใหม่</b> ที่ใช้ซ้ำได้ + Multi-agent Team Template + เช็กลิสต์ Governance สำหรับอนุมัติ AI use case ใหม่</div></div>
     </div>
   </section>
 
@@ -506,10 +439,10 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="flow">
       <div class="frow"><div class="factor" style="--c:var(--teal)"><span class="dot"></span>ทุกคน</div><div><div class="fstep" style="--c:var(--teal)"><b>Class 1 · Basic</b> — AI คืออะไร · 4 โหมด + Data Classification · Prompt · Agent File · Governance (4 ชม. · 30 คน)</div></div></div>
       <div class="farrow">▼ แยกเส้นทางตามบทบาท ▼</div>
-      <div class="frow"><div class="factor" style="--c:var(--gold)"><span class="dot"></span>ผู้บริหาร</div><div><div class="fstep" style="--c:var(--gold)"><b>Class 2 · Executive</b> — เลือกโหมด · NetSuite Roadmap · AI Units · Demo · Brainstorm (4 ชม. · 20 คน)</div></div></div>
-      <div class="frow"><div class="factor" style="--c:var(--emr)"><span class="dot"></span>Key Person</div><div><div class="fstep" style="--c:var(--emr)"><b>Class 3 · Staff</b> — Cowork · Connector · Skill · NetSuite AI ที่ใช้ได้ทันที (4 ชม. · 10 คน)</div></div></div>
+      <div class="frow"><div class="factor" style="--c:var(--gold)"><span class="dot"></span>ผู้บริหาร</div><div><div class="fstep" style="--c:var(--gold)"><b>Class 2 · Executive</b> — เลือกโหมด · ขอบเขตการเชื่อมต่อ · ต้นทุน AI · Demo · Brainstorm (4 ชม. · 20 คน)</div></div></div>
+      <div class="frow"><div class="factor" style="--c:var(--emr)"><span class="dot"></span>Key Person</div><div><div class="fstep" style="--c:var(--emr)"><b>Class 3 · Staff</b> — Cowork · Connector · Claude in Chrome · Skill จากงานจริง (4 ชม. · 10 คน)</div></div></div>
       <div class="farrow">— แยกอิสระ ไม่ต้องผ่าน Class 1 —</div>
-      <div class="frow"><div class="factor" style="--c:var(--vio)"><span class="dot"></span>Developer</div><div><div class="fstep" style="--c:var(--vio)"><b>Class 4 · Developer</b> — Multi-agent SDLC · <b>เชื่อมข้อมูลจริง 3 ขั้น (Chrome → MCP → NetSuite)</b> · SuiteCloud Assistant · Governance เชิงเทคนิค (4 ชม. · 10 คน)</div></div></div>
+      <div class="frow"><div class="factor" style="--c:var(--vio)"><span class="dot"></span>Developer</div><div><div class="fstep" style="--c:var(--vio)"><b>Class 4 · Developer</b> — Multi-agent SDLC · <b>เชื่อมข้อมูลจริง 3 ขั้น (Chrome → MCP → ระบบธุรกิจ)</b> · ฝัง AI ในระบบตัวเอง · Governance เชิงเทคนิค (4 ชม. · 10 คน)</div></div></div>
     </div>
   </section>
 
@@ -568,8 +501,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       <ul class="cl" style="font-size:.83rem; --c:var(--amb)">
         <li><b>จำเป็น</b> — ห้องอบรม + อินเทอร์เน็ต + คอมพิวเตอร์สำหรับผู้เรียน (Class 3 และ 4)</li>
         <li><b>จำเป็น</b> — เบราว์เซอร์ Chrome และบัญชี Claude ที่รองรับส่วนขยาย Claude in Chrome (ยืนยันแพ็กเกจร่วมกันในช่วง Pre-class prep)</li>
-        <li><b>ถ้ามีจะดี (ไม่บังคับ)</b> — บัญชี NetSuite <b>สภาพแวดล้อมทดสอบ (Sandbox)</b> พร้อมสิทธิ์ Administrator · <span class="ts">มี = Class 4 ติดตั้ง MCP เข้า NetSuite สดในห้อง · ไม่มี = เรียนหลักการเดียวกันผ่านระบบอื่นที่เปิดใช้ได้ แล้วรับ Runbook ไปทำตามภายหลัง <b>เนื้อหาและเวลาไม่เปลี่ยน</b></span></li>
-        <li><b>แนะนำ</b> — ตรวจสอบกับ Oracle ว่าบัญชีมีสิทธิ์ใช้ฟีเจอร์ AI ที่เกี่ยวข้อง เพื่อวางลำดับการเปิดใช้หลังอบรม</li>
+        <li><b>แนะนำ</b> — ระบุ 1–2 ระบบภายในที่อยากให้ AI เชื่อมต่อในวันอบรม (เช่น Google Workspace / ไฟล์เอกสาร) เพื่อเตรียมสิทธิ์ให้พร้อม</li>
       </ul>
     </div>
 
@@ -628,7 +560,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="panel" style="overflow:hidden"><table>
       <thead><tr><th>Action Items</th><th style="text-align:right">Status</th></tr></thead>
       <tbody>
-        <tr><td>ออกแบบหลักสูตร 4 Class + ผนวก Deployment Model และ NetSuite</td><td style="text-align:right"><span class="badge-status badge-done">Done</span></td></tr>
+        <tr><td>ออกแบบหลักสูตร 4 Class + ผนวก Deployment Model และหลักการเชื่อมต่อ</td><td style="text-align:right"><span class="badge-status badge-done">Done</span></td></tr>
         <tr><td>นำเสนอโครงการ + ปรับเนื้อหาตาม feedback</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
         <tr><td>ยืนยันจำนวนผู้เรียนจริงแต่ละกลุ่ม + วันจัดอบรม</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
         <tr><td>Sign-off : ข้อเสนอโครงการ + PO</td><td style="text-align:right"><span class="badge-status badge-ongoing">Ongoing</span></td></tr>
