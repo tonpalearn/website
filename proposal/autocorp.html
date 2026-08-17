@@ -92,23 +92,6 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
   background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 16%,transparent),color-mix(in srgb,var(--vio) 13%,transparent));
   border:1px solid color-mix(in srgb,var(--teal) 32%,transparent)}
 
-/* ---- connection ladder ---- */
-.ladder{display:flex; flex-direction:column; gap:10px; margin-top:14px}
-.rung{display:grid; grid-template-columns:52px 1fr 128px; gap:14px; align-items:stretch; padding:15px 17px; border-radius:14px;
-  background:var(--surf); border:1px solid var(--bd); border-left:4px solid var(--c,var(--teal))}
-.rung .rn{width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem;
-  background:color-mix(in srgb,var(--c) 16%,transparent); color:var(--c); border:1px solid color-mix(in srgb,var(--c) 32%,transparent); align-self:start}
-.rung .rt{font-weight:800; font-size:.95rem; color:var(--c); margin-bottom:3px}
-.rung .rd{font-size:.83rem; color:var(--ts); line-height:1.55}
-.rung .rw{display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:5px; text-align:right}
-.rwtag{font-size:.7rem; font-weight:800; padding:4px 9px; border-radius:8px; background:color-mix(in srgb,var(--c) 15%,transparent); color:var(--c); border:1px solid color-mix(in srgb,var(--c) 32%,transparent); white-space:nowrap}
-.rwsub{font-size:.68rem; color:var(--tf); font-weight:600}
-.owner{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
-.ownbox{padding:14px 16px; border-radius:13px; background:var(--surf); border:1px solid var(--bd); border-top:3px solid var(--c)}
-.ownbox b{color:var(--c); font-size:.88rem}
-.ownbox ul{margin:7px 0 0; padding-left:17px; font-size:.81rem; color:var(--ts); line-height:1.6}
-@media(max-width:640px){.rung{grid-template-columns:44px 1fr} .rung .rw{grid-column:1/-1; flex-direction:row; align-items:center; justify-content:flex-start; text-align:left} .owner{grid-template-columns:1fr}}
-
 /* ---- class module tables ---- */
 .classhead{display:flex; align-items:center; gap:11px; padding:13px 17px; border-radius:14px 14px 0 0; border:1px solid var(--bd); border-bottom:none; flex-wrap:wrap}
 .classbody{border:1px solid var(--bd); border-top:none; border-radius:0 0 14px 14px; overflow:hidden; margin-bottom:20px}
@@ -143,15 +126,15 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     </div>
     <div class="glass" style="margin-top:16px; padding:0; overflow:hidden">
       <table>
-        <tr><td style="width:34%; font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Prepared by</td><td><b>TONPALEARN</b> · <a href="https://tonpalearn.com" style="color:var(--teal)" target="_blank">tonpalearn.com</a></td></tr>
+        <tbody><tr><td style="width:34%; font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Prepared by</td><td><b>TONPALEARN</b> · <a href="https://tonpalearn.com" style="color:var(--teal)" target="_blank">tonpalearn.com</a></td></tr>
         <tr><td colspan="2" style="text-align:center; padding:20px 12px">
           <span class="chip" style="--c:var(--gold)">Corporate Training Program</span>
-          <div class="h2 disp" style="margin-top:10px" contenteditable="true">แผนฝึกอบรม AI Agentic ระดับองค์กร — AUTOCORP</div>
+          <div class="h2 disp" style="margin-top:10px">แผนฝึกอบรม AI Agentic ระดับองค์กร — AUTOCORP</div>
           <div class="ts" style="font-size:.88rem; margin-top:4px">4 หลักสูตรตามบทบาท · ผนวกแนวทาง Deploy AI ในองค์กร และหลักการเชื่อมต่อระบบ</div>
         </td></tr>
-        <tr><td style="font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Date</td><td contenteditable="true">15 สิงหาคม 2569</td></tr>
-        <tr><td colspan="2" class="ts" style="font-size:.86rem">ติดต่อ: <b contenteditable="true">ชัยวัฒน์ ภูวนนท์จิรกวิน</b> · <span contenteditable="true">093-914-9397</span> · tonpalearn.com · line : @tonpalearn</td></tr>
-      </table>
+        <tr><td style="font-weight:800; background:color-mix(in srgb,var(--teal) 12%,transparent)">Date</td><td>15 สิงหาคม 2569</td></tr>
+        <tr><td colspan="2" class="ts" style="font-size:.86rem">ติดต่อ: <b>ชัยวัฒน์ ภูวนนท์จิรกวิน</b> · <span>093-914-9397</span> · tonpalearn.com · line : @tonpalearn</td></tr>
+      </tbody></table>
     </div>
     <div class="panel" style="margin-top:14px; padding:13px 17px; display:flex; flex-wrap:wrap; gap:20px; font-size:.85rem">
       <div><span class="tf">จำนวนหลักสูตร</span> <b style="color:var(--teal)">4 Class</b></div>
@@ -167,24 +150,23 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <a href="#s1">ภาพรวม</a>
     <a href="#s2">4 โหมด Deploy AI</a>
     <a href="#s3">Governance</a>
-    <a href="#s4">การเชื่อมต่อ</a>
-    <a href="#s5">โครงสร้าง 4 Class</a>
-    <a href="#s6">เนื้อหาละเอียด</a>
-    <a href="#s7">Flow การเรียน</a>
-    <a href="#s8">ตารางเวลา</a>
-    <a href="#s9">ราคา</a>
-    <a href="#s10">เงื่อนไข</a>
-    <a href="#s11">ผู้สอน</a>
-    <a href="#s12">ติดต่อ</a>
+    <a href="#s4">โครงสร้าง 4 Class</a>
+    <a href="#s5">เนื้อหาละเอียด</a>
+    <a href="#s6">Flow การเรียน</a>
+    <a href="#s7">ตารางเวลา</a>
+    <a href="#s8">ราคา</a>
+    <a href="#s9">เงื่อนไข</a>
+    <a href="#s10">ผู้สอน</a>
+    <a href="#s11">ติดต่อ</a>
   </div>
   <div class="navdiv"></div>
   <div class="ctrls noprint" title="ธีม / ขนาดตัวอักษร">
     <button class="ctrlbtn" data-th="auto" title="ตามระบบ">Auto</button>
-    <button class="ctrlbtn" data-th="light" title="สว่าง">☀</button>
-    <button class="ctrlbtn on" data-th="dark" title="มืด">🌙</button>
+    <button class="ctrlbtn on" data-th="light" title="สว่าง">☀</button>
+    <button class="ctrlbtn" data-th="dark" title="มืด">🌙</button>
     <span class="navdiv" style="margin:0 2px"></span>
     <button class="ctrlbtn" data-fs="dn" title="เล็กลง">A−</button>
-    <button class="ctrlbtn on" data-fs="rs" title="ปกติ">A</button>
+    <button class="ctrlbtn" data-fs="rs" title="ปกติ">A</button>
     <button class="ctrlbtn" data-fs="up" title="ใหญ่ขึ้น">A+</button>
     <span class="navdiv" style="margin:0 2px"></span>
     <button class="ctrlbtn" id="editBtn" title="แก้ไขเอกสาร — คลิกที่ข้อความเพื่อแก้ได้เลย">✏️ แก้ไข</button>
@@ -204,8 +186,8 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <p style="margin-bottom:0">จุดต่างของข้อเสนอนี้คือผูกเนื้อหาเข้ากับ <b>2 บริบทจริงของ AUTOCORP</b> — แนวทางการ Deploy AI ในองค์กร (4 โหมด) และ<b>หลักการเชื่อม AI เข้ากับระบบงานจริง</b> ผู้เรียนจึงไม่ได้เรียน AI ลอย ๆ แต่เห็นเลยว่าเอาไปวางตรงไหนในระบบงานของตัวเอง</p>
 
     <div class="g3" style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-top:16px">
-      <div class="panel" style="padding:13px; border-left:3px solid var(--ros)"><b>🎯 โจทย์</b><div class="ts" style="font-size:.82rem; margin-top:3px">สอน AI แบบเดียวทั้งองค์กร → ผู้บริหารเบื่อเพราะง่ายไป พนักงานงงเพราะยากไป ทีม IT ไม่ได้ของที่เอาไปต่อได้</div></div>
-      <div class="panel" style="padding:13px; border-left:3px solid var(--teal)"><b>💡 แนวทาง</b><div class="ts" style="font-size:.82rem; margin-top:3px">ฐานร่วม (Basic) ก่อนเสมอ → แยก 3 เส้นทาง: ตัดสินใจได้ (Executive) · ใช้ได้จริง (Staff) · สร้างและคุมได้ (Developer)</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--ros)"><b>🎯 โจทย์</b><div class="ts" style="font-size:.82rem; margin-top:3px">สอน AI แบบเดียวทั้งองค์กร → ผู้บริหารเสียเวลา พนักงานทั่วไปงงเพราะยากไป ทีม IT ไม่ได้ความจำเพาะเจาะจงเพื่อเอาไปทำงานจริง</div></div>
+      <div class="panel" style="padding:13px; border-left:3px solid var(--teal)"><b>💡 แนวทาง</b><div class="ts" style="font-size:.82rem; margin-top:3px">ฐานร่วม (Basic) ก่อน → แยก 3 เส้นทาง: ตัดสินใจได้ (Executive) · ใช้ได้จริง (Staff) · สร้างและคุมได้ (Developer)</div></div>
       <div class="panel" style="padding:13px; border-left:3px solid var(--vio)"><b>⚙️ ผูกกับระบบจริง</b><div class="ts" style="font-size:.82rem; margin-top:3px">4 โหมด Deploy AI + Governance 6 ข้อ + <b>หลักการเชื่อมต่อ 3 ขั้น</b> ที่ใช้ได้ทันทีกับระบบที่มีอยู่ และใช้ซ้ำได้กับระบบที่จะมีในอนาคต</div></div>
     </div>
   </section>
@@ -217,12 +199,12 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
 
     <div class="modes">
       <div class="mode" style="--c:var(--sky)">
-        <div class="mode-head"><div class="no">โหมดที่ 1</div><div class="nm">Employee-Initiated Public AI</div></div>
+        <div class="mode-head"><div class="no">โหมดที่ 1</div><div class="nm">Employee-</div><div class="nm">Initiated Public AI</div></div>
         <div class="mode-tag">BYOAI / Public AI</div>
         <div class="mode-meter"><span class="mtr" style="color:var(--ros)">Control: ต่ำ</span><span class="mtr" style="color:var(--amb)">Risk: ปานกลาง–สูง</span></div>
         <div class="mode-body"><ul>
           <li>พนักงานสมัครและใช้งาน AI ด้วยตนเอง</li>
-          <li>ตัวอย่าง: ChatGPT, Gemini, Claude, Perplexity</li>
+          <li>ตัวอย่าง: ChatGPT, Gemini</li>
           <li>เหมาะกับ: brainstorming, เขียนงาน, แปลภาษา, research ทั่วไป</li>
           <li>ใช้ได้เฉพาะข้อมูล Public / Non-sensitive</li>
           <li class="risk">เสี่ยง: Data leakage, Shadow AI</li>
@@ -230,12 +212,12 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       </div>
 
       <div class="mode" style="--c:var(--teal)">
-        <div class="mode-head"><div class="no">โหมดที่ 2</div><div class="nm">Enterprise-Sanctioned SaaS AI</div></div>
+        <div class="mode-head"><div class="no">โหมดที่ 2</div><div class="nm">Enterprise-</div><div class="nm">Sanctioned SaaS AI</div></div>
         <div class="mode-tag">Approved Enterprise AI</div>
         <div class="mode-meter"><span class="mtr" style="color:var(--amb)">Control: กลาง–สูง</span><span class="mtr" style="color:var(--amb)">Risk: กลาง</span></div>
         <div class="mode-body"><ul>
           <li>บริษัทจัดซื้อ อนุมัติ และกำหนดให้ใช้งาน</li>
-          <li>ตัวอย่าง: Gemini for Workspace, Microsoft Copilot, ChatGPT Enterprise</li>
+          <li>ตัวอย่าง: Gemini for Workspace, Codex, Claude Cowork/Code</li>
           <li>เพิ่ม productivity ในงานเอกสาร ประชุม และวิเคราะห์ข้อมูลทั่วไป</li>
           <li>องค์กรควบคุมได้ผ่าน SSO, Admin, DLP, Audit Log</li>
           <li class="risk">เสี่ยง: Vendor risk, privacy, data governance</li>
@@ -243,20 +225,19 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       </div>
 
       <div class="mode" style="--c:var(--vio)">
-        <div class="mode-head"><div class="no">โหมดที่ 3</div><div class="nm">Enterprise Private Agentic AI</div></div>
+        <div class="mode-head"><div class="no">โหมดที่ 3</div><div class="nm">Enterprise&nbsp;</div><div class="nm">Private&nbsp;<span style="font-size: 0.95rem;">Agentic AI</span></div></div>
         <div class="mode-tag">Governed Private Agentic AI</div>
         <div class="mode-meter"><span class="mtr" style="color:var(--emr)">Control: สูงมาก</span><span class="mtr" style="color:var(--ros)">Risk: สูง</span></div>
         <div class="mode-body"><ul>
           <li>AI Agents บน Private Cloud / ระบบที่บริษัทกำหนด</li>
-          <li>เชื่อม RAG, Knowledge Base, API, Workflow, MCP</li>
-          <li>ทำได้มากกว่า Generate — Reason, Retrieve, Recommend, Execute</li>
+          <li>ตัวอย่าง: TeamWork, PrivateClaw</li><li>เชื่อม RAG, Knowledge Base, API, Workflow, MCP</li>
           <li>ต้องมี RBAC, Least Privilege, Human Approval, Audit Trail</li>
           <li class="risk">เสี่ยง: Tool abuse, excessive autonomy, system access</li>
         </ul></div>
       </div>
 
       <div class="mode" style="--c:var(--gold)">
-        <div class="mode-head"><div class="no">โหมดที่ 4</div><div class="nm">Application-Embedded AI</div></div>
+        <div class="mode-head"><div class="no">โหมดที่ 4</div><div class="nm">Application-</div><div class="nm">Embedded AI</div></div>
         <div class="mode-tag">ERP-Native / System-Embedded AI</div>
         <div class="mode-meter"><span class="mtr" style="color:var(--emr)">Control: สูงมาก</span><span class="mtr" style="color:var(--ros)">Risk: สูง–วิกฤต</span></div>
         <div class="mode-body"><ul>
@@ -274,9 +255,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       <thead><tr><th>หลักสูตร</th><th>โหมด 1<div class="tf" style="font-size:.66rem; text-transform:none">Public AI</div></th><th>โหมด 2<div class="tf" style="font-size:.66rem; text-transform:none">SaaS AI</div></th><th>โหมด 3<div class="tf" style="font-size:.66rem; text-transform:none">Private Agentic</div></th><th>โหมด 4<div class="tf" style="font-size:.66rem; text-transform:none">Embedded / ERP</div></th></tr></thead>
       <tbody>
         <tr><td><b style="color:var(--teal)">1 · Basic</b></td><td>✅ ลึก</td><td>✅ ลึก</td><td class="tf">รู้จัก</td><td class="tf">รู้จัก</td></tr>
-        <tr><td><b style="color:var(--gold)">2 · Executive</b></td><td>✅</td><td>✅</td><td>✅ ตัดสินใจ</td><td>✅ ตัดสินใจ</td></tr>
+        <tr><td><b style="color:var(--gold)">2 · Executive</b></td><td>✅</td><td>✅ ตัดสินใจ</td><td>✅ ตัดสินใจ</td><td>✅ ตัดสินใจ</td></tr>
         <tr><td><b style="color:var(--emr)">3 · Staff</b></td><td class="tf">ทบทวน</td><td>✅ ลึก</td><td>✅ ลงมือ</td><td>✅ ใช้งาน</td></tr>
-        <tr><td><b style="color:var(--vio)">4 · Developer</b></td><td class="tf">—</td><td class="tf">ทบทวน</td><td>✅ สร้างเอง</td><td>✅ ต่อจริง 3 ขั้น</td></tr>
+        <tr><td><b style="color:var(--vio)">4 · Developer</b></td><td class="tf">—</td><td class="tf"><span style="color: rgb(24, 26, 38);">✅&nbsp;</span><span style="color: rgb(24, 26, 38);">ลึก</span></td><td>✅ ลึก</td><td>✅ ลงมือ</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -298,84 +279,24 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="axiom">🛡️ หลักสำคัญ: ยิ่งข้อมูลอ่อนไหวมากขึ้น + AI มี autonomy มากขึ้น + ผลกระทบทางธุรกิจสูงขึ้น = ต้องมี governance ที่เข้มงวดมากขึ้น</div>
   </section>
 
-  <!-- 4 Connecting AI -->
+  <!-- 4 Structure -->
   <section id="s4" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">4</div><div class="h2 disp">เชื่อม AI เข้ากับระบบงาน — หลักการที่ใช้ซ้ำได้กับทุกระบบ</div></div>
-    <p class="ts" style="margin-top:0; font-size:.88rem">สิ่งที่ทำให้ <b>Agentic</b> ต่างจาก AI แบบแชททั่วไป คือมัน<b>เชื่อมกับข้อมูลจริงและลงมือทำงานได้</b> — ไม่ใช่แค่ตอบคำถาม · หัวใจของหลักสูตรนี้คือทำให้ทีม AUTOCORP เข้าใจ <b>“หลักการเชื่อมต่อ”</b> จนใช้ซ้ำได้กับระบบไหนก็ได้ เพราะรูปแบบการเชื่อมเหมือนกันหมด เปลี่ยนแค่ปลายทาง</p>
-
-    <div class="axiom" style="margin-top:16px">🔌 เราสอน <b>“รูปทรงของปลั๊ก” ไม่ใช่ “ยี่ห้อของเต้ารับ”</b> — เข้าใจครั้งเดียว ใช้ได้กับทุกระบบที่องค์กรมีวันนี้ และทุกระบบที่จะมีในอนาคต</div>
-
-    <div class="ladder">
-      <div class="rung" style="--c:var(--emr)">
-        <div class="rn">1</div>
-        <div>
-          <div class="rt">เชื่อมผ่านหน้าจอ — Claude in Chrome</div>
-          <div class="rd">AI ทำงานบนเบราว์เซอร์ด้วย <b>สิทธิ์ล็อกอินของผู้ใช้เอง</b> — อ่านหน้าจอ ดึงข้อมูล กรอกฟอร์ม ตรวจทานข้ามหน้าได้ · ใช้ได้กับ<b>ทุกระบบที่เปิดผ่านเว็บ</b> โดยไม่ต้องเปิด API ไม่ต้องขอสิทธิ์ Admin และไม่ต้องรอ IT · เหมาะกับงานที่คนนั่งทำอยู่แล้วและอยากให้เร็วขึ้น</div>
-        </div>
-        <div class="rw"><span class="rwtag">ใช้ได้วันอบรม</span><span class="rwsub">ไม่ต้องรอใคร</span></div>
-      </div>
-
-      <div class="rung" style="--c:var(--teal)">
-        <div class="rn">2</div>
-        <div>
-          <div class="rt">เชื่อมผ่านมาตรฐานกลาง — MCP</div>
-          <div class="rd">สอน <b>MCP (Model Context Protocol)</b> ในฐานะ “ปลั๊กมาตรฐาน” ที่ทำให้ AI ต่อกับระบบไหนก็ได้ แล้วลงมือต่อจริงกับระบบที่ AUTOCORP <b>เปิดใช้ได้อยู่แล้ว</b> (เช่น Google Workspace, ไฟล์เอกสาร, ฐานข้อมูลภายใน) · ผู้เรียนจะเห็นรูปแบบครบวงจร — <b>ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน → ได้คำตอบจากข้อมูลจริง</b></div>
-        </div>
-        <div class="rw"><span class="rwtag">ใช้ได้วันอบรม</span><span class="rwsub">ต่อระบบที่มีอยู่</span></div>
-      </div>
-
-      <div class="rung" style="--c:var(--vio)">
-        <div class="rn">3</div>
-        <div>
-          <div class="rt">เชื่อมกับระบบธุรกิจในอนาคต — ปลั๊กตัวเดิม เต้ารับใหม่</div>
-          <div class="rd">เมื่อเข้าใจขั้น 1–2 แล้ว การต่อเข้ากับระบบธุรกิจใดก็ตามที่องค์กรจะเปิดใช้ในอนาคต — <b>รวมถึง ERP อย่าง NetSuite ที่ AUTOCORP กำลังจะมี</b> — เป็นเพียง<b>การทำซ้ำแบบเดิมกับปลายทางใหม่</b> · ผู้เรียนจะรู้ว่าต้องถามอะไรกับผู้ให้บริการระบบ ต้องเตรียมสิทธิ์อะไร และประเมินได้ว่างานไหนคุ้มที่จะเชื่อม</div>
-        </div>
-        <div class="rw"><span class="rwtag">พร้อมเมื่อระบบพร้อม</span><span class="rwsub">ใช้หลักการเดิม</span></div>
-      </div>
-    </div>
-
-    <div class="owner">
-      <div class="ownbox" style="--c:var(--teal)">
-        <b>✅ TONPALEARN รับผิดชอบ</b>
-        <ul>
-          <li>สอนหลักการ AI Agentic และการเชื่อมต่อจนใช้เองได้</li>
-          <li>ตั้งค่าและใช้งาน Claude / Claude in Chrome / Claude Code</li>
-          <li>ออกแบบ Agent, Skill, Prompt และ Guardrail</li>
-          <li>เช็กลิสต์ Governance สำหรับอนุมัติ use case ใหม่</li>
-        </ul>
-      </div>
-      <div class="ownbox" style="--c:var(--amb)">
-        <b>⚠️ AUTOCORP / ผู้ให้บริการระบบรับผิดชอบ</b>
-        <ul>
-          <li>License และการเปิดใช้ฟีเจอร์ของระบบธุรกิจ</li>
-          <li>สิทธิ์ผู้ดูแลระบบ และการอนุมัติเปิดการเชื่อมต่อ</li>
-          <li>การตั้งค่าเชิงลึกและแก้ปัญหาเฉพาะทางในระบบนั้น ๆ</li>
-          <li>นโยบายข้อมูลและการอนุมัติภายในองค์กร</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="note" style="margin-top:14px"><b>ขอบเขตที่ชัดเจน:</b> หลักสูตรนี้<b>ไม่ใช่คอร์สสอนระบบ ERP</b> และไม่ผูกกับว่าระบบใดจะเปิดใช้เมื่อไหร่ — TONPALEARN สอนฝั่ง <b>AI Agentic</b> ซึ่งเป็นสิ่งที่เราเชี่ยวชาญและควบคุมผลลัพธ์ได้จริง · ผลคือ<b>ไม่มีโมดูลไหนล่มเพราะระบบยังไม่พร้อม</b> และทีมได้ความสามารถที่ติดตัวไป ไม่ผูกกับผู้ขายรายใดรายหนึ่ง</div>
-  </section>
-
-  <!-- 5 Structure -->
-  <section id="s5" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">5</div><div class="h2 disp">โครงสร้าง 4 หลักสูตร</div></div>
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">4</div><div class="h2 disp">โครงสร้าง 4 หลักสูตร</div></div>
     <div style="overflow-x:auto"><table style="min-width:680px">
       <thead><tr><th>หลักสูตร</th><th>กลุ่มเป้าหมาย</th><th>ผลลัพธ์ที่ต้องได้</th><th>เวลา</th><th style="text-align:right">คน</th></tr></thead>
       <tbody>
         <tr><td><b style="color:var(--teal)">1 · Basic</b><div class="tf" style="font-size:.75rem">ฐานร่วมทั้งองค์กร</div></td><td>ทุกคน (กลุ่ม 2+3 เข้าร่วมด้วย)</td><td>ใช้ AI เป็น ได้งานตรงความต้องการ และรู้ว่าอะไรพิมพ์ลงไปได้/ไม่ได้</td><td>4 ชม.</td><td style="text-align:right">30</td></tr>
         <tr><td><b style="color:var(--gold)">2 · Executive</b><div class="tf" style="font-size:.75rem">ผู้บริหาร</div></td><td>ผู้บริหาร / หัวหน้าสายงาน</td><td>ตัดสินใจได้ว่าจะวาง AI โหมดไหน กับงานไหน คุ้มไหม เสี่ยงแค่ไหน</td><td>4 ชม.</td><td style="text-align:right">20</td></tr>
-        <tr><td><b style="color:var(--emr)">3 · Staff</b><div class="tf" style="font-size:.75rem">Key Person</div></td><td>ตัวแทนแต่ละแผนก</td><td>สร้างเครื่องมือ AI ของตัวเองได้จริง และเอาไปใช้ต่อวันรุ่งขึ้น</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
-        <tr><td><b style="color:var(--vio)">4 · Developer</b><div class="tf" style="font-size:.75rem">IT / Technical</div></td><td>ทีมพัฒนา / ผู้ดูแลระบบ</td><td>ต่อ AI เข้าระบบจริงได้ พร้อมคุมสิทธิ์และ Audit Trail</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
+        <tr><td><b style="color:var(--emr)">3 · Staff</b><div class="tf" style="font-size:.75rem">Key Person</div></td><td>ตัวแทนแต่ละแผนก</td><td>สร้างเครื่องมือ AI ของตัวเองได้จริง และเอาไปใช้กับงานจริง</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
+        <tr><td><b style="color:var(--vio)">4 · Developer</b><div class="tf" style="font-size:.75rem">IT / Technical</div></td><td>ทีมพัฒนา / ผู้ดูแลระบบ</td><td>ดูแล ไปจนถึงพัฒนาระบบงานภายใน ตาม Software Development Methodology</td><td>4 ชม.</td><td style="text-align:right">10</td></tr>
       </tbody>
     </table></div>
     <div class="note" style="margin-top:12px">Class 2 และ 3 <b>ต่อยอดจาก Class 1</b> จึงควรจัด Class 1 ก่อนเสมอ · Class 4 <b>แยกอิสระ</b> จัดวันไหนก็ได้ ไม่ต้องผ่าน Class 1</div>
   </section>
 
-  <!-- 6 Detailed content -->
-  <section id="s6" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">6</div><div class="h2 disp">เนื้อหาแต่ละหลักสูตร — ผู้เรียนจะได้อะไร</div></div>
+  <!-- 5 Detailed content -->
+  <section id="s5" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">5</div><div class="h2 disp">เนื้อหาแต่ละหลักสูตร — ผู้เรียนจะได้อะไร</div></div>
     <p class="ts" style="font-size:.86rem; margin-top:0">แบ่งเป็น Module ตามช่วงเวลาจริง · ปรับตัวอย่างให้ตรงกับธุรกิจและระบบของ AUTOCORP ทุกหลักสูตร</p>
 
     <!-- Class 1 -->
@@ -398,7 +319,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
         <tr><td><b>1. Recap + มุมมองกลยุทธ์</b></td><td>20 นาที</td><td>เชื่อมจาก Basic สู่การตัดสินใจระดับผู้บริหาร — ใช้ AI ตรงไหนเพื่อ<b>สร้างมูลค่า</b> ไม่ใช่แค่ประหยัดเวลา</td></tr>
         <tr><td><b>2. เลือกโหมดให้ตรงงาน</b><div class="tf" style="font-size:.72rem">Risk vs Control</div></td><td>50 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ใช้ Deployment Model เป็นเครื่องมือตัดสินใจ · <b>Workshop:</b> เอางานจริงของ AUTOCORP มาจัดว่าควรอยู่โหมดไหน และต้องมี control อะไรรองรับ</td></tr>
         <tr><td><b>3. ขอบเขตการเชื่อมต่อ</b><div class="tf" style="font-size:.72rem">AI ต่อกับระบบได้แค่ไหน</div></td><td>50 นาที</td><td>ผู้บริหารต้องตอบให้ได้ว่า <b>“AI เชื่อมกับระบบเราได้จริงไหม”</b> — เห็นภาพ 3 ขั้นของการเชื่อมต่อ (หน้าจอ → มาตรฐานกลาง → ระบบธุรกิจ) · อะไรทำได้ทันทีโดยไม่ต้องลงทุนเพิ่ม อะไรต้องรอระบบพร้อม · ใช้ตัดสินใจว่าจะเริ่มที่จุดไหนก่อนให้เห็นผลเร็วที่สุด</td></tr>
-        <tr><td><b>4. ต้นทุนและการวางงบ AI</b></td><td>40 นาที</td><td>โครงสร้างค่าใช้จ่ายของ AI ในองค์กร — แบบเหมาจ่ายรายผู้ใช้ กับแบบจ่ายตามการใช้งาน ต่างกันยังไง · ประเมินว่างานแบบไหนคุ้ม งานแบบไหนไม่คุ้ม · <b>วางเพดานงบและระบบเตือนก่อนบานปลาย</b> · คำถามที่ต้องถามผู้ให้บริการก่อนเซ็นสัญญา</td></tr>
+        <tr><td><b>4. ต้นทุนและการวางงบ AI</b></td><td>40 นาที</td><td>โครงสร้างค่าใช้จ่ายของ AI ในองค์กร — แบบเหมาจ่ายรายผู้ใช้ กับแบบจ่ายตามการใช้งาน ต่างกันยังไง · ประเมินว่างานแบบไหนคุ้ม งานแบบไหนไม่คุ้ม · <b>วางเพดานงบและระบบเตือนก่อนบานปลาย</b></td></tr>
         <tr><td><b>5. Demo — AI ช่วยตัดสินใจ</b></td><td>40 นาที<div class="tf" style="font-size:.72rem">Demo สด</div></td><td>Multi-agent Panel Review — ให้ AI หลายมุมมองกลั่นกรองก่อนถึงมือผู้บริหาร · สร้าง Dashboard จากข้อมูลจริงภายในไม่กี่นาที</td></tr>
         <tr><td><b>6. Brainstorm Roadmap</b></td><td>40 นาที</td><td>Facilitate ให้ผู้บริหารช่วยกันคิดและ<b>จัดลำดับ</b>ว่าจุดไหนในองค์กรควรเอา AI ไปใช้ก่อน พร้อมประเมินความเสี่ยงตามโหมด</td></tr>
       </tbody></table>
@@ -424,17 +345,17 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
       <table><thead><tr><th style="width:27%">Module</th><th style="width:15%">เวลา</th><th>เนื้อหา</th></tr></thead><tbody>
         <tr><td><b>1. Claude Code + Multi-agent SDLC</b></td><td>20 นาที</td><td>ต่างจาก Claude ทั่วไปยังไง · เหมาะกับงานพัฒนาระบบแบบไหน · ภาพรวมการทำงานเป็นทีม AI</td></tr>
         <tr><td><b>2. สร้าง Multi-agent Team</b></td><td>50 นาที<div class="tf" style="font-size:.72rem">Workshop</div></td><td>ตั้งบทบาท BA / SA / Dev / Tester ให้ AI แต่ละตัว แบ่งหน้าที่ชัดเจนว่าใครทำอะไร <b>และใครห้ามทำอะไร</b> · เขียน PRD จากโจทย์จริง</td></tr>
-        <tr><td><b>3. เชื่อม AI เข้าข้อมูลจริง — 3 ขั้น</b><div class="tf" style="font-size:.72rem">⭐ ไฮไลต์ของคลาส</div></td><td>70 นาที<div class="tf" style="font-size:.72rem">Workshop ลงมือจริง</div></td><td><b>ขั้น 1 · Claude in Chrome (20 นาที)</b> — ต่อ AI เข้าหน้าจอระบบที่ใช้อยู่จริง ด้วยสิทธิ์ล็อกอินของตัวเอง ไม่ต้องเปิด API ไม่ต้องรอ Admin<br><b>ขั้น 2 · MCP กับระบบที่เปิดแล้ว (30 นาที)</b> — ต่อ MCP จริงกับ Google Workspace / ไฟล์ / ฐานข้อมูลภายใน จนเห็นรูปแบบครบวงจร: ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน → ได้คำตอบจากข้อมูลจริง<br><b>ขั้น 3 · ต่อกับระบบธุรกิจในอนาคต (20 นาที)</b> — แปลงหลักการเดิมไปใช้กับระบบที่องค์กรจะเปิดใช้ · ต้องขอสิทธิ์อะไร ถามอะไรกับผู้ให้บริการระบบ และประเมินว่างานไหนคุ้มที่จะเชื่อม</td></tr>
+        <tr><td><b>3. เชื่อม AI เข้าข้อมูลจริง — 3 ขั้น</b><div class="tf" style="font-size:.72rem">⭐ ไฮไลต์ของคลาส</div></td><td>70 นาที<div class="tf" style="font-size:.72rem">Workshop ลงมือจริง</div></td><td><b>ขั้น 1 · Claude in Chrome (20 นาที)</b> — ต่อ AI เข้าหน้าจอระบบที่ใช้อยู่จริง ด้วยสิทธิ์ล็อกอินของตัวเอง ไม่ต้องเปิด API ไม่ต้องรอ Admin<br><b>ขั้น 2 · MCP กับระบบที่เปิดแล้ว (30 นาที)</b> — ต่อ MCP จริง / ไฟล์ / ฐานข้อมูลภายใน จนเห็นรูปแบบครบวงจร: ขอสิทธิ์ → ต่อ → ถามเป็นภาษาคน → ได้คำตอบจากข้อมูลจริง<br><b>ขั้น 3 · ต่อกับระบบธุรกิจในอนาคต (20 นาที)</b> — แปลงหลักการเดิมไปใช้กับระบบที่องค์กรจะเปิดใช้ · ต้องขอสิทธิ์อะไร ถามอะไรกับผู้ให้บริการระบบ และประเมินว่างานไหนคุ้มที่จะเชื่อม</td></tr>
         <tr><td><b>4. ฝัง AI ลงในระบบที่ทีมดูแลเอง</b></td><td>50 นาที</td><td>เรียก AI จากโค้ด/สคริปต์ของระบบภายใน · ออกแบบ Prompt ที่ใช้ซ้ำได้และทดสอบได้ · จุดที่ควรฝัง AI และจุดที่ไม่ควร · ใช้ AI ช่วย generate โค้ดและ config ของระบบที่ทีมดูแลอยู่</td></tr>
         <tr><td><b>5. Governance เชิงเทคนิค</b></td><td>50 นาที</td><td>RBAC และ Least Privilege · <b>Human Approval ก่อน Agent เขียนข้อมูลจริง</b> · Audit Trail และการตรวจย้อนหลัง · ข้อควรระวังเรื่องขีดจำกัดการเรียกใช้พร้อมกัน · Dev Loop ปิดท้าย</td></tr>
       </tbody></table>
-      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> การเชื่อม AI เข้าระบบจริงที่ทำงานได้แล้วอย่างน้อย 1 ช่องทาง (Chrome และ/หรือ MCP) + <b>เช็กลิสต์การเชื่อมระบบใหม่</b> ที่ใช้ซ้ำได้ + Multi-agent Team Template + เช็กลิสต์ Governance สำหรับอนุมัติ AI use case ใหม่</div></div>
+      <div class="deliv"><span>🎁</span><div><b>ผู้เรียนได้กลับไป:</b> การเชื่อม AI เข้าระบบจริงที่ทำงานได้แล้วอย่างน้อย 1 ช่องทาง (Chrome และ/หรือ MCP) + <b>เช็กลิสต์การเชื่อมระบบใหม่</b> ที่ใช้ซ้ำได้ + Multi-agent Team Template + เช็กลิสต์ Governance สำหรับอนุมัติ AI use case ใหม่ + Software Development Methodology with AI Agentic</div></div>
     </div>
   </section>
 
-  <!-- 7 Flow -->
-  <section id="s7" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">7</div><div class="h2 disp">Flow การเรียน</div></div>
+  <!-- 6 Flow -->
+  <section id="s6" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">6</div><div class="h2 disp">Flow การเรียน</div></div>
     <p class="ts" style="font-size:.86rem; margin-top:0">ทุกคนเริ่มจากฐานเดียวกันก่อนแยกไปตามบทบาท — Developer เป็นเส้นทางแยกอิสระ</p>
     <div class="flow">
       <div class="frow"><div class="factor" style="--c:var(--teal)"><span class="dot"></span>ทุกคน</div><div><div class="fstep" style="--c:var(--teal)"><b>Class 1 · Basic</b> — AI คืออะไร · 4 โหมด + Data Classification · Prompt · Agent File · Governance (4 ชม. · 30 คน)</div></div></div>
@@ -446,9 +367,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     </div>
   </section>
 
-  <!-- 8 Schedule -->
-  <section id="s8" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">8</div><div class="h2 disp">ตารางเวลา — 4 วัน วันละครึ่งวัน</div></div>
+  <!-- 7 Schedule -->
+  <section id="s7" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">7</div><div class="h2 disp">ตารางเวลา — 4 วัน วันละครึ่งวัน</div></div>
     <p class="ts" style="font-size:.86rem; margin-top:0">1 หลักสูตรต่อ 1 วัน (ครึ่งวัน) · วิทยากรคนเดียวพอทุกวัน · ไม่ต้องเช่าห้องคู่ขนาน · เว้นระยะระหว่างวันได้ตามสะดวก</p>
     <table><thead><tr><th>วัน</th><th>ช่วงเวลา</th><th>หลักสูตร</th><th style="text-align:right">จำนวนคน</th></tr></thead><tbody>
       <tr><td>Day 1</td><td>09:00–13:00 (4 ชม.)</td><td><b style="color:var(--teal)">Class 1 · Basic</b></td><td style="text-align:right">30</td></tr>
@@ -459,9 +380,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="note" style="margin-top:12px">ลำดับวันปรับสลับได้ตามความสะดวก — แนะนำให้ <b>Day 1 (Basic) มาก่อน Day 2–3 เสมอ</b> เพราะทั้งสองต่อยอดจากเนื้อหา Basic · Day 4 (Developer) จัดวันไหนก็ได้</div>
   </section>
 
-  <!-- 9 Pricing -->
-  <section id="s9" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">9</div><div class="h2 disp">ราคา</div></div>
+  <!-- 8 Pricing -->
+  <section id="s8" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">8</div><div class="h2 disp">ราคา</div></div>
     <div class="note" style="margin-bottom:12px"><b>หลักคิดราคา (ทุกหลักสูตรเหมือนกัน):</b> คนแรก <b>7,000 บาท</b> · คนต่อไปคนละ <b>3,000 บาท</b></div>
     <div style="overflow-x:auto"><table style="min-width:620px"><thead><tr><th>หลักสูตร</th><th style="text-align:right">จำนวนคน</th><th style="text-align:right">คำนวณ</th><th style="text-align:right">ราคา (฿)</th></tr></thead><tbody>
       <tr><td><b style="color:var(--teal)">1 · Basic</b></td><td style="text-align:right">30</td><td class="tf" style="text-align:right">7,000 + 29×3,000</td><td style="text-align:right">94,000</td></tr>
@@ -473,9 +394,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <div class="ts" style="font-size:.78rem; margin-top:8px">ยังไม่รวม VAT 7% · ไม่รวมค่าเดินทาง/ที่พัก (ถ้ามี)</div>
   </section>
 
-  <!-- 10 Terms -->
-  <section id="s10" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">10</div><div class="h2 disp">เงื่อนไข &amp; สิ่งที่รวมอยู่ในราคา</div></div>
+  <!-- 9 Terms -->
+  <section id="s9" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:6px"><div class="num">9</div><div class="h2 disp">เงื่อนไข &amp; สิ่งที่รวมอยู่ในราคา</div></div>
     <div class="g2" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:10px">
       <div class="panel" style="padding:15px">
         <div style="font-weight:800; margin-bottom:5px">💳 การชำระเงิน</div>
@@ -511,9 +432,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     </div>
   </section>
 
-  <!-- 11 Instructor -->
-  <section id="s11" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">11</div><div class="h2 disp">ประวัติผู้สอน &amp; ผลงานที่ผ่านมา</div></div>
+  <!-- 10 Instructor -->
+  <section id="s10" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">10</div><div class="h2 disp">ประวัติผู้สอน &amp; ผลงานที่ผ่านมา</div></div>
     <div class="g2" style="display:grid; grid-template-columns:220px 1fr; gap:20px; align-items:start">
       <img class="bio-photo" src="assets/autocorp/bio-portrait.jpg" alt="ชัยวัฒน์ ภูวนนท์จิรกวิน" style="aspect-ratio:3/4; object-fit:cover">
       <div>
@@ -539,13 +460,7 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     <p style="margin-top:16px">พื้นฐาน Computer Engineering, Project Manager และเป็น CEO เจ้าของธุรกิจเอง ทำให้เข้าใจทั้งฝั่งเทคนิค และฝั่งคนทำงานจริง — สอนแบบจับมือทำให้เห็นผลในวันเดียว ไม่ใช่แค่พรีเซนต์สไลด์แล้วจบ</p>
 
     <div class="tf" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin:20px 0 6px">ผลงานที่ผ่านมา</div>
-    <p style="margin-top:0">อบรมทั้งรูปแบบบุคคล กลุ่ม และองค์กรจริงมาแล้วมากกว่า <b style="color:var(--teal)">500 ชั่วโมง</b></p>
-    <ul class="cl">
-      <li>AutoCorp (100+ ชม.)</li>
-      <li>BabyAndMom (50+ ชม.)</li>
-      <li>SME อื่นๆ อีกกว่า 30 ธุรกิจ</li>
-      <li>1 ใน Speaker ในงาน <b>One Person Business Summit 2026</b></li>
-    </ul>
+    <p style="margin-top:0">อบรมทั้งรูปแบบบุคคล กลุ่ม และองค์กรจริงมามากกว่า <b style="color:var(--teal)">500 ชั่วโมง </b>และเป็น 1 ใน Speaker ในงาน <b>One Person Business Summit 2026</b></p>
     <div class="gal">
       <img src="assets/autocorp/opb-poster.jpg" alt="One Person Business Summit 2026 — speaker lineup">
       <img src="assets/autocorp/stage-wide.jpg" alt="ชัยวัฒน์ ภูวนนท์จิรกวิน พูดบนเวที OPB Summit 2026">
@@ -554,9 +469,9 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
     </div>
   </section>
 
-  <!-- 12 Contact + next steps -->
-  <section id="s12" class="sec glass" style="padding:26px; margin-top:18px">
-    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">12</div><div class="h2 disp">ขั้นตอนถัดไป &amp; ติดต่อ</div></div>
+  <!-- 11 Contact + next steps -->
+  <section id="s11" class="sec glass" style="padding:26px; margin-top:18px">
+    <div style="display:flex; gap:13px; align-items:center; margin-bottom:12px"><div class="num">11</div><div class="h2 disp">ขั้นตอนถัดไป &amp; ติดต่อ</div></div>
     <div class="panel" style="overflow:hidden"><table>
       <thead><tr><th>Action Items</th><th style="text-align:right">Status</th></tr></thead>
       <tbody>
@@ -628,5 +543,6 @@ ul.cl li::before{content:''; position:absolute; left:3px; top:.62em; width:6px; 
   document.addEventListener('scroll',spy,{passive:true}); spy();
 })();
 </script>
+
 
 </body></html>
